@@ -1,7 +1,4 @@
 [build]
   publish = "wedding-site"
 
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000"
+# Security headers live in wedding-site/_headers so drag-and-drop deploys get them too.
