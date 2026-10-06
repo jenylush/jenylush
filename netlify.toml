@@ -1,0 +1,4 @@
+[build]
+  publish = "wedding-site"
+
+# Security headers live in wedding-site/_headers so drag-and-drop deploys get them too.
