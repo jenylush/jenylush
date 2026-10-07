@@ -2,666 +2,412 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ezinne &amp; Ebenezer · 13 &amp; 14 November 2026</title>
 <meta name="description" content="Sealed with love. Join Ezinne &amp; Ebenezer in Nsukka on 13 &amp; 14 November 2026. #FromCoalCityToRockCity">
 <meta property="og:title" content="Ezinne &amp; Ebenezer · Sealed with love">
 <meta property="og:description" content="Church wedding 13 Nov · Traditional wedding 14 Nov 2026 · Nsukka, Enugu State. #FromCoalCityToRockCity">
 <meta property="og:image" content="assets/portrait.jpg">
-<meta name="theme-color" content="#F6F0E6">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%236E1F2F'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='26' fill='%23E8C9A0'%3EJE%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#F6F0E5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%236E1F2F'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='28' fill='%23E8C9A0'%3EJE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&amp;family=Jost:wght@300;400;500&amp;family=Pinyon+Script&amp;display=swap">
-<style>
-*,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:#F6F0E6;font-family:'Jost',sans-serif;color:#2B2420;-webkit-font-smoothing:antialiased}
-img{max-width:100%}
-a{color:#87672F}a:hover{color:#6B5233}
-button{font-family:'Jost',sans-serif}
-[hidden]{display:none!important}
-@keyframes je-pop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.3);opacity:1}100%{transform:scale(1);opacity:1}}@keyframes je-shake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-7px) rotate(-8deg)}40%{transform:translateX(7px) rotate(8deg)}60%{transform:translateX(-4px) rotate(-4deg)}80%{transform:translateX(4px) rotate(4deg)}}@keyframes je-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes je-burst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
-.v-mobile{display:none}
-@media (max-width: 900px){.v-desktop{display:none}.v-mobile{display:block}}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Belleza&amp;family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500;1,600&amp;family=Pinyon+Script&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="preload" as="image" href="assets/portrait.jpg">
+<script src="app.js"></script>
 </head>
 <body>
-<div class="v-desktop">
-<div style="width: 100%; display: flex; flex-direction: column; background: #F6F0E6; color: #2B2420; font-family: 'Jost', sans-serif">
-<div data-if="showEnvelope">
-<div style="min-height: 940px; padding: 80px 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 48px; background: #F6F0E6; text-align: center">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 1; transform: translateY(0px); transition: opacity 500ms ease, transform 500ms ease" data-bind-style="opacity:headOpacity;transform:headTransform">
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; letter-spacing: 0.01em; color: #6B5233">Sealed with love from</div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 104px; line-height: 1.15; color: #A07D45">Ezinne &amp; Ebenezer</div>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
+
+<!-- ============ Intro: the sealed envelope ============ -->
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+  <div class="watermark" aria-hidden="true">JE</div>
+  <div class="intro-head">
+    <div class="monogram" aria-hidden="true">JE</div>
+    <div class="intro-kicker">Sealed with love from</div>
+    <div class="display intro-names" id="intro-title">Ezinne &amp; Ebenezer</div>
+    <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#C9A24C"/></svg>
+  </div>
+
+  <button type="button" class="envelope" id="envelope" aria-label="Open the invitation">
+    <span class="env-back"></span>
+    <span class="env-letter">
+      <span class="monogram" aria-hidden="true">JE</span>
+      <span class="label">You are invited</span>
+      <span class="date">13 · 11 · 2026</span>
+    </span>
+    <svg class="env-body" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"><path d="M0 380 L0 0 L300 209 L600 0 L600 380 Z" fill="#F2E9DA"/><path d="M0 0 L270 190 L0 380 Z" fill="#EDE2CE"/><path d="M600 0 L330 190 L600 380 Z" fill="#EDE2CE"/><path d="M0 380 L300 174 L600 380 Z" fill="#F4ECDF"/><path d="M0 380 L300 174 L600 380" fill="none" stroke="#DCCCB0" stroke-width="1"/></svg>
+    <span class="env-flap"><svg viewBox="0 0 600 228" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 L600 0 L300 224 Z" fill="#EADFC9" stroke="#D8C6A6" stroke-width="1"/></svg></span>
+    <span class="env-seal">
+      <svg viewBox="0 0 100 100" role="img" aria-label="Burgundy wax seal with the monogram JE"><path d="M96.0 50.0 L96.9 51.6 L97.6 53.3 L97.9 55.0 L97.9 56.7 L97.5 58.4 L96.7 59.9 L95.5 61.4 L94.2 62.7 L92.8 63.9 L91.4 65.1 L90.2 66.2 L89.2 67.4 L88.4 68.7 L87.9 70.1 L87.5 71.7 L87.3 73.3 L87.0 75.0 L86.6 76.6 L86.1 78.2 L85.2 79.6 L84.1 80.7 L82.8 81.7 L81.3 82.4 L79.7 83.0 L78.1 83.4 L76.5 83.9 L75.0 84.4 L73.7 85.2 L72.6 86.1 L71.5 87.3 L70.6 88.7 L69.6 90.2 L68.6 91.8 L67.5 93.4 L66.3 94.7 L64.9 95.7 L63.3 96.4 L61.6 96.7 L59.9 96.6 L58.2 96.2 L56.4 95.6 L54.7 94.9 L53.1 94.3 L51.5 93.7 L50.0 93.4 L48.5 93.4 L47.0 93.6 L45.4 93.9 L43.8 94.3 L42.1 94.7 L40.5 94.9 L38.8 94.9 L37.2 94.5 L35.8 93.8 L34.4 92.8 L33.2 91.6 L32.1 90.2 L31.1 88.8 L30.0 87.5 L29.0 86.4 L27.8 85.5 L26.5 84.9 L25.0 84.4 L23.3 84.2 L21.5 84.0 L19.6 83.7 L17.8 83.4 L16.1 82.8 L14.6 81.9 L13.3 80.8 L12.4 79.4 L11.7 77.8 L11.3 76.1 L11.1 74.3 L10.9 72.5 L10.7 70.9 L10.4 69.3 L9.9 67.8 L9.2 66.5 L8.3 65.2 L7.2 63.9 L6.2 62.6 L5.1 61.2 L4.3 59.7 L3.8 58.1 L3.6 56.5 L3.8 54.9 L4.3 53.2 L5.1 51.6 L6.0 50.0 L7.0 48.5 L7.8 47.0 L8.4 45.6 L8.8 44.2 L8.8 42.7 L8.6 41.2 L8.2 39.6 L7.7 37.9 L7.2 36.1 L6.8 34.3 L6.7 32.5 L6.9 30.8 L7.5 29.3 L8.4 27.9 L9.6 26.7 L11.0 25.6 L12.4 24.6 L13.8 23.7 L15.1 22.8 L16.3 21.7 L17.3 20.5 L18.1 19.2 L18.8 17.7 L19.5 16.1 L20.2 14.5 L21.1 13.0 L22.1 11.6 L23.4 10.5 L24.9 9.8 L26.5 9.3 L28.3 9.2 L30.2 9.3 L32.0 9.6 L33.8 9.9 L35.5 10.1 L37.1 10.2 L38.5 9.9 L39.9 9.4 L41.2 8.6 L42.5 7.6 L43.9 6.5 L45.3 5.4 L46.8 4.5 L48.4 3.8 L50.0 3.4 L51.6 3.5 L53.2 3.8 L54.8 4.4 L56.3 5.2 L57.7 6.1 L59.2 6.9 L60.6 7.5 L62.0 8.0 L63.6 8.2 L65.2 8.3 L66.9 8.1 L68.7 8.0 L70.5 7.9 L72.3 8.1 L74.0 8.5 L75.5 9.2 L76.8 10.2 L77.9 11.6 L78.7 13.3 L79.3 15.0 L79.8 16.9 L80.3 18.6 L80.8 20.3 L81.4 21.7 L82.3 22.9 L83.3 24.0 L84.5 24.9 L85.9 25.8 L87.4 26.6 L88.9 27.5 L90.2 28.6 L91.3 29.8 L92.1 31.2 L92.6 32.8 L92.9 34.4 L92.8 36.1 L92.7 37.8 L92.5 39.4 L92.4 41.0 L92.4 42.5 L92.7 44.0 L93.3 45.4 L94.1 46.9 L95.0 48.4 L96.0 50.0Z" fill="#6E1F2F"/><circle cx="50" cy="50" r="35" fill="none" stroke="#4E1320" stroke-width="2"/><circle cx="50" cy="50" r="31" fill="none" stroke="#8C3447" stroke-width="1"/><path d="M30 34 C 38 30, 44 33, 50 30 C 56 33, 62 30, 70 34" fill="none" stroke="#8C3447" stroke-width="1"/><text x="50" y="63" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="34" fill="#E8C9A0">JE</text></svg>
+    </span>
+    <span class="sparks" aria-hidden="true"></span>
+  </button>
+
+  <div class="intro-hint">
+    <span class="rule"></span>
+    <span class="label">Tap the seal to open</span>
+    <span class="rule"></span>
+  </div>
 </div>
-<button type="button" data-on="openEnvelope" aria-label="Open the invitation" style="position: relative; width: 600px; height: 380px; padding: 0; border: none; background: transparent; cursor: pointer; perspective: 1600px">
-<span style="position: absolute; inset: 0; border-radius: 6px; background: #E9DEC9; box-shadow: 0 30px 60px -30px rgba(80, 55, 25, 0.35)"></span>
-<span style="position: absolute; left: 32px; right: 32px; top: 16px; height: 348px; border-radius: 4px; background: #FFFDF8; border: 1px solid #EFE5D4; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 36px; gap: 8px; transform: translateY(0px); transition: transform 1000ms cubic-bezier(.2,.7,.2,1) 550ms; z-index: 1" data-bind-style="transform:letterTransform">
-<span style="font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #87672F">You are invited</span>
-<span style="font-family: 'Pinyon Script', cursive; font-size: 44px; line-height: 1.2; color: #2B2420">13 · 11 · 2026</span>
-</span>
-<svg width="600" height="380" viewBox="0 0 600 380" style="position: absolute; inset: 0; z-index: 2" aria-hidden="true"><path d="M0 380 L0 0 L300 209 L600 0 L600 380 Z" fill="#F2E9DA"></path><path d="M0 0 L270 190 L0 380 Z" fill="#EDE2CE"></path><path d="M600 0 L330 190 L600 380 Z" fill="#EDE2CE"></path><path d="M0 380 L300 174 L600 380 Z" fill="#F4ECDF"></path><path d="M0 380 L300 174 L600 380" fill="none" stroke="#DCCCB0" stroke-width="1"></path></svg>
-<span style="position: absolute; left: 0; top: 0; width: 600px; height: 228px; transform-origin: 50% 0; transform: rotateX(0deg); transition: transform 800ms cubic-bezier(.4,.0,.2,1), z-index 0s linear 400ms; z-index: 3" data-bind-style="transform:flapTransform;z-index:flapZ"><svg width="600" height="228" viewBox="0 0 600 228" aria-hidden="true"><path d="M0 0 L600 0 L300 224 Z" fill="#EADFC9" stroke="#D8C6A6" stroke-width="1"></path></svg></span>
-<span style="position: absolute; left: 248px; top: 170px; width: 104px; height: 104px; z-index: 4; opacity: 1; transform: scale(1); transition: opacity 350ms ease, transform 350ms ease" data-bind-style="opacity:sealOpacity;transform:sealTransform"><svg width="104" height="104" viewBox="0 0 100 100" role="img" aria-label="Burgundy wax seal with the monogram JE"><path d="M96.0 50.0 L96.9 51.6 L97.6 53.3 L97.9 55.0 L97.9 56.7 L97.5 58.4 L96.7 59.9 L95.5 61.4 L94.2 62.7 L92.8 63.9 L91.4 65.1 L90.2 66.2 L89.2 67.4 L88.4 68.7 L87.9 70.1 L87.5 71.7 L87.3 73.3 L87.0 75.0 L86.6 76.6 L86.1 78.2 L85.2 79.6 L84.1 80.7 L82.8 81.7 L81.3 82.4 L79.7 83.0 L78.1 83.4 L76.5 83.9 L75.0 84.4 L73.7 85.2 L72.6 86.1 L71.5 87.3 L70.6 88.7 L69.6 90.2 L68.6 91.8 L67.5 93.4 L66.3 94.7 L64.9 95.7 L63.3 96.4 L61.6 96.7 L59.9 96.6 L58.2 96.2 L56.4 95.6 L54.7 94.9 L53.1 94.3 L51.5 93.7 L50.0 93.4 L48.5 93.4 L47.0 93.6 L45.4 93.9 L43.8 94.3 L42.1 94.7 L40.5 94.9 L38.8 94.9 L37.2 94.5 L35.8 93.8 L34.4 92.8 L33.2 91.6 L32.1 90.2 L31.1 88.8 L30.0 87.5 L29.0 86.4 L27.8 85.5 L26.5 84.9 L25.0 84.4 L23.3 84.2 L21.5 84.0 L19.6 83.7 L17.8 83.4 L16.1 82.8 L14.6 81.9 L13.3 80.8 L12.4 79.4 L11.7 77.8 L11.3 76.1 L11.1 74.3 L10.9 72.5 L10.7 70.9 L10.4 69.3 L9.9 67.8 L9.2 66.5 L8.3 65.2 L7.2 63.9 L6.2 62.6 L5.1 61.2 L4.3 59.7 L3.8 58.1 L3.6 56.5 L3.8 54.9 L4.3 53.2 L5.1 51.6 L6.0 50.0 L7.0 48.5 L7.8 47.0 L8.4 45.6 L8.8 44.2 L8.8 42.7 L8.6 41.2 L8.2 39.6 L7.7 37.9 L7.2 36.1 L6.8 34.3 L6.7 32.5 L6.9 30.8 L7.5 29.3 L8.4 27.9 L9.6 26.7 L11.0 25.6 L12.4 24.6 L13.8 23.7 L15.1 22.8 L16.3 21.7 L17.3 20.5 L18.1 19.2 L18.8 17.7 L19.5 16.1 L20.2 14.5 L21.1 13.0 L22.1 11.6 L23.4 10.5 L24.9 9.8 L26.5 9.3 L28.3 9.2 L30.2 9.3 L32.0 9.6 L33.8 9.9 L35.5 10.1 L37.1 10.2 L38.5 9.9 L39.9 9.4 L41.2 8.6 L42.5 7.6 L43.9 6.5 L45.3 5.4 L46.8 4.5 L48.4 3.8 L50.0 3.4 L51.6 3.5 L53.2 3.8 L54.8 4.4 L56.3 5.2 L57.7 6.1 L59.2 6.9 L60.6 7.5 L62.0 8.0 L63.6 8.2 L65.2 8.3 L66.9 8.1 L68.7 8.0 L70.5 7.9 L72.3 8.1 L74.0 8.5 L75.5 9.2 L76.8 10.2 L77.9 11.6 L78.7 13.3 L79.3 15.0 L79.8 16.9 L80.3 18.6 L80.8 20.3 L81.4 21.7 L82.3 22.9 L83.3 24.0 L84.5 24.9 L85.9 25.8 L87.4 26.6 L88.9 27.5 L90.2 28.6 L91.3 29.8 L92.1 31.2 L92.6 32.8 L92.9 34.4 L92.8 36.1 L92.7 37.8 L92.5 39.4 L92.4 41.0 L92.4 42.5 L92.7 44.0 L93.3 45.4 L94.1 46.9 L95.0 48.4 L96.0 50.0Z" fill="#6E1F2F"></path><circle cx="50" cy="50" r="35" fill="none" stroke="#4E1320" stroke-width="2"></circle><circle cx="50" cy="50" r="31" fill="none" stroke="#8C3447" stroke-width="1"></circle><path d="M30 34 C 38 30, 44 33, 50 30 C 56 33, 62 30, 70 34" fill="none" stroke="#8C3447" stroke-width="1"></path><text x="50" y="63" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="34" fill="#E8C9A0">JE</text></svg></span>
-</button>
-<div style="display: flex; align-items: center; gap: 14px">
-<span style="width: 56px; height: 1px; background: #C3A574"></span>
-<span style="font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Tap the seal to open</span>
-<span style="width: 56px; height: 1px; background: #C3A574"></span>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- ============ Header ============ -->
+<header class="site-header" id="header">
+  <nav class="nav" aria-label="Main">
+    <div class="nav-links">
+      <a class="nav-link" href="#story">Our story</a>
+      <a class="nav-link" href="#gallery">Gallery</a>
+      <a class="nav-link" href="#weekend">The weekend</a>
+    </div>
+    <a class="nav-mark" href="#top" aria-label="Back to top">JE</a>
+    <div class="nav-links nav-links--right">
+      <a class="nav-link" href="#travel">Travel</a>
+      <a class="nav-link" href="#gifts">Gifts</a>
+      <a class="nav-link" href="#game">Play</a>
+    </div>
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="menu" id="menu">
+  <div class="monogram" aria-hidden="true">JE</div>
+  <a href="#story" style="--i:0">Our story</a>
+  <a href="#gallery" style="--i:1">Gallery</a>
+  <a href="#weekend" style="--i:2">The weekend</a>
+  <a href="#travel" style="--i:3">Travel</a>
+  <a href="#gifts" style="--i:4">Gifts</a>
+  <a href="#game" style="--i:5">Play</a>
 </div>
-</div>
-</div>
-<div data-if="showSite">
-<div style="display: flex; flex-direction: column">
-<section id="top" style="position: relative; height: 900px; overflow: hidden; background: #1E1916">
-<img src="assets/portrait.jpg" alt="Ebenezer and Ezinne, black and white portrait" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; filter: grayscale(1) contrast(1.05) brightness(0.92)">
-<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 15, 12, 0.55) 0%, rgba(20, 15, 12, 0.35) 40%, rgba(20, 15, 12, 0.7) 100%)"></div>
-<nav style="position: absolute; left: 0; right: 0; top: 0; z-index: 2; padding: 0 120px">
-<div style="max-width: 1200px; margin: 0 auto; height: 104px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.28)">
-<div style="display: flex; gap: 40px"><a href="#story" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Our story</a><a href="#gallery" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Gallery</a><a href="#weekend" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">The weekend</a></div>
-<a href="#top" aria-label="Back to top" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; font-family: 'Pinyon Script', cursive; font-size: 24px; color: #FFFFFF; text-decoration: none">JE</a>
-<div style="display: flex; gap: 40px; justify-content: flex-end"><a href="#travel" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Travel</a><a href="#gifts" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Gifts</a><a href="#game" style="text-decoration: none; color: #FFFFFF; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Play</a></div>
-</div>
-</nav>
-<div style="position: absolute; left: 0; right: 0; bottom: 112px; padding: 0 120px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px; color: #FFFFFF">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.34em; text-transform: uppercase; color: #F1E6D6">We’re getting married</div>
-<h1 style="margin: 0; font-family: 'Pinyon Script', cursive; font-weight: 400; font-size: 132px; line-height: 1.05; color: #FFFFFF">Ezinne <span style="font-size: 96px; color: #E2C79A">&amp;</span> Ebenezer</h1>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 24px; color: #F1E6D6">13 &amp; 14 November 2026 · Nsukka, Enugu State</div>
-<div style="display: flex; align-items: flex-end; gap: 14px; margin-top: 8px">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 88px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="days"></span></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Days</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 20px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 88px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="hours"></span></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Hours</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 20px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 88px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="minutes"></span></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Mins</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 20px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 88px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="seconds"></span></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Secs</span></div>
-</div>
-<div style="display: flex; gap: 16px; margin-top: 12px">
-<a href="#story" style="height: 52px; padding: 0 32px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.8); color: #FFFFFF; text-decoration: none; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">Our story</a><a href="#weekend" style="height: 52px; padding: 0 32px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.8); color: #FFFFFF; text-decoration: none; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase">The weekend</a>
-</div>
-</div>
+
+<main id="main">
+
+<!-- ============ Hero ============ -->
+<section class="hero" id="top">
+  <div class="hero-media" data-parallax="0.25"><img src="assets/portrait.jpg" alt="Ebenezer and Ezinne, black and white portrait" fetchpriority="high"></div>
+  <div class="hero-shade"></div>
+  <div class="hero-inner">
+    <div class="label" data-hero style="--d:200ms">We’re getting married</div>
+    <h1 class="hero-names" tabindex="-1" id="hero-title">
+      <span class="mask"><span style="--d:350ms">Ezinne</span></span>
+      <span class="amp" data-hero style="--d:560ms">&amp;</span>
+      <span class="mask"><span style="--d:650ms">Ebenezer</span></span>
+    </h1>
+    <div class="hero-date" data-hero style="--d:900ms">13 &amp; 14 November 2026 · Nsukka, Enugu State</div>
+    <div class="countdown" data-hero style="--d:1050ms" role="timer" aria-label="Countdown to the church wedding">
+      <div class="cd-unit"><span class="cd-num" data-cd="days"></span><span class="cd-label">Days</span></div>
+      <span class="cd-sep" aria-hidden="true">:</span>
+      <div class="cd-unit"><span class="cd-num" data-cd="hours"></span><span class="cd-label">Hours</span></div>
+      <span class="cd-sep" aria-hidden="true">:</span>
+      <div class="cd-unit"><span class="cd-num" data-cd="minutes"></span><span class="cd-label">Mins</span></div>
+      <span class="cd-sep" aria-hidden="true">:</span>
+      <div class="cd-unit"><span class="cd-num" data-cd="seconds"></span><span class="cd-label">Secs</span></div>
+    </div>
+    <div class="hero-ctas" data-hero style="--d:1200ms">
+      <a class="btn btn--light" href="#story">Our story</a>
+      <a class="btn btn--light" href="#weekend">The weekend</a>
+    </div>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"></div>
 </section>
 
-<section style="padding: 140px 120px; background: #F6F0E6">
-<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 64px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">#FromCoalCityToRockCity</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 26px; color: #6E625A">Together with their families</div>
-</div>
-<div style="width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); align-items: start">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#A07D45" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of coal, for Enugu the Coal City"><path d="M14 98 H106"></path><polygon points="20,96 30,74 48,68 58,82 52,98"></polygon><path d="M30 74 L42 80 L48 68 M42 80 L52 98"></path><polygon points="46,98 58,70 80,64 98,80 94,98"></polygon><path d="M58 70 L62 80 L80 64 M62 80 L74 78 L98 80 M74 78 L94 98"></path><polygon points="38,70 46,50 64,44 74,58 66,68 50,68"></polygon><path d="M46 50 L58 55 L64 44 M58 55 L66 68"></path><path d="M60 20c-5 6 2 9-1 15 6-3 9-8 4-15z"></path><circle cx="71" cy="28" r="1.2"></circle><circle cx="49" cy="31" r="1"></circle></svg>
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Enugu · The Coal City</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; line-height: 1.25; color: #2B2420">Chief &amp; Dr. Mrs<br>Raphael Ani Aruma</div>
-<div style="font-size: 15px; font-weight: 300; line-height: 1.7; color: #6E625A">of Umuedogbanyi, Iheagu Nru Nsukka,<br>Enugu State</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; align-self: stretch"><span style="flex-grow: 1; width: 1px; background: #E3D7C4"></span><span style="font-family: 'Pinyon Script', cursive; font-size: 56px; line-height: 1; color: #A07D45">&amp;</span><span style="flex-grow: 1; width: 1px; background: #E3D7C4"></span></div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#A07D45" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of Olumo Rock, for Abeokuta the Rock City"><circle cx="90" cy="28" r="8"></circle><path d="M6 98 C 12 74, 28 60, 42 62 C 46 42, 64 32, 80 44 C 94 46, 106 68, 114 98"></path><path d="M42 62 C 50 56, 58 58, 62 70 M80 44 C 84 56, 90 70, 92 98"></path><path d="M22 80 C 34 75, 48 77, 56 84 M 66 60 C 74 58, 82 62, 88 70 M 98 72 C 102 78, 105 86, 106 92"></path><path d="M2 98 H118"></path><path d="M16 98 c2-5 5-6 8 0 M100 98 c2-5 5-6 8 0"></path></svg>
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Abeokuta · The Rock City</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; line-height: 1.25; color: #2B2420">Late (Rev) John Adesina Adeogun<br>&amp; Pst (Mrs) Olusola Adeogun</div>
-<div style="font-size: 15px; font-weight: 300; line-height: 1.7; color: #6E625A">of Abeokuta South LGA,<br>Ogun State</div>
-</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center">
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 680px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 28px; line-height: 1.5; color: #4A3F39">request the honour of your presence at the holy matrimony of their children, Ezinne Jennifer &amp; Ebenezer.</p>
-</div>
-</div>
+<!-- ============ Families ============ -->
+<section class="section families">
+  <div class="watermark" aria-hidden="true" data-parallax="-0.12">JE</div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>#FromCoalCityToRockCity</div>
+      <div class="display" style="font-size:clamp(28px,3vw,34px);font-weight:500;color:var(--ink-soft);--d:100ms" data-reveal>Together with their families</div>
+    </div>
+    <div class="families-grid">
+      <div class="family" data-reveal>
+        <svg viewBox="0 0 120 120" fill="none" stroke="#C9A24C" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of coal, for Enugu the Coal City" data-draw><path d="M14 98 H106"/><polygon points="20,96 30,74 48,68 58,82 52,98"/><path d="M30 74 L42 80 L48 68 M42 80 L52 98"/><polygon points="46,98 58,70 80,64 98,80 94,98"/><path d="M58 70 L62 80 L80 64 M62 80 L74 78 L98 80 M74 78 L94 98"/><polygon points="38,70 46,50 64,44 74,58 66,68 50,68"/><path d="M46 50 L58 55 L64 44 M58 55 L66 68"/><path d="M60 20c-5 6 2 9-1 15 6-3 9-8 4-15z"/><circle cx="71" cy="28" r="1.2"/><circle cx="49" cy="31" r="1"/></svg>
+        <div class="label">Enugu · The Coal City</div>
+        <div class="family-name">Chief &amp; Dr. Mrs<br>Raphael Ani Aruma</div>
+        <div class="family-place">of Umuedogbanyi, Iheagu Nru, Nsukka,<br>Enugu State</div>
+      </div>
+      <div class="family-amp" data-reveal="fade"><span class="rule"></span><span class="amp-mark">&amp;</span><span class="rule"></span></div>
+      <div class="family" data-reveal style="--d:150ms">
+        <svg viewBox="0 0 120 120" fill="none" stroke="#C9A24C" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of Olumo Rock, for Abeokuta the Rock City" data-draw><circle cx="90" cy="28" r="8"/><path d="M6 98 C 12 74, 28 60, 42 62 C 46 42, 64 32, 80 44 C 94 46, 106 68, 114 98"/><path d="M42 62 C 50 56, 58 58, 62 70 M80 44 C 84 56, 90 70, 92 98"/><path d="M22 80 C 34 75, 48 77, 56 84 M 66 60 C 74 58, 82 62, 88 70 M 98 72 C 102 78, 105 86, 106 92"/><path d="M2 98 H118"/><path d="M16 98 c2-5 5-6 8 0 M100 98 c2-5 5-6 8 0"/></svg>
+        <div class="label">Abeokuta · The Rock City</div>
+        <div class="family-name">Late (Rev) John Adesina Adeogun<br>&amp; Pst (Mrs) Olusola Adeogun</div>
+        <div class="family-place">of Abeokuta South LGA,<br>Ogun State</div>
+      </div>
+    </div>
+    <svg class="flourish" viewBox="0 0 300 44" fill="none" stroke="#C9A24C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-draw style="margin-top:64px"><g><path d="M150 34 C 140 34, 134 22, 122 24 C 112 26, 114 36, 103 36 C 91 36, 92 24, 80 25 C 67 26, 65 33, 52 32 C 38 31, 33 25, 21 27 C 11 29, 10 39, 17 39 C 23 39, 23 32, 17 32"/><path d="M96 30 c -3 -7 -9 -9 -14 -7 c 3 6 8 8 14 7z"/><path d="M66 31 c -4 -6 -10 -7 -14 -4 c 4 5 9 6 14 4z"/><path d="M110 28 c 1 -6 -2 -11 -7 -12 c -1 5 2 10 7 12z"/><circle cx="86" cy="34" r="1.2"/><circle cx="58" cy="25" r="1.2"/><path class="fill" fill="#C9A24C" d="M128 15s-6-3.8-6-8.3a3.3 3.3 0 0 1 6-2a3.3 3.3 0 0 1 6 2c0 4.5-6 8.3-6 8.3z"/></g><g transform="translate(300 0) scale(-1 1)"><path d="M150 34 C 140 34, 134 22, 122 24 C 112 26, 114 36, 103 36 C 91 36, 92 24, 80 25 C 67 26, 65 33, 52 32 C 38 31, 33 25, 21 27 C 11 29, 10 39, 17 39 C 23 39, 23 32, 17 32"/><path d="M96 30 c -3 -7 -9 -9 -14 -7 c 3 6 8 8 14 7z"/><path d="M66 31 c -4 -6 -10 -7 -14 -4 c 4 5 9 6 14 4z"/><path d="M110 28 c 1 -6 -2 -11 -7 -12 c -1 5 2 10 7 12z"/><circle cx="86" cy="34" r="1.2"/><circle cx="58" cy="25" r="1.2"/><path class="fill" fill="#C9A24C" d="M128 15s-6-3.8-6-8.3a3.3 3.3 0 0 1 6-2a3.3 3.3 0 0 1 6 2c0 4.5-6 8.3-6 8.3z"/></g><path d="M146 30 l4 -5 l4 5 l-4 3z"/><circle cx="150" cy="38" r="4.5"/></svg>
+    <p class="invite-line" data-reveal>request the honour of your presence at the holy matrimony of their children, <strong>Ezinne Jennifer &amp; Ebenezer.</strong></p>
+  </div>
 </section>
 
-<section id="story" style="padding: 140px 120px; background: #FBF8F2">
-<div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 56px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Our story</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">From Shuttlers Paddi to Forever</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 17px; font-weight: 300; line-height: 1.8; color: #6E625A">Every love story has two sides. Open each one to read how it happened, in our own words.</p>
-</div>
-<div style="width: 100%; max-width: 760px; padding: 12px; box-sizing: border-box; background: #FFFFFF; border: 1px solid #E3D7C4">
-<img src="assets/hug.jpg" alt="Ezinne hugging Ebenezer, both laughing" style="display: block; width: 100%; height: 480px; object-fit: cover; object-position: 45% 32%">
-</div>
-<div style="width: 100%; border-top: 1px solid #E3D7C4">
-<div style="border-bottom: 1px solid #E3D7C4">
-<button type="button" data-on="toggleHer" data-aria="herOpen" aria-expanded="false" style="width: 100%; padding: 28px 0; display: flex; align-items: center; gap: 22px; border: none; background: transparent; text-align: left; cursor: pointer; color: #2B2420">
-<img src="assets/ezinne.jpg" alt="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: 50% 22%; filter: grayscale(0.15)">
-<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
-<span style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Her side</span>
-<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 36px; font-weight: 400; line-height: 1.1">As told by Ezinne</span>
-</span>
-<span style="position: relative; width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: 1px solid #D5C3A5; display: flex; align-items: center; justify-content: center"><span style="position: absolute; width: 14px; height: 1px; background: #2B2420"></span><span style="position: absolute; width: 1px; height: 14px; background: #2B2420; transform: scaleY(0); transition: transform 250ms ease" data-bind-style="transform:herBar"></span></span>
-</button>
-<div data-if="herOpen">
-<div style="padding: 0 0 24px">
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/selfie.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 50% 40%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">I.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Where it began</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">“Do you live around here?”</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">He was a brand designer at my company, while I was in the tech department. A few days after he resumed, we happened to get on the same Shuttlers bus after work.</p>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">He got down at the same junction where I usually got down, and the next workday, he came over and asked if I lived around there. I said yes. That simple conversation was the beginning of our friendship.</p>
-</div>
-</div>
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/side-by-side.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 50% 60%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">II.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Just friends, for a whole year</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">Shuttlers paddi</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">He stayed at the company for just about two months, but we sat close to each other on the Shuttlers after work a few times before he left. By then we were Shuttlers paddi, and even after he resigned, the friendship continued.</p>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">For the entire first year, we were genuinely just friends — two friends talking about work, church, family and life. He became someone I could count on, in the good times and the not-so-good ones.</p>
-</div>
-</div>
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/canopy.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 50% 40%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">III.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">A movie &amp; two weeks of silence</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">The plot twist</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">About a year into our friendship, we disagreed over a movie. We both had very strong and very different opinions, and somehow that movie earned us almost two weeks of silence.</p>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">Two weeks without talking to him felt way too long. That was when I realised I actually liked him. As it turns out, he had come to the same realisation.</p>
-</div>
-</div>
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/hug.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 45% 38%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">IV.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">September 2025</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">He asked me out</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">Eventually, he reached out, we made up, and we went back to being us. Only this time, things were a little different: we became more intentional about each other.</p>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">In September 2025, he asked me out. And I said <span style="font-weight: 500; color: #2B2420">YES.</span></p>
-</div>
-</div>
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/ring.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 50% 50%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">V.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Seven months later</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">The proposal</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">Seven months later, he proposed. And now, the man who started out as my colleague, became my friend, became my Shuttlers paddi, and eventually became the person I couldn’t imagine my life without… is going to be my husband.</p>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.5em; color: #87672F">Tadaaaaa, here we are!</span></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="border-bottom: 1px solid #E3D7C4">
-<button type="button" data-on="toggleHis" data-aria="hisOpen" aria-expanded="false" style="width: 100%; padding: 28px 0; display: flex; align-items: center; gap: 22px; border: none; background: transparent; text-align: left; cursor: pointer; color: #2B2420">
-<img src="assets/ebenezer.jpg" alt="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: 46% 38%; filter: grayscale(0.15)">
-<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
-<span style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">His side</span>
-<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 36px; font-weight: 400; line-height: 1.1">As told by Ebenezer</span>
-</span>
-<span style="position: relative; width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: 1px solid #D5C3A5; display: flex; align-items: center; justify-content: center"><span style="position: absolute; width: 14px; height: 1px; background: #2B2420"></span><span style="position: absolute; width: 1px; height: 14px; background: #2B2420; transform: scaleY(1); transition: transform 250ms ease" data-bind-style="transform:hisBar"></span></span>
-</button>
-<div data-if="hisOpen">
-<div style="padding: 0 0 24px">
-<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; padding: 40px 0; ">
-<div style="padding: 8px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/church.jpg" alt="" style="display: block; width: 202px; height: 250px; object-fit: cover; object-position: 55% 38%"></div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
-<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #A07D45">I.</span><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">[Chapter label]</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 36px; line-height: 1.1; color: #2B2420">[Ebenezer’s chapter title]</h3>
-<p style="margin: 0; font-size: 16px; font-weight: 300; line-height: 1.85; color: #4A3F39">[Ebenezer’s side of the story goes here — the first Shuttlers ride, the movie argument, the moment he knew, and how he planned the proposal.]</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding-top: 16px">
-<p style="margin: 0; max-width: 600px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 24px; line-height: 1.55; color: #6E625A">Sometimes, the best love stories don’t start with love at first sight. Sometimes, they start with a simple question:</p>
-<p style="margin: 0; font-family: 'Pinyon Script', cursive; font-size: 72px; line-height: 1.2; color: #A07D45">“Do you live around here?”</p>
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">And ours did · From Shuttlers paddi to forever</div>
-</div>
-</div>
+<!-- ============ Story ============ -->
+<section class="section section--alt story" id="story">
+  <div class="watermark" aria-hidden="true" data-parallax="-0.1">JE</div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Our story</div>
+      <h2 class="display h2" data-reveal><span class="mask"><span>From Shuttlers Paddi to Forever</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+      <p class="lede" data-reveal>Every love story has two sides. Open each one to read how it happened, in our own words.</p>
+    </div>
+
+    <div class="story-photo" data-reveal="scale">
+      <div class="frame" data-clip><img src="assets/hug.jpg" alt="Ezinne hugging Ebenezer, both laughing" loading="lazy" decoding="async" data-parallax-inner="0.12"></div>
+    </div>
+
+    <div class="accordion" data-reveal>
+      <div class="acc is-open" id="acc-her">
+        <button type="button" class="acc-btn" aria-expanded="true" aria-controls="panel-her">
+          <img src="assets/ezinne.jpg" alt="" style="object-position:50% 22%" loading="lazy">
+          <span class="acc-title"><span class="label">Her side</span><span class="display">As told by Ezinne</span></span>
+          <span class="acc-icon" aria-hidden="true"></span>
+        </button>
+        <div class="acc-panel" id="panel-her" role="region" aria-label="Her side"><div>
+          <article class="chapter" style="--i:0">
+            <div class="chapter-photo"><img src="assets/selfie.jpg" alt="" style="object-position:50% 40%" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">I.</span><span class="label">Where it began</span></div>
+              <h3>“Do you live around here?”</h3>
+              <p>He was a brand designer at my company, while I was in the tech department. A few days after he resumed, we happened to get on the same Shuttlers bus after work.</p>
+              <p>He got down at the same junction where I usually got down, and the next workday, he came over and asked if I lived around there. I said yes. That simple conversation was the beginning of our friendship.</p>
+            </div>
+          </article>
+          <article class="chapter" style="--i:1">
+            <div class="chapter-photo"><img src="assets/side-by-side.jpg" alt="" style="object-position:50% 60%" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">II.</span><span class="label">Just friends, for a whole year</span></div>
+              <h3>Shuttlers paddi</h3>
+              <p>He stayed at the company for just about two months, but we sat close to each other on the Shuttlers after work a few times before he left. By then we were Shuttlers paddi, and even after he resigned, the friendship continued.</p>
+              <p>For the entire first year, we were genuinely just friends — two friends talking about work, church, family and life. He became someone I could count on, in the good times and the not-so-good ones.</p>
+            </div>
+          </article>
+          <article class="chapter" style="--i:2">
+            <div class="chapter-photo"><img src="assets/canopy.jpg" alt="" style="object-position:50% 40%" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">III.</span><span class="label">A movie &amp; two weeks of silence</span></div>
+              <h3>The plot twist</h3>
+              <p>About a year into our friendship, we disagreed over a movie. We both had very strong and very different opinions, and somehow that movie earned us almost two weeks of silence.</p>
+              <p>Two weeks without talking to him felt way too long. That was when I realised I actually liked him. As it turns out, he had come to the same realisation.</p>
+            </div>
+          </article>
+          <article class="chapter" style="--i:3">
+            <div class="chapter-photo"><img src="assets/hug.jpg" alt="" style="object-position:45% 38%" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">IV.</span><span class="label">September 2025</span></div>
+              <h3>He asked me out</h3>
+              <p>Eventually, he reached out, we made up, and we went back to being us. Only this time, things were a little different: we became more intentional about each other.</p>
+              <p>In September 2025, he asked me out. And I said <span class="yes">YES.</span></p>
+            </div>
+          </article>
+          <article class="chapter" style="--i:4">
+            <div class="chapter-photo"><img src="assets/ring.jpg" alt="" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">V.</span><span class="label">Seven months later</span></div>
+              <h3>The proposal</h3>
+              <p>Seven months later, he proposed. And now, the man who started out as my colleague, became my friend, became my Shuttlers paddi, and eventually became the person I couldn’t imagine my life without… is going to be my husband.</p>
+              <p><span class="tada">Tadaaaaa, here we are!</span></p>
+            </div>
+          </article>
+        </div></div>
+      </div>
+
+      <div class="acc" id="acc-his">
+        <button type="button" class="acc-btn" aria-expanded="false" aria-controls="panel-his">
+          <img src="assets/ebenezer.jpg" alt="" style="object-position:46% 38%" loading="lazy">
+          <span class="acc-title"><span class="label">His side</span><span class="display">As told by Ebenezer</span></span>
+          <span class="acc-icon" aria-hidden="true"></span>
+        </button>
+        <div class="acc-panel" id="panel-his" role="region" aria-label="His side"><div>
+          <article class="chapter" style="--i:0">
+            <div class="chapter-photo"><img src="assets/church.jpg" alt="" style="object-position:55% 38%" loading="lazy"></div>
+            <div class="chapter-text">
+              <div class="chapter-kicker"><span class="num">I.</span><span class="label">[Chapter label]</span></div>
+              <h3>[Ebenezer’s chapter title]</h3>
+              <p>[Ebenezer’s side of the story goes here — the first Shuttlers ride, the movie argument, the moment he knew, and how he planned the proposal.]</p>
+            </div>
+          </article>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="story-close">
+      <p data-reveal>Sometimes, the best love stories don’t start with love at first sight. Sometimes, they start with a simple question:</p>
+      <div class="display quote" data-reveal><span class="mask"><span>“Do you live around here?”</span></span></div>
+      <div class="label" data-reveal style="--d:200ms">And ours did · From Shuttlers paddi to forever</div>
+    </div>
+  </div>
 </section>
 
-<section id="gallery" style="padding: 140px 120px; background: #F6F0E6">
-<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 64px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Moments we treasure</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Our Love Gallery</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: start">
-<img src="assets/portrait.jpg" alt="Pre-wedding portrait" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 25%">
-<img src="assets/selfie.jpg" alt="Selfie together" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 40%; margin-top: 56px">
-<img src="assets/ring-embrace.jpg" alt="Engagement ring embrace" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 40%">
-<img src="assets/hug.jpg" alt="A joyful hug" style="width: 100%; height: 380px; object-fit: cover; object-position: 45% 40%; margin-top: 56px">
-<img src="assets/church.jpg" alt="Together at church" style="width: 100%; height: 380px; object-fit: cover; object-position: 55% 40%">
-<img src="assets/canopy.jpg" alt="Under a woven canopy" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 40%; margin-top: 56px">
-<img src="assets/ring.jpg" alt="The ring" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 50%">
-<img src="assets/sneakers.jpg" alt="Sneakers and heels" style="width: 100%; height: 380px; object-fit: cover; object-position: 50% 50%; margin-top: 56px">
-</div>
-</div>
+<!-- ============ Gallery ============ -->
+<section class="section gallery" id="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Moments we treasure</div>
+      <h2 class="display h2"><span class="mask" data-reveal="fade"><span>Our Love Gallery</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/portrait.jpg" alt="Pre-wedding portrait" style="object-position:50% 25%" loading="lazy" decoding="async"><figcaption>Pre-wedding portrait</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/selfie.jpg" alt="Selfie together" style="object-position:50% 40%" loading="lazy" decoding="async"><figcaption>Selfie together</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/ring-embrace.jpg" alt="Engagement ring embrace" style="object-position:50% 40%" loading="lazy" decoding="async"><figcaption>The ring, the embrace</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/hug.jpg" alt="A joyful hug" style="object-position:45% 40%" loading="lazy" decoding="async"><figcaption>A joyful hug</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/church.jpg" alt="Together at church" style="object-position:55% 40%" loading="lazy" decoding="async"><figcaption>Together at church</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/canopy.jpg" alt="Under a woven canopy" style="object-position:50% 40%" loading="lazy" decoding="async"><figcaption>Under a woven canopy</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/ring.jpg" alt="The ring" loading="lazy" decoding="async"><figcaption>The ring</figcaption></figure>
+      <figure class="shot" data-clip tabindex="0" role="button"><img src="assets/sneakers.jpg" alt="Sneakers and heels" loading="lazy" decoding="async"><figcaption>Sneakers &amp; heels</figcaption></figure>
+    </div>
+  </div>
 </section>
 
-<section id="weekend" style="padding: 140px 120px; background: #FBF8F2">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 64px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Join us in Nsukka</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">The Weekend</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+  <figure><img alt=""><figcaption></figcaption></figure>
+  <button type="button" class="lb-btn lb-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.4"><path d="M3 3l12 12M15 3L3 15"/></svg></button>
+  <button type="button" class="lb-btn lb-prev" aria-label="Previous photo"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M11 3L5 9l6 6"/></svg></button>
+  <button type="button" class="lb-btn lb-next" aria-label="Next photo"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 3l6 6-6 6"/></svg></button>
 </div>
-<div style="display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 48px; align-items: stretch">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 8px 24px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Friday · Day one</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 96px; line-height: 0.9; color: #A07D45">13</div>
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #6E625A">November 2026</div>
-<h3 style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1.1; color: #2B2420">Church Wedding</h3>
-<div style="font-size: 16px; font-weight: 300; line-height: 1.8; color: #4A3F39">10:00 AM<br>Holy Rosary Sisters Convent, Nsukka</div>
-<a href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" style="padding: 10px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #87672F; text-decoration: none; border-bottom: 1px solid #C3A574">Directions</a>
-</div>
-<span style="background: #E3D7C4"></span>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 8px 24px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Saturday · Day two</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 96px; line-height: 0.9; color: #A07D45">14</div>
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #6E625A">November 2026</div>
-<h3 style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1.1; color: #2B2420">Traditional Wedding</h3>
-<div style="font-size: 16px; font-weight: 300; line-height: 1.8; color: #4A3F39">1:00 PM<br>Chief Raphael Aruma’s Compound,<br>Iheagu Nru, Nsukka</div>
-<a href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" style="padding: 10px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #87672F; text-decoration: none; border-bottom: 1px solid #C3A574">Directions</a>
-</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; padding-top: 48px; border-top: 1px solid #E3D7C4">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Colours of the day</div>
-<div style="display: flex; gap: 36px"><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #6E1F2F"></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Burgundy</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #A8BFA3"></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Sage</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #F4EDE0; box-shadow: inset 0 0 0 1px #E3D7C4"></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Ivory</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #C9A24B"></span><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Gold</span></div></div>
-<p style="margin: 0; max-width: 560px; font-size: 16px; font-weight: 300; line-height: 1.8; color: #4A3F39">Dress in burgundy, sage green, ivory and gold. [Add any aso-ebi details.] Aso-ebi enquiries: [Name] · [Phone number]</p>
-</div>
-</div>
+
+<!-- ============ Weekend ============ -->
+<section class="section section--alt weekend" id="weekend">
+  <div class="watermark" aria-hidden="true" data-parallax="-0.1">JE</div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Join us in Nsukka</div>
+      <h2 class="display h2"><span class="mask" data-reveal="fade"><span>The Weekend</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+    </div>
+    <div class="events" data-reveal="fade">
+      <div class="event" data-reveal="left">
+        <div class="label">Friday · Day one</div>
+        <div class="day" data-count="13">13</div>
+        <div class="month">November 2026</div>
+        <h3>Church Wedding</h3>
+        <div class="when">10:00 AM<br>Holy Rosary Sisters Convent, Nsukka</div>
+        <a class="link-line" href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" target="_blank" rel="noopener">Directions <span class="arrow">→</span></a>
+      </div>
+      <span class="rule"></span>
+      <div class="event" data-reveal="right" style="--d:150ms">
+        <div class="label">Saturday · Day two</div>
+        <div class="day" data-count="14">14</div>
+        <div class="month">November 2026</div>
+        <h3>Traditional Wedding</h3>
+        <div class="when">1:00 PM<br>Chief Raphael Aruma’s Compound,<br>Iheagu Nru, Nsukka</div>
+        <a class="link-line" href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" target="_blank" rel="noopener">Directions <span class="arrow">→</span></a>
+      </div>
+    </div>
+    <div class="colours">
+      <div class="label" data-reveal>Colours of the day</div>
+      <div class="swatches" data-reveal="fade">
+        <div class="swatch"><i style="--c:#6E1F2F;--d:0ms"></i><span>Burgundy</span></div>
+        <div class="swatch"><i style="--c:#9AA886;--d:120ms"></i><span>Sage</span></div>
+        <div class="swatch"><i style="--c:#FBF6EA;--d:240ms"></i><span>Ivory</span></div>
+        <div class="swatch"><i style="--c:#C9A24C;--d:360ms"></i><span>Gold</span></div>
+      </div>
+      <p data-reveal>Dress in burgundy, sage green, ivory and gold. [Add any aso-ebi details.] Aso-ebi enquiries: [Name] · [Phone number]</p>
+    </div>
+  </div>
 </section>
 
-<section id="travel" style="padding: 140px 120px; background: #F6F0E6">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 64px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Travelling down to Enugu</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Getting There</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<div style="position: relative; padding-top: 0">
-<svg width="100%" height="16" viewBox="0 0 900 16" preserveAspectRatio="none" style="position: absolute; left: 12.5%; width: 75%; top: 0" aria-hidden="true"><path d="M0 8 H900" stroke="#A07D45" stroke-width="1" stroke-dasharray="3 6"></path></svg>
-<div style="position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px"><div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px"><span style="width: 15px; height: 15px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45; box-shadow: 0 0 0 6px #F6F0E6"></span><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420; margin-top: 6px">Akanu Ibiam Airport</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Fly into Enugu</span></div><div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px"><span style="width: 15px; height: 15px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45; box-shadow: 0 0 0 6px #F6F0E6"></span><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420; margin-top: 6px">Enugu</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Head towards Nsukka</span></div><div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px"><span style="width: 15px; height: 15px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45; box-shadow: 0 0 0 6px #F6F0E6"></span><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420; margin-top: 6px">Fempark Junction</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Stop at Nru</span></div><div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px"><span style="width: 15px; height: 15px; border-radius: 50%; background: #6E1F2F; border: 1px solid #A07D45; box-shadow: 0 0 0 6px #F6F0E6"></span><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420; margin-top: 6px">Aruma Compound</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Cab or bike from the junction</span></div></div>
-</div>
-<div style="border-top: 1px solid #E3D7C4; border-bottom: 1px solid #E3D7C4">
-<div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 32px; padding: 24px 0; "><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Flights</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #2B2420">United Nigeria Airlines or Air Peace</div><div style="font-size: 15px; font-weight: 300; line-height: 1.75; color: #4A3F39">Fly into Akanu Ibiam International Airport, Enugu. Book through Wakanow for a discount.</div></div></div><div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Taxi</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #2B2420">Airport to Nsukka</div><div style="font-size: 15px; font-weight: 300; line-height: 1.75; color: #4A3F39">Airport taxis to Nsukka start from ₦60,000.</div></div></div><div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Group bus</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #2B2420">Coming as a group?</div><div style="font-size: 15px; font-weight: 300; line-height: 1.75; color: #4A3F39">We’ll try to provide a bus to bring groups from the airport. Share your arrival details with [Name · Phone number].</div></div></div><div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Church</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #2B2420">Holy Rosary Sisters Convent</div><div style="font-size: 15px; font-weight: 300; line-height: 1.75; color: #4A3F39">Nsukka, Enugu State · <a href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" style="color: #87672F">Open in Maps</a></div></div></div><div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Traditional</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #2B2420">Chief Raphael Aruma’s Compound</div><div style="font-size: 15px; font-weight: 300; line-height: 1.75; color: #4A3F39">Umuedogbanyi, Iheagu Nru, Nsukka · <a href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" style="color: #87672F">Open in Maps</a></div></div></div>
-</div>
-</div>
+<!-- ============ Travel ============ -->
+<section class="section travel" id="travel">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Travelling down to Enugu</div>
+      <h2 class="display h2"><span class="mask" data-reveal="fade"><span>Getting There</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+    </div>
+    <div class="route" data-reveal="fade">
+      <div class="route-line" aria-hidden="true">
+        <span class="track"></span>
+        <span class="runner"></span>
+      </div>
+      <ol class="stops" style="list-style:none;margin:0;padding:0">
+        <li class="stop" style="--d:200ms"><span class="dot"></span><span class="txt"><span class="name">Akanu Ibiam Airport</span><span class="sub">Fly into Enugu</span></span></li>
+        <li class="stop" style="--d:800ms"><span class="dot"></span><span class="txt"><span class="name">Enugu</span><span class="sub">Head towards Nsukka</span></span></li>
+        <li class="stop" style="--d:1400ms"><span class="dot"></span><span class="txt"><span class="name">Fempark Junction</span><span class="sub">Stop at Nru</span></span></li>
+        <li class="stop" style="--d:2000ms"><span class="dot"></span><span class="txt"><span class="name">Aruma Compound</span><span class="sub">Cab or bike from the junction</span></span></li>
+      </ol>
+    </div>
+    <div class="info">
+      <div class="info-row" data-reveal><div class="label">Flights</div><div><div class="title">United Nigeria Airlines or Air Peace</div><div class="body">Fly into Akanu Ibiam International Airport, Enugu. Book through Wakanow for a discount.</div></div></div>
+      <div class="info-row" data-reveal><div class="label">Taxi</div><div><div class="title">Airport to Nsukka</div><div class="body">Airport taxis to Nsukka start from ₦60,000.</div></div></div>
+      <div class="info-row" data-reveal><div class="label">Group bus</div><div><div class="title">Coming as a group?</div><div class="body">We’ll try to provide a bus to bring groups from the airport. Share your arrival details with [Name · Phone number].</div></div></div>
+      <div class="info-row" data-reveal><div class="label">Church</div><div><div class="title">Holy Rosary Sisters Convent</div><div class="body">Nsukka, Enugu State · <a href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" target="_blank" rel="noopener">Open in Maps</a></div></div></div>
+      <div class="info-row" data-reveal><div class="label">Traditional</div><div><div class="title">Chief Raphael Aruma’s Compound</div><div class="body">Umuedogbanyi, Iheagu Nru, Nsukka · <a href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" target="_blank" rel="noopener">Open in Maps</a></div></div></div>
+    </div>
+  </div>
 </section>
 
-<section id="gifts" style="padding: 140px 120px; background: #FBF8F2">
-<div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 64px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Gifts &amp; blessings</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">With Love &amp; Gratitude</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 17px; font-weight: 300; line-height: 1.8; color: #6E625A">Your love, prayers and presence mean the world to us. If you wish to bless us further, we kindly request monetary gifts only — no physical gifts, please.</p>
-</div>
-<div style="display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 56px">
-<div style="display: flex; flex-direction: column; gap: 20px">
-<h3 style="margin: 0; text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 34px; color: #2B2420">Within Nigeria</h3>
-<div style="display: flex; flex-direction: column; border-top: 1px solid #E3D7C4"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Bank</span><span style="font-size: 16px; color: #2B2420">[Bank name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account name</span><span style="font-size: 16px; color: #2B2420">[Account name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account no.</span><span style="font-size: 16px; color: #2B2420">[0000000000]</span></div></div>
-<button type="button" style="align-self: center; height: 48px; padding: 0 28px; border: 1px solid #A07D45; background: transparent; color: #87672F; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; cursor: pointer">Copy account number</button>
-</div>
-<span style="background: #E3D7C4"></span>
-<div style="display: flex; flex-direction: column; gap: 20px">
-<h3 style="margin: 0; text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 34px; color: #2B2420">From abroad</h3>
-<div style="display: flex; flex-direction: column; border-top: 1px solid #E3D7C4"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Currency</span><span style="font-size: 16px; color: #2B2420">[USD / GBP]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account name</span><span style="font-size: 16px; color: #2B2420">[Account name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Details</span><span style="font-size: 16px; color: #2B2420">[IBAN / Sort code]</span></div></div>
-<button type="button" style="align-self: center; height: 48px; padding: 0 28px; border: 1px solid #A07D45; background: transparent; color: #87672F; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; cursor: pointer">Copy details</button>
-</div>
-</div>
-</div>
+<!-- ============ Gifts ============ -->
+<section class="section section--alt gifts" id="gifts">
+  <div class="watermark" aria-hidden="true" data-parallax="-0.1">JE</div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Gifts &amp; blessings</div>
+      <h2 class="display h2"><span class="mask" data-reveal="fade"><span>With Love &amp; Gratitude</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+      <p class="lede" data-reveal>Your love, prayers and presence mean the world to us. If you wish to bless us further, we kindly request monetary gifts only — no physical gifts, please.</p>
+    </div>
+    <div class="gift-grid">
+      <div class="gift" data-reveal>
+        <h3>Within Nigeria</h3>
+        <dl>
+          <div><dt>Bank</dt><dd>[Bank name]</dd></div>
+          <div><dt>Account name</dt><dd>[Account name]</dd></div>
+          <div><dt>Account no.</dt><dd data-copy-src="ng">[0000000000]</dd></div>
+        </dl>
+        <button type="button" class="btn btn--gold" data-copy="ng"><svg class="tick ok" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path pathLength="1" d="M2 7.5l3.2 3L12 3.5"/></svg><span class="default">Copy account number</span><span class="ok">Copied</span></button>
+      </div>
+      <div class="gift" data-reveal style="--d:150ms">
+        <h3>From abroad</h3>
+        <dl>
+          <div><dt>Currency</dt><dd>[USD / GBP]</dd></div>
+          <div><dt>Account name</dt><dd>[Account name]</dd></div>
+          <div><dt>Details</dt><dd data-copy-src="intl">[IBAN / Sort code]</dd></div>
+        </dl>
+        <button type="button" class="btn btn--gold" data-copy="intl"><svg class="tick ok" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path pathLength="1" d="M2 7.5l3.2 3L12 3.5"/></svg><span class="default">Copy details</span><span class="ok">Copied</span></button>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section id="game" style="padding: 140px 120px; background: #F6F0E6">
-<div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Play along</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 68px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Who Knows Us Better?</h2>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 17px; font-weight: 300; line-height: 1.8; color: #6E625A">Who’s most likely to…? Choose Ezinne or Ebenezer for each question and find out straight away if you got it right.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
-<span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E625A"><span data-text="answered"></span> of <span data-text="total"></span> answered · <span style="color: #2E5237"><span data-text="score"></span> correct</span></span>
-<button type="button" data-on="reset" style="padding: 12px 0; border: none; background: transparent; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #87672F; cursor: pointer">Play again</button>
-</div>
-<div style="height: 1px; background: #E3D7C4"><div style="width: 0%; height: 1px; background: #A07D45; transition: width 300ms ease" data-bind-style="width:progress"></div></div>
-</div>
-<div style="display: flex; flex-direction: column">
-<div data-list="questions"><template>
-<div style="display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; column-gap: 24px; row-gap: 12px; align-items: center; padding: 22px 0; border-bottom: 1px solid #E3D7C4">
-<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 26px; color: #A07D45">{{q.num}}</span>
-<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E625A">{{q.category}}</span><span style="font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.3; color: #2B2420">{{q.text}}</span></div>
-<div style="display: flex; gap: 10px"><button type="button" data-pick="ez" data-i="{{q.idx}}" aria-pressed="{{q.ezOn}}" aria-disabled="{{q.locked}}" style="height: 44px; min-width: 120px; padding: 0 20px; border: 1px solid {{q.ezBorder}}; border-radius: 999px; background: {{q.ezBg}}; color: {{q.ezFg}}; opacity: {{q.ezOpacity}}; cursor: {{q.ezCursor}}; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; transition: background 250ms ease, color 250ms ease, opacity 250ms ease">Ezinne</button><button type="button" data-pick="eb" data-i="{{q.idx}}" aria-pressed="{{q.ebOn}}" aria-disabled="{{q.locked}}" style="height: 44px; min-width: 120px; padding: 0 20px; border: 1px solid {{q.ebBorder}}; border-radius: 999px; background: {{q.ebBg}}; color: {{q.ebFg}}; opacity: {{q.ebOpacity}}; cursor: {{q.ebCursor}}; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; transition: background 250ms ease, color 250ms ease, opacity 250ms ease">Ebenezer</button></div>
-<div style="grid-column: 2 / 4"><div style="position: relative; display: {{q.fbDisplay}}; align-items: center; gap: 12px; animation: {{q.fbAnim}}">
-<span aria-hidden="true" style="position: absolute; left: 8px; top: 8px; width: 0; height: 0; display: {{q.confettiDisplay}}"><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #C9A24B; --dx: -46px; --dy: -34px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #6E1F2F; --dx: -30px; --dy: -52px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #A8BFA3; --dx: -8px; --dy: -60px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #C9A24B; --dx: 16px; --dy: -56px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #6E1F2F; --dx: 38px; --dy: -42px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #A8BFA3; --dx: 52px; --dy: -18px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #A8BFA3; --dx: -54px; --dy: -10px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #C9A24B; --dx: 44px; --dy: 6px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #6E1F2F; --dx: -40px; --dy: 10px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #A8BFA3; --dx: 26px; --dy: -66px; animation: {{q.confettiAnim}}"></span></span>
-<span aria-hidden="true" style="display: inline-block; font-size: 30px; line-height: 1; animation: {{q.emojiAnim}}">{{q.emoji}}</span>
-<span role="status" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 21px; color: {{q.fbColor}}">{{q.feedback}}</span>
-</div></div>
-</div>
-</template></div>
-</div>
-<div data-if="done">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 40px 24px; border: 1px solid #A07D45; animation: je-rise 500ms ease-out both">
-<div style="font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Your score</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 88px; line-height: 1; color: #2B2420"><span data-text="score"></span><span style="font-size: 0.45em; color: #6E625A"> / <span data-text="total"></span></span></div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 44px; line-height: 1.2; color: #A07D45"><span data-text="verdict"></span></div>
-</div>
-</div>
-</div>
+<!-- ============ Game ============ -->
+<section class="section game" id="game">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label" data-reveal>Play along</div>
+      <h2 class="display h2"><span class="mask" data-reveal="fade"><span>Who Knows Us Better?</span></span></h2>
+      <svg class="divider" viewBox="0 0 140 14" fill="none" aria-hidden="true" data-draw><path d="M0 7h56M84 7h56" stroke="#DCC28A"/><path class="fill" d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" stroke="#C9A24C" fill="#C9A24C"/></svg>
+      <p class="lede" data-reveal>Who’s most likely to…? Choose Ezinne or Ebenezer for each question and find out straight away if you got it right.</p>
+    </div>
+    <div class="game-wrap" data-reveal>
+      <div class="game-bar">
+        <div class="game-meta">
+          <span class="stat"><span id="g-answered">0</span> of <span id="g-total">10</span> answered · <b><span id="g-score">0</span> correct</b></span>
+          <button type="button" class="text-btn" id="g-reset">Play again</button>
+        </div>
+        <div class="meter"><i id="g-meter"></i></div>
+      </div>
+      <div id="questions"></div>
+      <div id="result" hidden></div>
+    </div>
+  </div>
 </section>
 
-<footer style="padding: 120px 120px; background: #221C19; color: #EDE3D6">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px">
-<div style="font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; color: #CDB894">Sealed with love</div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 88px; line-height: 1.15; color: #E2C79A">Ezinne &amp; Ebenezer</div>
-<svg width="140" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#7A6650"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#C3A574"></path></svg>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #D9CCBB">13 &amp; 14 November 2026 · Nsukka, Enugu State</div>
-<div style="font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: #CDB894">#FromCoalCityToRockCity</div>
-<button type="button" data-on="replay" style="margin-top: 12px; padding: 12px 0; border: none; border-bottom: 1px solid #7A6650; background: transparent; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #CDB894; cursor: pointer">Seal the envelope again</button>
-</div>
+</main>
+
+<!-- ============ Footer ============ -->
+<footer class="footer">
+  <div class="watermark" aria-hidden="true">JE</div>
+  <div class="wrap">
+    <div class="monogram" aria-hidden="true" data-reveal="scale">JE</div>
+    <div class="label" data-reveal>Sealed with love</div>
+    <p class="names"><span class="mask" data-reveal="fade"><span>Ezinne &amp; Ebenezer</span></span></p>
+    <svg class="flourish" viewBox="0 0 300 44" fill="none" stroke="#C9A24C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-draw><g><path d="M150 34 C 140 34, 134 22, 122 24 C 112 26, 114 36, 103 36 C 91 36, 92 24, 80 25 C 67 26, 65 33, 52 32 C 38 31, 33 25, 21 27 C 11 29, 10 39, 17 39 C 23 39, 23 32, 17 32"/><path d="M96 30 c -3 -7 -9 -9 -14 -7 c 3 6 8 8 14 7z"/><path d="M66 31 c -4 -6 -10 -7 -14 -4 c 4 5 9 6 14 4z"/><path d="M110 28 c 1 -6 -2 -11 -7 -12 c -1 5 2 10 7 12z"/><circle cx="86" cy="34" r="1.2"/><circle cx="58" cy="25" r="1.2"/><path class="fill" fill="#C9A24C" d="M128 15s-6-3.8-6-8.3a3.3 3.3 0 0 1 6-2a3.3 3.3 0 0 1 6 2c0 4.5-6 8.3-6 8.3z"/></g><g transform="translate(300 0) scale(-1 1)"><path d="M150 34 C 140 34, 134 22, 122 24 C 112 26, 114 36, 103 36 C 91 36, 92 24, 80 25 C 67 26, 65 33, 52 32 C 38 31, 33 25, 21 27 C 11 29, 10 39, 17 39 C 23 39, 23 32, 17 32"/><path d="M96 30 c -3 -7 -9 -9 -14 -7 c 3 6 8 8 14 7z"/><path d="M66 31 c -4 -6 -10 -7 -14 -4 c 4 5 9 6 14 4z"/><path d="M110 28 c 1 -6 -2 -11 -7 -12 c -1 5 2 10 7 12z"/><circle cx="86" cy="34" r="1.2"/><circle cx="58" cy="25" r="1.2"/><path class="fill" fill="#C9A24C" d="M128 15s-6-3.8-6-8.3a3.3 3.3 0 0 1 6-2a3.3 3.3 0 0 1 6 2c0 4.5-6 8.3-6 8.3z"/></g><path d="M146 30 l4 -5 l4 5 l-4 3z"/><circle cx="150" cy="38" r="4.5"/></svg>
+    <div class="when" data-reveal>13 &amp; 14 November 2026 · Nsukka, Enugu State</div>
+    <div class="label" data-reveal>#FromCoalCityToRockCity</div>
+    <button type="button" class="text-btn" id="replay">Seal the envelope again</button>
+  </div>
 </footer>
-</div>
-</div>
-</div>
-</div>
-<div class="v-mobile">
-<div style="width: 100%; display: flex; flex-direction: column; background: #F6F0E6; color: #2B2420; font-family: 'Jost', sans-serif">
-<div data-if="showEnvelope">
-<div style="min-height: 780px; padding: 56px 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; background: #F6F0E6; text-align: center">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 1; transform: translateY(0px); transition: opacity 500ms ease, transform 500ms ease" data-bind-style="opacity:headOpacity;transform:headTransform">
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; letter-spacing: 0.01em; color: #6B5233">Sealed with love from</div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 60px; line-height: 1.15; color: #A07D45">Ezinne &amp; Ebenezer</div>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<button type="button" data-on="openEnvelope" aria-label="Open the invitation" style="position: relative; width: 330px; height: 210px; padding: 0; border: none; background: transparent; cursor: pointer; perspective: 1600px">
-<span style="position: absolute; inset: 0; border-radius: 6px; background: #E9DEC9; box-shadow: 0 30px 60px -30px rgba(80, 55, 25, 0.35)"></span>
-<span style="position: absolute; left: 16px; right: 16px; top: 8px; height: 194px; border-radius: 4px; background: #FFFDF8; border: 1px solid #EFE5D4; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 18px; gap: 4px; transform: translateY(0px); transition: transform 1000ms cubic-bezier(.2,.7,.2,1) 550ms; z-index: 1" data-bind-style="transform:letterTransform">
-<span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #87672F">You are invited</span>
-<span style="font-family: 'Pinyon Script', cursive; font-size: 26px; line-height: 1.2; color: #2B2420">13 · 11 · 2026</span>
-</span>
-<svg width="330" height="210" viewBox="0 0 330 210" style="position: absolute; inset: 0; z-index: 2" aria-hidden="true"><path d="M0 210 L0 0 L165 115 L330 0 L330 210 Z" fill="#F2E9DA"></path><path d="M0 0 L148 105 L0 210 Z" fill="#EDE2CE"></path><path d="M330 0 L181 105 L330 210 Z" fill="#EDE2CE"></path><path d="M0 210 L165 96 L330 210 Z" fill="#F4ECDF"></path><path d="M0 210 L165 96 L330 210" fill="none" stroke="#DCCCB0" stroke-width="1"></path></svg>
-<span style="position: absolute; left: 0; top: 0; width: 330px; height: 126px; transform-origin: 50% 0; transform: rotateX(0deg); transition: transform 800ms cubic-bezier(.4,.0,.2,1), z-index 0s linear 400ms; z-index: 3" data-bind-style="transform:flapTransform;z-index:flapZ"><svg width="330" height="126" viewBox="0 0 330 126" aria-hidden="true"><path d="M0 0 L330 0 L165 122 Z" fill="#EADFC9" stroke="#D8C6A6" stroke-width="1"></path></svg></span>
-<span style="position: absolute; left: 133px; top: 88px; width: 64px; height: 64px; z-index: 4; opacity: 1; transform: scale(1); transition: opacity 350ms ease, transform 350ms ease" data-bind-style="opacity:sealOpacity;transform:sealTransform"><svg width="64" height="64" viewBox="0 0 100 100" role="img" aria-label="Burgundy wax seal with the monogram JE"><path d="M96.0 50.0 L96.9 51.6 L97.6 53.3 L97.9 55.0 L97.9 56.7 L97.5 58.4 L96.7 59.9 L95.5 61.4 L94.2 62.7 L92.8 63.9 L91.4 65.1 L90.2 66.2 L89.2 67.4 L88.4 68.7 L87.9 70.1 L87.5 71.7 L87.3 73.3 L87.0 75.0 L86.6 76.6 L86.1 78.2 L85.2 79.6 L84.1 80.7 L82.8 81.7 L81.3 82.4 L79.7 83.0 L78.1 83.4 L76.5 83.9 L75.0 84.4 L73.7 85.2 L72.6 86.1 L71.5 87.3 L70.6 88.7 L69.6 90.2 L68.6 91.8 L67.5 93.4 L66.3 94.7 L64.9 95.7 L63.3 96.4 L61.6 96.7 L59.9 96.6 L58.2 96.2 L56.4 95.6 L54.7 94.9 L53.1 94.3 L51.5 93.7 L50.0 93.4 L48.5 93.4 L47.0 93.6 L45.4 93.9 L43.8 94.3 L42.1 94.7 L40.5 94.9 L38.8 94.9 L37.2 94.5 L35.8 93.8 L34.4 92.8 L33.2 91.6 L32.1 90.2 L31.1 88.8 L30.0 87.5 L29.0 86.4 L27.8 85.5 L26.5 84.9 L25.0 84.4 L23.3 84.2 L21.5 84.0 L19.6 83.7 L17.8 83.4 L16.1 82.8 L14.6 81.9 L13.3 80.8 L12.4 79.4 L11.7 77.8 L11.3 76.1 L11.1 74.3 L10.9 72.5 L10.7 70.9 L10.4 69.3 L9.9 67.8 L9.2 66.5 L8.3 65.2 L7.2 63.9 L6.2 62.6 L5.1 61.2 L4.3 59.7 L3.8 58.1 L3.6 56.5 L3.8 54.9 L4.3 53.2 L5.1 51.6 L6.0 50.0 L7.0 48.5 L7.8 47.0 L8.4 45.6 L8.8 44.2 L8.8 42.7 L8.6 41.2 L8.2 39.6 L7.7 37.9 L7.2 36.1 L6.8 34.3 L6.7 32.5 L6.9 30.8 L7.5 29.3 L8.4 27.9 L9.6 26.7 L11.0 25.6 L12.4 24.6 L13.8 23.7 L15.1 22.8 L16.3 21.7 L17.3 20.5 L18.1 19.2 L18.8 17.7 L19.5 16.1 L20.2 14.5 L21.1 13.0 L22.1 11.6 L23.4 10.5 L24.9 9.8 L26.5 9.3 L28.3 9.2 L30.2 9.3 L32.0 9.6 L33.8 9.9 L35.5 10.1 L37.1 10.2 L38.5 9.9 L39.9 9.4 L41.2 8.6 L42.5 7.6 L43.9 6.5 L45.3 5.4 L46.8 4.5 L48.4 3.8 L50.0 3.4 L51.6 3.5 L53.2 3.8 L54.8 4.4 L56.3 5.2 L57.7 6.1 L59.2 6.9 L60.6 7.5 L62.0 8.0 L63.6 8.2 L65.2 8.3 L66.9 8.1 L68.7 8.0 L70.5 7.9 L72.3 8.1 L74.0 8.5 L75.5 9.2 L76.8 10.2 L77.9 11.6 L78.7 13.3 L79.3 15.0 L79.8 16.9 L80.3 18.6 L80.8 20.3 L81.4 21.7 L82.3 22.9 L83.3 24.0 L84.5 24.9 L85.9 25.8 L87.4 26.6 L88.9 27.5 L90.2 28.6 L91.3 29.8 L92.1 31.2 L92.6 32.8 L92.9 34.4 L92.8 36.1 L92.7 37.8 L92.5 39.4 L92.4 41.0 L92.4 42.5 L92.7 44.0 L93.3 45.4 L94.1 46.9 L95.0 48.4 L96.0 50.0Z" fill="#6E1F2F"></path><circle cx="50" cy="50" r="35" fill="none" stroke="#4E1320" stroke-width="2"></circle><circle cx="50" cy="50" r="31" fill="none" stroke="#8C3447" stroke-width="1"></circle><path d="M30 34 C 38 30, 44 33, 50 30 C 56 33, 62 30, 70 34" fill="none" stroke="#8C3447" stroke-width="1"></path><text x="50" y="63" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="34" fill="#E8C9A0">JE</text></svg></span>
-</button>
-<div style="display: flex; align-items: center; gap: 14px">
-<span style="width: 28px; height: 1px; background: #C3A574"></span>
-<span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Tap the seal to open</span>
-<span style="width: 28px; height: 1px; background: #C3A574"></span>
-</div>
-</div>
-</div>
-<div data-if="showSite">
-<div style="display: flex; flex-direction: column">
-<section id="top-m" style="position: relative; height: 760px; overflow: hidden; background: #1E1916">
-<img src="assets/portrait.jpg" alt="Ebenezer and Ezinne, black and white portrait" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 42% 20%; filter: grayscale(1) contrast(1.05) brightness(0.92)">
-<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 15, 12, 0.55) 0%, rgba(20, 15, 12, 0.35) 40%, rgba(20, 15, 12, 0.7) 100%)"></div>
-<nav style="position: absolute; left: 0; right: 0; top: 0; z-index: 2; height: 76px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.28)">
-<a href="#top-m" aria-label="Back to top" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; font-family: 'Pinyon Script', cursive; font-size: 20px; color: #FFFFFF; text-decoration: none">JE</a>
-<div style="display: flex; gap: 18px"><a href="#story-m" style="padding: 12px 0; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #FFFFFF; text-decoration: none">Story</a><a href="#weekend-m" style="padding: 12px 0; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #FFFFFF; text-decoration: none">Weekend</a><a href="#game-m" style="padding: 12px 0; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #FFFFFF; text-decoration: none">Play</a></div>
-</nav>
-<div style="position: absolute; left: 0; right: 0; bottom: 64px; padding: 0 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; color: #FFFFFF">
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: #F1E6D6">We’re getting married</div>
-<h1 style="margin: 0; font-family: 'Pinyon Script', cursive; font-weight: 400; font-size: 64px; line-height: 1.05; color: #FFFFFF">Ezinne <span style="font-size: 48px; color: #E2C79A">&amp;</span> Ebenezer</h1>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #F1E6D6">13 &amp; 14 November 2026<br>Nsukka, Enugu State</div>
-<div style="display: flex; align-items: flex-end; gap: 4px; margin-top: 4px">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 54px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="days"></span></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Days</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 16px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 54px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="hours"></span></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Hours</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 16px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 54px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="minutes"></span></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Mins</span></div><span style="font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; line-height: 1; color: rgba(255,255,255,0.6); padding-bottom: 16px">:</span><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 54px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; line-height: 1; color: #FFFFFF"><span data-text="seconds"></span></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: #E8DCCB">Secs</span></div>
-</div>
-<div style="display: flex; gap: 10px; margin-top: 8px">
-<a href="#story-m" style="height: 48px; padding: 0 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.8); color: #FFFFFF; text-decoration: none; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase">Our story</a><a href="#weekend-m" style="height: 48px; padding: 0 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.8); color: #FFFFFF; text-decoration: none; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase">The weekend</a>
-</div>
-</div>
-</section>
 
-<section style="padding: 88px 24px; background: #F6F0E6">
-<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 36px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">#FromCoalCityToRockCity</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 21px; color: #6E625A">Together with their families</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px">
-<svg width="88" height="88" viewBox="0 0 120 120" fill="none" stroke="#A07D45" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of coal, for Enugu the Coal City"><path d="M14 98 H106"></path><polygon points="20,96 30,74 48,68 58,82 52,98"></polygon><path d="M30 74 L42 80 L48 68 M42 80 L52 98"></path><polygon points="46,98 58,70 80,64 98,80 94,98"></polygon><path d="M58 70 L62 80 L80 64 M62 80 L74 78 L98 80 M74 78 L94 98"></path><polygon points="38,70 46,50 64,44 74,58 66,68 50,68"></polygon><path d="M46 50 L58 55 L64 44 M58 55 L66 68"></path><path d="M60 20c-5 6 2 9-1 15 6-3 9-8 4-15z"></path><circle cx="71" cy="28" r="1.2"></circle><circle cx="49" cy="31" r="1"></circle></svg>
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Enugu · The Coal City</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; line-height: 1.25; color: #2B2420">Chief &amp; Dr. Mrs<br>Raphael Ani Aruma</div>
-<div style="font-size: 14px; font-weight: 300; line-height: 1.7; color: #6E625A">of Umuedogbanyi, Iheagu Nru Nsukka,<br>Enugu State</div>
-</div>
-<div style="display: flex; align-items: center; gap: 14px; width: 100%"><span style="flex-grow: 1; height: 1px; background: #E3D7C4"></span><span style="font-family: 'Pinyon Script', cursive; font-size: 44px; line-height: 1; color: #A07D45">&amp;</span><span style="flex-grow: 1; height: 1px; background: #E3D7C4"></span></div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px">
-<svg width="88" height="88" viewBox="0 0 120 120" fill="none" stroke="#A07D45" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Fine-line drawing of Olumo Rock, for Abeokuta the Rock City"><circle cx="90" cy="28" r="8"></circle><path d="M6 98 C 12 74, 28 60, 42 62 C 46 42, 64 32, 80 44 C 94 46, 106 68, 114 98"></path><path d="M42 62 C 50 56, 58 58, 62 70 M80 44 C 84 56, 90 70, 92 98"></path><path d="M22 80 C 34 75, 48 77, 56 84 M 66 60 C 74 58, 82 62, 88 70 M 98 72 C 102 78, 105 86, 106 92"></path><path d="M2 98 H118"></path><path d="M16 98 c2-5 5-6 8 0 M100 98 c2-5 5-6 8 0"></path></svg>
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Abeokuta · The Rock City</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; line-height: 1.25; color: #2B2420">Late (Rev) John Adesina Adeogun<br>&amp; Pst (Mrs) Olusola Adeogun</div>
-<div style="font-size: 14px; font-weight: 300; line-height: 1.7; color: #6E625A">of Abeokuta South LGA,<br>Ogun State</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 680px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; line-height: 1.5; color: #4A3F39">request the honour of your presence at the holy matrimony of their children, Ezinne Jennifer &amp; Ebenezer.</p>
-</div>
-</div>
-</section>
-
-<section id="story-m" style="padding: 88px 24px; background: #FBF8F2">
-<div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 36px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Our story</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">From Shuttlers Paddi to Forever</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 16px; font-weight: 300; line-height: 1.8; color: #6E625A">Every love story has two sides. Open each one to read how it happened, in our own words.</p>
-</div>
-<div style="width: 100%; max-width: 999px; padding: 8px; box-sizing: border-box; background: #FFFFFF; border: 1px solid #E3D7C4">
-<img src="assets/hug.jpg" alt="Ezinne hugging Ebenezer, both laughing" style="display: block; width: 100%; height: 300px; object-fit: cover; object-position: 45% 32%">
-</div>
-<div style="width: 100%; border-top: 1px solid #E3D7C4">
-<div style="border-bottom: 1px solid #E3D7C4">
-<button type="button" data-on="toggleHer" data-aria="herOpen" aria-expanded="false" style="width: 100%; padding: 20px 0; display: flex; align-items: center; gap: 14px; border: none; background: transparent; text-align: left; cursor: pointer; color: #2B2420">
-<img src="assets/ezinne.jpg" alt="" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; object-position: 50% 22%; filter: grayscale(0.15)">
-<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
-<span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Her side</span>
-<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 27px; font-weight: 400; line-height: 1.1">As told by Ezinne</span>
-</span>
-<span style="position: relative; width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: 1px solid #D5C3A5; display: flex; align-items: center; justify-content: center"><span style="position: absolute; width: 14px; height: 1px; background: #2B2420"></span><span style="position: absolute; width: 1px; height: 14px; background: #2B2420; transform: scaleY(0); transition: transform 250ms ease" data-bind-style="transform:herBar"></span></span>
-</button>
-<div data-if="herOpen">
-<div style="padding: 0 0 16px">
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/selfie.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 50% 40%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">I.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Where it began</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">“Do you live around here?”</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">He was a brand designer at my company, while I was in the tech department. A few days after he resumed, we happened to get on the same Shuttlers bus after work.</p>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">He got down at the same junction where I usually got down, and the next workday, he came over and asked if I lived around there. I said yes. That simple conversation was the beginning of our friendship.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/side-by-side.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 50% 60%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">II.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Just friends, for a whole year</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">Shuttlers paddi</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">He stayed at the company for just about two months, but we sat close to each other on the Shuttlers after work a few times before he left. By then we were Shuttlers paddi, and even after he resigned, the friendship continued.</p>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">For the entire first year, we were genuinely just friends — two friends talking about work, church, family and life. He became someone I could count on, in the good times and the not-so-good ones.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/canopy.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 50% 40%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">III.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">A movie &amp; two weeks of silence</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">The plot twist</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">About a year into our friendship, we disagreed over a movie. We both had very strong and very different opinions, and somehow that movie earned us almost two weeks of silence.</p>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">Two weeks without talking to him felt way too long. That was when I realised I actually liked him. As it turns out, he had come to the same realisation.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/hug.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 45% 38%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">IV.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">September 2025</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">He asked me out</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">Eventually, he reached out, we made up, and we went back to being us. Only this time, things were a little different: we became more intentional about each other.</p>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">In September 2025, he asked me out. And I said <span style="font-weight: 500; color: #2B2420">YES.</span></p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; border-top: 1px solid #E3D7C4; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/ring.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 50% 50%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">V.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Seven months later</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">The proposal</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">Seven months later, he proposed. And now, the man who started out as my colleague, became my friend, became my Shuttlers paddi, and eventually became the person I couldn’t imagine my life without… is going to be my husband.</p>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.5em; color: #87672F">Tadaaaaa, here we are!</span></p>
-</div>
-</div>
-</div>
-</div>
-<div style="border-bottom: 1px solid #E3D7C4">
-<button type="button" data-on="toggleHis" data-aria="hisOpen" aria-expanded="false" style="width: 100%; padding: 20px 0; display: flex; align-items: center; gap: 14px; border: none; background: transparent; text-align: left; cursor: pointer; color: #2B2420">
-<img src="assets/ebenezer.jpg" alt="" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; object-position: 46% 38%; filter: grayscale(0.15)">
-<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
-<span style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">His side</span>
-<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 27px; font-weight: 400; line-height: 1.1">As told by Ebenezer</span>
-</span>
-<span style="position: relative; width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: 1px solid #D5C3A5; display: flex; align-items: center; justify-content: center"><span style="position: absolute; width: 14px; height: 1px; background: #2B2420"></span><span style="position: absolute; width: 1px; height: 14px; background: #2B2420; transform: scaleY(1); transition: transform 250ms ease" data-bind-style="transform:hisBar"></span></span>
-</button>
-<div data-if="hisOpen">
-<div style="padding: 0 0 16px">
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 28px 0; ">
-<div style="padding: 6px; background: #FFFFFF; border: 1px solid #E3D7C4"><img src="assets/church.jpg" alt="" style="display: block; width: 100%; height: 220px; object-fit: cover; object-position: 55% 38%"></div>
-<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 6px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: #A07D45">I.</span><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">[Chapter label]</div></div>
-<h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: #2B2420">[Ebenezer’s chapter title]</h3>
-<p style="margin: 0; font-size: 15px; font-weight: 300; line-height: 1.85; color: #4A3F39">[Ebenezer’s side of the story goes here — the first Shuttlers ride, the movie argument, the moment he knew, and how he planned the proposal.]</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding-top: 8px">
-<p style="margin: 0; max-width: 600px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; line-height: 1.55; color: #6E625A">Sometimes, the best love stories don’t start with love at first sight. Sometimes, they start with a simple question:</p>
-<p style="margin: 0; font-family: 'Pinyon Script', cursive; font-size: 46px; line-height: 1.2; color: #A07D45">“Do you live around here?”</p>
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">And ours did · From Shuttlers paddi to forever</div>
-</div>
-</div>
-</section>
-
-<section id="gallery-m" style="padding: 88px 24px; background: #F6F0E6">
-<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Moments we treasure</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Our Love Gallery</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: start">
-<img src="assets/portrait.jpg" alt="Pre-wedding portrait" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 25%">
-<img src="assets/selfie.jpg" alt="Selfie together" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 40%">
-<img src="assets/ring-embrace.jpg" alt="Engagement ring embrace" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 40%">
-<img src="assets/hug.jpg" alt="A joyful hug" style="width: 100%; height: 210px; object-fit: cover; object-position: 45% 40%">
-<img src="assets/church.jpg" alt="Together at church" style="width: 100%; height: 210px; object-fit: cover; object-position: 55% 40%">
-<img src="assets/canopy.jpg" alt="Under a woven canopy" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 40%">
-<img src="assets/ring.jpg" alt="The ring" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 50%">
-<img src="assets/sneakers.jpg" alt="Sneakers and heels" style="width: 100%; height: 210px; object-fit: cover; object-position: 50% 50%">
-</div>
-</div>
-</section>
-
-<section id="weekend-m" style="padding: 88px 24px; background: #FBF8F2">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Join us in Nsukka</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">The Weekend</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 0px 0px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Friday · Day one</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 72px; line-height: 0.9; color: #A07D45">13</div>
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #6E625A">November 2026</div>
-<h3 style="margin: 6px 0 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 32px; line-height: 1.1; color: #2B2420">Church Wedding</h3>
-<div style="font-size: 15px; font-weight: 300; line-height: 1.8; color: #4A3F39">10:00 AM<br>Holy Rosary Sisters Convent, Nsukka</div>
-<a href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" style="padding: 10px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #87672F; text-decoration: none; border-bottom: 1px solid #C3A574">Directions</a>
-</div>
-<span style="height: 1px; width: 100%; background: #E3D7C4"></span>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 0px 0px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Saturday · Day two</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 72px; line-height: 0.9; color: #A07D45">14</div>
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #6E625A">November 2026</div>
-<h3 style="margin: 6px 0 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 32px; line-height: 1.1; color: #2B2420">Traditional Wedding</h3>
-<div style="font-size: 15px; font-weight: 300; line-height: 1.8; color: #4A3F39">1:00 PM<br>Chief Raphael Aruma’s Compound,<br>Iheagu Nru, Nsukka</div>
-<a href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" style="padding: 10px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #87672F; text-decoration: none; border-bottom: 1px solid #C3A574">Directions</a>
-</div>
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding-top: 32px; border-top: 1px solid #E3D7C4">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Colours of the day</div>
-<div style="display: flex; gap: 18px"><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 50%; background: #6E1F2F"></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Burgundy</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 50%; background: #A8BFA3"></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Sage</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 50%; background: #F4EDE0; box-shadow: inset 0 0 0 1px #E3D7C4"></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Ivory</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 50%; background: #C9A24B"></span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Gold</span></div></div>
-<p style="margin: 0; max-width: 560px; font-size: 15px; font-weight: 300; line-height: 1.8; color: #4A3F39">Dress in burgundy, sage green, ivory and gold. [Add any aso-ebi details.] Aso-ebi enquiries: [Name] · [Phone number]</p>
-</div>
-</div>
-</section>
-
-<section id="travel-m" style="padding: 88px 24px; background: #F6F0E6">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Travelling down to Enugu</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Getting There</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-</div>
-<div style="position: relative; padding-left: 4px"><span style="position: absolute; left: 10px; top: 12px; bottom: 14px; border-left: 1px dashed #A07D45"></span><div style="position: relative; display: flex; gap: 18px; align-items: flex-start; padding-bottom: 22px"><span style="position: relative; z-index: 1; flex-shrink: 0; width: 13px; height: 13px; margin-top: 6px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45"></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 500; color: #2B2420">Akanu Ibiam Airport</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Fly into Enugu</span></div></div><div style="position: relative; display: flex; gap: 18px; align-items: flex-start; padding-bottom: 22px"><span style="position: relative; z-index: 1; flex-shrink: 0; width: 13px; height: 13px; margin-top: 6px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45"></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 500; color: #2B2420">Enugu</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Head towards Nsukka</span></div></div><div style="position: relative; display: flex; gap: 18px; align-items: flex-start; padding-bottom: 22px"><span style="position: relative; z-index: 1; flex-shrink: 0; width: 13px; height: 13px; margin-top: 6px; border-radius: 50%; background: #FBF8F2; border: 1px solid #A07D45"></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 500; color: #2B2420">Fempark Junction</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Stop at Nru</span></div></div><div style="position: relative; display: flex; gap: 18px; align-items: flex-start; padding-bottom: 0px"><span style="position: relative; z-index: 1; flex-shrink: 0; width: 13px; height: 13px; margin-top: 6px; border-radius: 50%; background: #6E1F2F; border: 1px solid #A07D45"></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 500; color: #2B2420">Aruma Compound</span><span style="font-size: 14px; font-weight: 300; color: #6E625A">Cab or bike from the junction</span></div></div></div>
-<div style="border-top: 1px solid #E3D7C4; border-bottom: 1px solid #E3D7C4">
-<div style="display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 6px; padding: 18px 0; "><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Flights</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420">United Nigeria Airlines or Air Peace</div><div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #4A3F39">Fly into Akanu Ibiam International Airport, Enugu. Book through Wakanow for a discount.</div></div></div><div style="display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 6px; padding: 18px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Taxi</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420">Airport to Nsukka</div><div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #4A3F39">Airport taxis to Nsukka start from ₦60,000.</div></div></div><div style="display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 6px; padding: 18px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Group bus</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420">Coming as a group?</div><div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #4A3F39">We’ll try to provide a bus to bring groups from the airport. Share your arrival details with [Name · Phone number].</div></div></div><div style="display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 6px; padding: 18px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Church</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420">Holy Rosary Sisters Convent</div><div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #4A3F39">Nsukka, Enugu State · <a href="https://www.google.com/maps/search/?api=1&amp;query=Holy+Rosary+Sisters+Convent+Nsukka" style="color: #87672F">Open in Maps</a></div></div></div><div style="display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 6px; padding: 18px 0; border-top: 1px solid #E3D7C4"><div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Traditional</div><div style="display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #2B2420">Chief Raphael Aruma’s Compound</div><div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #4A3F39">Umuedogbanyi, Iheagu Nru, Nsukka · <a href="https://www.google.com/maps/search/?api=1&amp;query=Nru+Nsukka+Enugu" style="color: #87672F">Open in Maps</a></div></div></div>
-</div>
-</div>
-</section>
-
-<section id="gifts-m" style="padding: 88px 24px; background: #FBF8F2">
-<div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Gifts &amp; blessings</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">With Love &amp; Gratitude</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 16px; font-weight: 300; line-height: 1.8; color: #6E625A">Your love, prayers and presence mean the world to us. If you wish to bless us further, we kindly request monetary gifts only — no physical gifts, please.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 16px">
-<h3 style="margin: 0; text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 28px; color: #2B2420">Within Nigeria</h3>
-<div style="display: flex; flex-direction: column; border-top: 1px solid #E3D7C4"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Bank</span><span style="font-size: 15px; color: #2B2420">[Bank name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account name</span><span style="font-size: 15px; color: #2B2420">[Account name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account no.</span><span style="font-size: 15px; color: #2B2420">[0000000000]</span></div></div>
-<button type="button" style="align-self: center; height: 48px; padding: 0 28px; border: 1px solid #A07D45; background: transparent; color: #87672F; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; cursor: pointer">Copy account number</button>
-</div>
-<span style="height: 24px"></span>
-<div style="display: flex; flex-direction: column; gap: 16px">
-<h3 style="margin: 0; text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 28px; color: #2B2420">From abroad</h3>
-<div style="display: flex; flex-direction: column; border-top: 1px solid #E3D7C4"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Currency</span><span style="font-size: 15px; color: #2B2420">[USD / GBP]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Account name</span><span style="font-size: 15px; color: #2B2420">[Account name]</span></div><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E3D7C4"><span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6E625A">Details</span><span style="font-size: 15px; color: #2B2420">[IBAN / Sort code]</span></div></div>
-<button type="button" style="align-self: center; height: 48px; padding: 0 28px; border: 1px solid #A07D45; background: transparent; color: #87672F; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; cursor: pointer">Copy details</button>
-</div>
-</div>
-</section>
-
-<section id="game-m" style="padding: 88px 24px; background: #F6F0E6">
-<div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Play along</div>
-<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; color: #2B2420">Who Knows Us Better?</h2>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#C3A574"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#A07D45"></path></svg>
-<p style="margin: 0; max-width: 560px; font-size: 16px; font-weight: 300; line-height: 1.8; color: #6E625A">Who’s most likely to…? Choose Ezinne or Ebenezer for each question and find out straight away if you got it right.</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
-<span style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E625A"><span data-text="answered"></span> of <span data-text="total"></span> answered · <span style="color: #2E5237"><span data-text="score"></span> correct</span></span>
-<button type="button" data-on="reset" style="padding: 12px 0; border: none; background: transparent; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #87672F; cursor: pointer">Play again</button>
-</div>
-<div style="height: 1px; background: #E3D7C4"><div style="width: 0%; height: 1px; background: #A07D45; transition: width 300ms ease" data-bind-style="width:progress"></div></div>
-</div>
-<div style="display: flex; flex-direction: column">
-<div data-list="questions"><template>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 20px 0; border-bottom: 1px solid #E3D7C4">
-<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: #A07D45">{{q.num}}</span><span style="font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E625A">{{q.category}}</span></div>
-<span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.3; color: #2B2420">{{q.text}}</span>
-<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button type="button" data-pick="ez" data-i="{{q.idx}}" aria-pressed="{{q.ezOn}}" aria-disabled="{{q.locked}}" style="height: 44px; min-width: 0px; padding: 0 0px; border: 1px solid {{q.ezBorder}}; border-radius: 999px; background: {{q.ezBg}}; color: {{q.ezFg}}; opacity: {{q.ezOpacity}}; cursor: {{q.ezCursor}}; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; transition: background 250ms ease, color 250ms ease, opacity 250ms ease">Ezinne</button><button type="button" data-pick="eb" data-i="{{q.idx}}" aria-pressed="{{q.ebOn}}" aria-disabled="{{q.locked}}" style="height: 44px; min-width: 0px; padding: 0 0px; border: 1px solid {{q.ebBorder}}; border-radius: 999px; background: {{q.ebBg}}; color: {{q.ebFg}}; opacity: {{q.ebOpacity}}; cursor: {{q.ebCursor}}; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; transition: background 250ms ease, color 250ms ease, opacity 250ms ease">Ebenezer</button></div>
-<div style="position: relative; display: {{q.fbDisplay}}; align-items: center; gap: 12px; animation: {{q.fbAnim}}">
-<span aria-hidden="true" style="position: absolute; left: 8px; top: 8px; width: 0; height: 0; display: {{q.confettiDisplay}}"><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #C9A24B; --dx: -46px; --dy: -34px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #6E1F2F; --dx: -30px; --dy: -52px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #A8BFA3; --dx: -8px; --dy: -60px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #C9A24B; --dx: 16px; --dy: -56px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #6E1F2F; --dx: 38px; --dy: -42px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #A8BFA3; --dx: 52px; --dy: -18px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #A8BFA3; --dx: -54px; --dy: -10px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #C9A24B; --dx: 44px; --dy: 6px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 2px; background: #6E1F2F; --dx: -40px; --dy: 10px; animation: {{q.confettiAnim}}"></span><span style="position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; background: #A8BFA3; --dx: 26px; --dy: -66px; animation: {{q.confettiAnim}}"></span></span>
-<span aria-hidden="true" style="display: inline-block; font-size: 26px; line-height: 1; animation: {{q.emojiAnim}}">{{q.emoji}}</span>
-<span role="status" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: {{q.fbColor}}">{{q.feedback}}</span>
-</div>
-</div>
-</template></div>
-</div>
-<div data-if="done">
-<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 28px 16px; border: 1px solid #A07D45; animation: je-rise 500ms ease-out both">
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #87672F">Your score</div>
-<div style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 64px; line-height: 1; color: #2B2420"><span data-text="score"></span><span style="font-size: 0.45em; color: #6E625A"> / <span data-text="total"></span></span></div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 34px; line-height: 1.2; color: #A07D45"><span data-text="verdict"></span></div>
-</div>
-</div>
-</div>
-</section>
-
-<footer style="padding: 80px 24px; background: #221C19; color: #EDE3D6">
-<div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: #CDB894">Sealed with love</div>
-<div style="font-family: 'Pinyon Script', cursive; font-size: 54px; line-height: 1.15; color: #E2C79A">Ezinne &amp; Ebenezer</div>
-<svg width="110" height="14" viewBox="0 0 140 14" fill="none" aria-hidden="true"><path d="M0 7h56M84 7h56" stroke="#7A6650"></path><path d="M70 12s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.7A2.8 2.8 0 0 1 75 5c0 3.8-5 7-5 7z" fill="#C3A574"></path></svg>
-<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: #D9CCBB">13 &amp; 14 November 2026 · Nsukka, Enugu State</div>
-<div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #CDB894">#FromCoalCityToRockCity</div>
-<button type="button" data-on="replay" style="margin-top: 12px; padding: 12px 0; border: none; border-bottom: 1px solid #7A6650; background: transparent; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #CDB894; cursor: pointer">Seal the envelope again</button>
-</div>
-</footer>
-</div>
-</div>
-</div>
-</div>
-<script src="app.js" defer></script>
 </body>
 </html>
