@@ -37,8 +37,8 @@ Double-clicking `index.html` also works for a quick look, but a local server mat
 - **Safe rendering:** game text is HTML-escaped before it's placed on the page, and click handlers only run named actions defined in `app.js`.
 - **Photos:** checked for hidden metadata (EXIF/GPS location) — none is present.
 
-Keep in mind that everything on the site, including family names, venues and (once filled in) bank details, is public to anyone with the link.
+Keep in mind that everything on the site, including family names, venues and the bank details, is public to anyone with the link.
 
 ## Editing
 
-Text such as `[Bank name]`, `[Account name]` and Ebenezer's side of the story are placeholders — search `index.html` for `[` to find them. Edit the text in both the desktop (`.v-desktop`) and phone (`.v-mobile`) layouts.
+The page contains a desktop layout (`.v-desktop`) and a phone layout (`.v-mobile`) in `index.html`; change text in both. Remaining placeholders are in square brackets (search for `[`): the aso-ebi details and contact, and the contact for group airport pickups. The account numbers used by the copy buttons are set in `app.js` (`copyAccess`, `copyOpay`).
