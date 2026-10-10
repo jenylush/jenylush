@@ -111,7 +111,7 @@ function verdict(score, total) {
     toggleHis: function () { state.hisOpen = !state.hisOpen; render(); },
     reset: function () { state.picks = {}; renderLists(); render(); },
     copyAccess: function () { copy('access', '0037147690'); },
-    copyOpay: function () { copy('opay', '9034548154'); }
+    copyOpay: function () { copy('opay', '9034549154'); }
   };
 
   function rowHtml(tpl, i) {
