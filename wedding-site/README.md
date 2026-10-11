@@ -3,7 +3,7 @@
 A static site (plain HTML, CSS and JavaScript, no build step):
 
 - `index.html` — the page (a desktop layout and a phone layout)
-- `app.js` — the envelope, countdown, story toggles and the game
+- `app.js` — the envelope, countdown, copy buttons, scroll fade-ins and the game
 - `assets/` — the photos
 - `_headers` — security headers Netlify sends with every page
 
@@ -41,4 +41,8 @@ Keep in mind that everything on the site, including family names, venues and the
 
 ## Editing
 
-The page contains a desktop layout (`.v-desktop`) and a phone layout (`.v-mobile`) in `index.html`; change text in both. Remaining placeholders are in square brackets (search for `[`): the aso-ebi details and contact, and the contact for group airport pickups. The account numbers used by the copy buttons are set in `app.js` (`copyAccess`, `copyOpay`).
+The page contains a desktop layout (`.v-desktop`) and a phone layout (`.v-mobile`) in `index.html`; change text in both. The account numbers used by the copy buttons are set in `app.js` (`copyAccess`, `copyOpay`).
+
+## Motion
+
+Petals drift over the hero photo, the photo slowly zooms, the wax seal breathes, the gold hearts beat and sections fade in as they scroll into view (`setupReveal` in `app.js`). Visitors who ask their device for reduced motion get a still page.

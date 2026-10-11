@@ -64,6 +64,26 @@ function verdict(score, total) {
     if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
     else fallback();
   }
+
+  function setupReveal() {
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0 });
+    var seen = new Set();
+    function watch(el, delay) {
+      if (seen.has(el)) return; seen.add(el);
+      el.classList.add('rv'); if (delay) el.style.transitionDelay = delay + 'ms'; io.observe(el);
+    }
+    document.querySelectorAll('section:not([id^="top"]) > div > *, footer > div > *').forEach(function (el) {
+      if (el.querySelector('section[id^="gallery"] img')) return;
+      watch(el, 0);
+    });
+    document.querySelectorAll('section[id^="gallery"] img').forEach(function (img, i) { watch(img, (i % 4) * 90); });
+    // safety net: anything above the current scroll position (or left after a while) is shown
+    function sweep() { seen.forEach(function (el) { if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in'); }); }
+    window.addEventListener('scroll', function () { clearTimeout(sweep.t); sweep.t = setTimeout(sweep, 400); }, { passive: true });
+  }
   function pad(n) { return String(n).padStart(2, '0'); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -161,5 +181,6 @@ function verdict(score, total) {
 
   renderLists();
   render();
+  setupReveal();
   setInterval(render, 1000);
 })();
