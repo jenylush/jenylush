@@ -84,6 +84,11 @@ function verdict(score, total) {
     function sweep() { seen.forEach(function (el) { if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in'); }); }
     window.addEventListener('scroll', function () { clearTimeout(sweep.t); sweep.t = setTimeout(sweep, 400); }, { passive: true });
   }
+
+  // GoatCounter events: no cookies, no personal data. Silently does nothing if the script is blocked.
+  function track(name) {
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: name, event: true }); } catch (e) {}
+  }
   function pad(n) { return String(n).padStart(2, '0'); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -117,7 +122,7 @@ function verdict(score, total) {
   var actions = {
     openEnvelope: function () {
       if (state.opening) return;
-      state.opening = true; render();
+      state.opening = true; render(); track('opened-invitation');
       setTimeout(function () {
         state.opened = true; render(); window.scrollTo(0, 0);
         try { sessionStorage.setItem('je-opened', '1'); } catch (e) {}
@@ -130,8 +135,8 @@ function verdict(score, total) {
     toggleHer: function () { state.herOpen = !state.herOpen; render(); },
     toggleHis: function () { state.hisOpen = !state.hisOpen; render(); },
     reset: function () { state.picks = {}; renderLists(); render(); },
-    copyAccess: function () { copy('access', '0037147690'); },
-    copyOpay: function () { copy('opay', '9034549154'); }
+    copyAccess: function () { copy('access', '0037147690'); track('copied-access-bank'); },
+    copyOpay: function () { copy('opay', '9034549154'); track('copied-opay'); }
   };
 
   function rowHtml(tpl, i) {
@@ -172,7 +177,11 @@ function verdict(score, total) {
     if (pick) {
       var i = pick.getAttribute('data-i');
       if (state.picks[i]) return;
-      state.picks[i] = pick.getAttribute('data-pick'); renderLists(Number(i)); render(); return;
+      state.picks[i] = pick.getAttribute('data-pick'); renderLists(Number(i)); render();
+      var n = Object.keys(state.picks).length;
+      if (n === 1) track('game-started');
+      if (n === QS.length) { track('game-finished'); track('game-score-' + score() + '-of-' + QS.length); }
+      return;
     }
     var on = e.target.closest('[data-on]');
     var name = on && on.getAttribute('data-on');

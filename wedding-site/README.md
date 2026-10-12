@@ -31,9 +31,9 @@ Double-clicking `index.html` also works for a quick look, but a local server mat
 
 ## Security
 
-- **Security headers** (in `_headers`, which Netlify applies with either deploy option): a Content Security Policy that only allows this site's own script, the Google Fonts stylesheet/fonts and the site's own images. It blocks injected scripts, plugins, form posts and network calls. The headers also stop other sites from framing the page (clickjacking), turn off camera/microphone/location access, and force HTTPS.
+- **Security headers** (in `_headers`, which Netlify applies with either deploy option): a Content Security Policy that only allows this site's own script, the GoatCounter analytics script, the Google Fonts stylesheet/fonts and the site's own images. It blocks injected scripts, plugins and form posts, and only lets the page talk to GoatCounter. The headers also stop other sites from framing the page (clickjacking), turn off camera/microphone/location access, and force HTTPS.
 - **No inline JavaScript:** all code lives in `app.js`, so the policy can refuse any inline or injected `<script>`.
-- **No data collection:** the site has no forms, cookies, analytics or back end. The game runs entirely in the guest's browser and sends nothing anywhere.
+- **Privacy-friendly analytics only:** the site has no forms, cookies or back end. GoatCounter counts visits and a few anonymous events (see below); it stores no personal data and sets no cookies.
 - **Safe rendering:** game text is HTML-escaped before it's placed on the page, and click handlers only run named actions defined in `app.js`.
 - **Photos:** checked for hidden metadata (EXIF/GPS location) — none is present.
 
@@ -46,3 +46,19 @@ The page contains a desktop layout (`.v-desktop`) and a phone layout (`.v-mobile
 ## Motion
 
 Petals drift over the hero photo, the photo slowly zooms, the wax seal breathes, the gold hearts beat and sections fade in as they scroll into view (`setupReveal` in `app.js`). Visitors who ask their device for reduced motion get a still page.
+
+## Analytics (GoatCounter)
+
+Dashboard: https://jandewedding.goatcounter.com (sign up at https://www.goatcounter.com with the site code `jandewedding`).
+
+Besides page visits, `app.js` records these events (`track(...)`):
+
+| Event | When |
+|---|---|
+| `opened-invitation` | a guest taps the wax seal |
+| `game-started` | first answer in the game |
+| `game-finished` | all 10 questions answered |
+| `game-score-N-of-10` | the guest's final score |
+| `copied-access-bank`, `copied-opay` | a guest copies an account number |
+
+If GoatCounter is blocked (for example by an ad blocker), the site still works; that visit just isn't counted.
