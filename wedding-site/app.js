@@ -47,10 +47,43 @@ function verdict(score, total) {
     ['Finance', 'Who is more likely to make a spontaneous purchase?'],
     ['Finance', 'Who is more likely to send money for “something small” without being asked?']
   ];
-  var state = { opening: false, opened: false, herOpen: true, hisOpen: false, picks: {} };
+  var state = { opening: false, opened: false, herOpen: true, hisOpen: false, picks: {}, copied: null };
+  var copyTimer;
   try { if (sessionStorage.getItem('je-opened') === '1') state.opened = true; } catch (e) {}
 
   function score() { return Object.keys(state.picks).filter(function (k) { return state.picks[k] === ANSWERS[k]; }).length; }
+  function copy(key, text) {
+    function done() { state.copied = key; render(); clearTimeout(copyTimer); copyTimer = setTimeout(function () { state.copied = null; render(); }, 2000); }
+    function fallback() {
+      var t = document.createElement('textarea');
+      t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      t.remove(); done();
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  }
+
+  function setupReveal() {
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0 });
+    var seen = new Set();
+    function watch(el, delay) {
+      if (seen.has(el)) return; seen.add(el);
+      el.classList.add('rv'); if (delay) el.style.transitionDelay = delay + 'ms'; io.observe(el);
+    }
+    document.querySelectorAll('section:not([id^="top"]) > div > *, footer > div > *').forEach(function (el) {
+      if (el.querySelector('section[id^="gallery"] img')) return;
+      watch(el, 0);
+    });
+    document.querySelectorAll('section[id^="gallery"] img').forEach(function (img, i) { watch(img, (i % 4) * 90); });
+    // safety net: anything above the current scroll position (or left after a while) is shown
+    function sweep() { seen.forEach(function (el) { if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in'); }); }
+    window.addEventListener('scroll', function () { clearTimeout(sweep.t); sweep.t = setTimeout(sweep, 400); }, { passive: true });
+  }
   function pad(n) { return String(n).padStart(2, '0'); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -75,7 +108,9 @@ function verdict(score, total) {
       total: QS.length, answered: picks.length,
       progress: Math.round(picks.length / QS.length * 100) + '%',
       done: picks.length === QS.length,
-      score: score(), verdict: verdict(score(), QS.length)
+      score: score(), verdict: verdict(score(), QS.length),
+      accessLabel: state.copied === 'access' ? 'Copied ✓' : 'Copy account number',
+      opayLabel: state.copied === 'opay' ? 'Copied ✓' : 'Copy account number'
     };
   }
 
@@ -94,7 +129,9 @@ function verdict(score, total) {
     },
     toggleHer: function () { state.herOpen = !state.herOpen; render(); },
     toggleHis: function () { state.hisOpen = !state.hisOpen; render(); },
-    reset: function () { state.picks = {}; renderLists(); render(); }
+    reset: function () { state.picks = {}; renderLists(); render(); },
+    copyAccess: function () { copy('access', '0037147690'); },
+    copyOpay: function () { copy('opay', '9034549154'); }
   };
 
   function rowHtml(tpl, i) {
@@ -144,5 +181,6 @@ function verdict(score, total) {
 
   renderLists();
   render();
+  setupReveal();
   setInterval(render, 1000);
 })();
