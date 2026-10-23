@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Website editor</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="editor-body">
+<a class="skip-link" href="#settings-panel">Skip to settings</a>
+<header class="editor-top">
+  <a class="btn btn-ghost btn-sm" href="/app" id="back-link" aria-label="Back to dashboard">← <span class="hide-sm">Dashboard</span></a>
+  <span class="title" id="site-title">Loading…</span>
+  <span class="save-status" id="save-status" role="status" aria-live="polite" data-state="saved">All changes saved</span>
+  <span class="spacer"></span>
+  <button class="btn btn-ghost btn-icon" type="button" id="undo" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)" disabled>↶</button>
+  <button class="btn btn-ghost btn-icon" type="button" id="redo" aria-label="Redo (Ctrl+Shift+Z)" title="Redo (Ctrl+Shift+Z)" disabled>↷</button>
+  <a class="btn btn-secondary btn-sm hide-sm" id="preview-link" target="_blank" rel="noopener">Preview</a>
+  <button class="btn btn-primary btn-sm" type="button" id="publish">Publish</button>
+</header>
+<div class="mobile-editor-switch" role="tablist" aria-label="Editor panels">
+  <button type="button" role="tab" data-mobile="sections" aria-selected="false">Sections</button>
+  <button type="button" role="tab" data-mobile="preview" aria-selected="true">Preview</button>
+  <button type="button" role="tab" data-mobile="settings" aria-selected="false">Edit</button>
+</div>
+<div class="editor-main" id="editor-main" data-mobile="preview">
+  <nav class="editor-left" aria-label="Website sections">
+    <div class="panel">
+      <h2>Website</h2>
+      <div class="stack-sm">
+        <button type="button" class="section-item" data-pseudo="design" style="cursor:pointer"><span class="section-icon" aria-hidden="true">Aa</span><span class="section-name">Design: template, colours, fonts</span></button>
+        <button type="button" class="section-item" data-pseudo="photos" style="cursor:pointer"><span class="section-icon" aria-hidden="true">▦</span><span class="section-name">Photos</span></button>
+      </div>
+    </div>
+    <div class="panel"><h2>Sections</h2><div id="section-list"></div></div>
+    <div class="panel small muted">Tip: click any part of the preview to edit it. Changes save automatically.</div>
+  </nav>
+  <section class="editor-canvas" aria-label="Live preview">
+    <div class="canvas-bar">
+      <div class="preview-toggle" role="group" aria-label="Preview size"><button type="button" data-device="desktop" aria-pressed="true">Desktop</button><button type="button" data-device="mobile" aria-pressed="false">Mobile</button></div>
+      <span class="small muted" id="publish-state"></span>
+    </div>
+    <div class="canvas-stage" id="stage"><iframe id="preview" title="Live preview of your website"></iframe></div>
+  </section>
+  <aside class="editor-right" id="settings-panel" aria-label="Settings" tabindex="-1">
+    <div class="panel" id="settings"><div class="loading"><span class="spinner" aria-hidden="true"></span> Loading…</div></div>
+  </aside>
+</div>
+<script type="module" src="/js/pages/editor.js"></script>
+</body>
+</html>

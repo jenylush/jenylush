@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Log in — {platform}</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body data-page="login">
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="topbar" class="topbar"></header>
+<div class="auth-wrap">
+  <aside class="auth-art" aria-hidden="true"><blockquote>“We built our whole website on a lunch break.”</blockquote><p style="opacity:.85">— Amara & Theo</p></aside>
+  <main id="main" class="auth-main"><div class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="muted">Log in to keep working on your wedding website.</p>
+    <form class="stack" id="form" novalidate>
+      <label class="field"><span>Email</span><input type="email" name="email" autocomplete="email" required></label>
+      <label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required></label>
+      <p class="form-error" role="alert" hidden></p>
+      <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+      <p class="small"><a href="/forgot">Forgot your password?</a></p>
+      <p class="small muted">New here? <a href="/signup">Create your wedding website</a></p>
+    </form>
+  </div></main>
+</div>
+<script type="module" src="/js/pages/auth.js"></script>
+</body>
+</html>

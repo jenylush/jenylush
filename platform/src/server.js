@@ -117,7 +117,8 @@ export function createApp(overrides = {}) {
 
   // ----- Static files and pages -----
   app.use('/shared', express.static(path.join(ROOT, 'shared'), { maxAge: config.production ? '1h' : 0 }));
-  app.use(express.static(PUBLIC, { index: false, maxAge: config.production ? '1h' : 0, extensions: [] }));
+  app.use(express.static(PUBLIC, { index: false, redirect: false, maxAge: config.production ? '1h' : 0 }));
+  app.get('/favicon.ico', (req, res) => res.redirect(301, '/favicon.svg'));
   const sendPage = (file) => (req, res) => res.sendFile(path.join(PUBLIC, 'pages', file));
   for (const [route, file] of Object.entries(PAGES)) app.get(route, sendPage(file));
   for (const [route, file] of Object.entries(APP_PAGES)) {

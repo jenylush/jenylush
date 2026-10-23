@@ -340,6 +340,7 @@ export function renderSiteDocument(state) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>${esc(parts.title)}${o.mode === 'preview' ? ' (preview)' : ''}</title>
 ${meta}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -356,6 +357,7 @@ ${parts.html}
 
 const BASE_CSS = `
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--c-bg);color:var(--c-text);font-family:var(--f-body);font-size:1.0625rem;line-height:1.7;--w-content:1080px}
@@ -412,7 +414,7 @@ a{color:var(--c-link)}
 .countdown{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
 .countdown-box{min-width:104px;padding:20px 12px;text-align:center;background:var(--c-surface);color:var(--c-text-surface);border-radius:10px}
 .countdown-minimal .countdown-box{background:transparent;min-width:90px}
-.countdown-num{display:block;font-family:var(--f-heading);font-size:clamp(2.2rem,6vw,3.4rem);color:var(--c-heading);line-height:1}
+.countdown-num{display:block;font-variant-numeric:lining-nums tabular-nums;font-family:var(--f-heading);font-size:clamp(2.2rem,6vw,3.4rem);color:var(--c-heading);line-height:1}
 .countdown-label{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--c-muted)}
 .countdown-date{margin-top:24px}
 .countdown.done{font-family:var(--f-heading);font-size:1.6rem;color:var(--c-heading)}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Wedding website templates — {platform}</title>
+<meta name="description" content="Browse wedding website templates: minimalist, romantic, editorial, luxury and playful. All responsive, all customisable.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="topbar" class="topbar"></header>
+<main id="main" class="page">
+  <div class="container">
+    <div class="section-intro" style="margin-top:24px"><p class="eyebrow">Template gallery</p><h1>Find your style</h1><p>Each template is a starting point. Change colours, fonts, photos and sections to make it entirely yours — your content stays put if you switch designs later.</p></div>
+    <div class="row" style="justify-content:center;margin-bottom:28px" role="group" aria-label="Filter templates">
+      <button class="btn btn-secondary btn-sm" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button class="btn btn-secondary btn-sm" type="button" data-filter="free" aria-pressed="false">Free</button>
+      <button class="btn btn-secondary btn-sm" type="button" data-filter="premium" aria-pressed="false">Premium</button>
+    </div>
+    <div class="template-grid" id="template-grid"><div class="loading"><span class="spinner" aria-hidden="true"></span> Loading templates…</div></div>
+  </div>
+</main>
+<div id="footer"></div>
+<script type="module" src="/js/pages/templates.js"></script>
+</body>
+</html>

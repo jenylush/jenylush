@@ -49,7 +49,7 @@ export function adminRoutes(ctx) {
 
   r.get('/weddings', (req, res) => {
     const rows = db.all(
-      `SELECT w.id, w.slug, w.partner1, w.partner2, w.status, w.visibility, w.visits, w.created_at, w.published_at, w.unpublished_reason, u.email AS owner_email,
+      `SELECT w.id, w.slug, w.partner1, w.partner2, w.status, w.visibility, w.visits, w.created_at, w.published_at, w.unpublished_reason, w.custom_domain, w.custom_domain_verified_at, u.email AS owner_email,
          (SELECT COUNT(*) FROM content_reports c WHERE c.wedding_id = w.id AND c.status = 'open') AS open_reports
        FROM weddings w LEFT JOIN wedding_members m ON m.wedding_id = w.id AND m.role = 'owner' LEFT JOIN users u ON u.id = m.user_id
        ORDER BY w.created_at DESC LIMIT 300`
@@ -66,6 +66,13 @@ export function adminRoutes(ctx) {
 
   r.post('/weddings/:id/restore', (req, res) => {
     db.run('UPDATE weddings SET unpublished_reason = NULL WHERE id = ?', req.params.id);
+    res.json({ ok: true });
+  });
+
+  // Custom domains are activated by an admin once DNS and the TLS certificate are in place.
+  r.post('/weddings/:id/verify-domain', (req, res) => {
+    const out = db.run('UPDATE weddings SET custom_domain_verified_at = ? WHERE id = ? AND custom_domain IS NOT NULL', req.body?.verified === false ? null : now(), req.params.id);
+    if (!out.changes) throw new HttpError(400, 'This wedding has no custom domain.');
     res.json({ ok: true });
   });
 

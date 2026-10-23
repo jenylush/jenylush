@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Choose a new password — {platform}</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body data-page="reset">
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="topbar" class="topbar"></header>
+<div class="auth-wrap">
+  <aside class="auth-art" aria-hidden="true"><blockquote>“We changed our colours five times. Nothing broke.”</blockquote><p style="opacity:.85">— Noor & Ali</p></aside>
+  <main id="main" class="auth-main"><div class="auth-card">
+    <h1>Choose a new password</h1>
+    <form class="stack" id="form" novalidate>
+      <label class="field"><span>New password <span class="hint">At least 10 characters</span></span><input type="password" name="password" autocomplete="new-password" required minlength="10"></label>
+      <p class="form-error" role="alert" hidden></p>
+      <button class="btn btn-primary btn-lg" type="submit">Save new password</button>
+    </form>
+  </div></main>
+</div>
+<script type="module" src="/js/pages/auth.js"></script>
+</body>
+</html>
