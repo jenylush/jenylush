@@ -1,0 +1,23 @@
+{
+  "name": "vowly-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-service wedding website builder: templates, editor, publishing, RSVP and guest email automation.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
+    "make-admin": "node --disable-warning=ExperimentalWarning src/cli/make-admin.js"
+  },
+  "dependencies": {
+    "express": "^4.22.3",
+    "multer": "^2.5.0",
+    "sharp": "^0.35.5",
+    "nodemailer": "^10.2.1"
+  }
+}
