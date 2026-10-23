@@ -6,6 +6,7 @@ import { validateEmail, randomToken } from '../auth.js';
 import { parseCsv, toCsv } from '../csv.js';
 import { sendInvitations } from '../notifications.js';
 import { weddingPlan, PlanLimitError } from '../entitlements.js';
+import { getSetting } from '../seed.js';
 
 const MAX_GUESTS = 3000;
 
@@ -186,6 +187,10 @@ export function guestRoutes(ctx) {
     if (w.status !== 'published') throw new HttpError(400, 'Publish your website before sending invitations, so the link in the email works.');
     const ids = Array.isArray(req.body?.guest_ids) ? req.body.guest_ids.map(String).slice(0, MAX_GUESTS) : [];
     if (!ids.length) throw new HttpError(400, 'Choose at least one guest.');
+    // Stops a compromised or abusive account from using the platform to send spam.
+    const cap = Number(getSetting(db, 'max_invitations_per_day', 500)) || 500;
+    const sentToday = db.get("SELECT COUNT(*) AS n FROM email_delivery_logs WHERE wedding_id = ? AND type = 'invitation' AND created_at >= ?", req.weddingId, new Date(Date.now() - 864e5).toISOString()).n;
+    if (sentToday + ids.length > cap) throw new HttpError(429, `You can email up to ${cap} invitations a day. You have ${Math.max(0, cap - sentToday)} left today — send the rest tomorrow, or share links by WhatsApp.`);
     const result = sendInvitations(ctx.deps, req.weddingId, ids, req.user.id);
     res.json({ ...result, provider_configured: ctx.provider.configured });
   });

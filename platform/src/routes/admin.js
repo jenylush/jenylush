@@ -6,6 +6,7 @@ import { metrics, recentEvents } from '../analytics.js';
 import { getSetting, setSetting, DEFAULT_SETTINGS } from '../seed.js';
 import { coupleNames } from '../../shared/render.js';
 import { userPlan } from '../entitlements.js';
+import { logSecurityEvent, securityEvents } from '../security.js';
 
 // Admins manage the platform, not couples' private data: guest lists and RSVP answers
 // are deliberately not exposed here.
@@ -13,6 +14,28 @@ export function adminRoutes(ctx) {
   const { db, config } = ctx;
   const r = express.Router();
   r.use(requireAdmin);
+  // Admin accounts can take sites down and grant plans, so they must use 2FA.
+  r.use((req, res, next) => {
+    if (config.requireAdmin2fa && !req.user.totp_enabled_at) {
+      return res.status(403).json({ error: 'Turn on two-step verification in Settings → Account before using the admin area.', code: 'mfa_setup_required' });
+    }
+    next();
+  });
+  // Every successful admin change is written to the security log.
+  r.use((req, res, next) => {
+    if (req.method !== 'GET') {
+      res.on('finish', () => {
+        if (res.statusCode < 400) logSecurityEvent(db, 'admin_action', { userId: req.user.id, req, detail: { method: req.method, path: req.path.slice(0, 120), fields: Object.keys(req.body || {}).slice(0, 10) } });
+      });
+    }
+    next();
+  });
+
+  r.get('/security', (req, res) => {
+    const since = new Date(Date.now() - 864e5).toISOString();
+    const counts = Object.fromEntries(db.all('SELECT type, COUNT(*) AS n FROM security_events WHERE created_at >= ? GROUP BY type', since).map((x) => [x.type, x.n]));
+    res.json({ last_24h: counts, events: securityEvents(db, { limit: 200 }), require_admin_2fa: config.requireAdmin2fa });
+  });
 
   r.get('/metrics', (req, res) => {
     res.json({ metrics: metrics(db, { sinceDays: Math.max(1, Math.min(3650, Number(req.query.days) || 90)) }), recent: recentEvents(db, 30) });
@@ -134,7 +157,11 @@ export function adminRoutes(ctx) {
   });
 
   r.put('/settings', (req, res) => {
-    for (const k of Object.keys(DEFAULT_SETTINGS)) if (k in (req.body || {})) setSetting(db, k, typeof DEFAULT_SETTINGS[k] === 'boolean' ? !!req.body[k] : String(req.body[k]).slice(0, 500));
+    for (const k of Object.keys(DEFAULT_SETTINGS)) {
+      if (!(k in (req.body || {}))) continue;
+      const def = DEFAULT_SETTINGS[k];
+      setSetting(db, k, typeof def === 'boolean' ? !!req.body[k] : typeof def === 'number' ? Math.max(0, Number(req.body[k]) || def) : String(req.body[k]).slice(0, 500));
+    }
     res.json({ ok: true });
   });
 

@@ -1,0 +1,30 @@
+name: Platform tests and security audit
+
+on:
+  push:
+    paths: ['platform/**', '.github/workflows/platform-ci.yml']
+  pull_request:
+    paths: ['platform/**', '.github/workflows/platform-ci.yml']
+  schedule:
+    - cron: '17 6 * * 1'   # weekly, to catch newly published vulnerabilities
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: platform/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Check dependencies for known vulnerabilities
+        run: npm audit --omit=dev --audit-level=high

@@ -396,7 +396,32 @@ export function openDatabase(dataDir) {
   const db = new DatabaseSync(path.join(dataDir, 'app.db'));
   db.exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
   db.exec(SCHEMA);
+  migrate(db);
   return wrap(db);
+}
+
+// Additive migrations for databases created by earlier versions.
+function migrate(db) {
+  const userCols = new Set(db.prepare('PRAGMA table_info(users)').all().map((c) => c.name));
+  const add = (col, def) => { if (!userCols.has(col)) db.exec(`ALTER TABLE users ADD COLUMN ${col} ${def}`); };
+  add('totp_secret', 'TEXT');
+  add('totp_enabled_at', 'TEXT');
+  add('totp_last_counter', 'INTEGER');
+  add('recovery_codes', 'TEXT');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS security_events (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+      subject TEXT,                 -- hashed login identifier, for lockout counting
+      ip TEXT,
+      user_agent TEXT,
+      detail TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_security_subject ON security_events(subject, type, created_at);
+    CREATE INDEX IF NOT EXISTS idx_security_user ON security_events(user_id, created_at);
+  `);
 }
 
 // Small helper layer: prepared statement cache, JSON-friendly helpers and transactions.

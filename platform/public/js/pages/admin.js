@@ -2,13 +2,17 @@ import { api, $, $$, esc, appChrome, toast, showError, confirmDialog, relativeTi
 
 await appChrome();
 let tab = location.hash.slice(1) || 'metrics';
-const TABS = [['metrics', 'Metrics'], ['users', 'Users'], ['weddings', 'Websites'], ['reports', 'Reports'], ['templates', 'Templates'], ['plans', 'Plans'], ['email', 'Email health'], ['settings', 'Settings']];
+const TABS = [['metrics', 'Metrics'], ['users', 'Users'], ['weddings', 'Websites'], ['reports', 'Reports'], ['templates', 'Templates'], ['plans', 'Plans'], ['email', 'Email health'], ['security', 'Security'], ['settings', 'Settings']];
 
 function shell() {
   $('#main').innerHTML = `<div class="page-head"><div><h1>Platform admin</h1><p>Manage users, templates, plans and reported content.</p></div></div>
     <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div><div id="tab"><div class="loading"><span class="spinner"></span></div></div>`;
   $$('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; history.replaceState(null, '', `#${tab}`); shell(); }));
-  VIEWS[tab]($('#tab')).catch(showError);
+  VIEWS[tab]($('#tab')).catch((err) => {
+    if (err.data?.code === 'mfa_setup_required') {
+      $('#tab').innerHTML = `<div class="card stack narrow" style="margin:0"><h2 style="font-size:1.4rem;margin:0">Turn on two-step verification first</h2><p>Admin accounts can take websites offline and change plans, so they must be protected with a code from an authenticator app as well as a password.</p><a class="btn btn-primary" href="/app/settings#account" style="justify-self:start">Set it up now</a></div>`;
+    } else showError(err);
+  });
 }
 
 const pct = (v) => (v === null || v === undefined ? '—' : `${v}%`);
@@ -121,18 +125,26 @@ const VIEWS = {
       ${h.failures.length ? `<div class="table-wrap"><table><thead><tr><th>Type</th><th>To</th><th>Error</th><th>When</th><th></th></tr></thead><tbody>${h.failures.map((f) => `<tr><td>${esc(f.type)}</td><td class="small">${esc(f.to_email)}</td><td class="small">${esc(f.last_error || f.status)}</td><td class="small">${esc(relativeTime(f.updated_at))}</td><td>${f.status === 'failed' ? `<button class="btn btn-ghost btn-sm" type="button" data-retry="${f.id}">Retry</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No failed emails.</p>'}`;
     $$('[data-retry]').forEach((b) => b.addEventListener('click', async () => { try { await api('POST', `/api/admin/email-health/${b.dataset.retry}/retry`); toast('Queued for retry', 'success'); shell(); } catch (err) { showError(err); } }));
   },
+  async security(box) {
+    const d = await api('GET', '/api/admin/security');
+    const label = (k) => k.replace(/_/g, ' ');
+    box.innerHTML = `<p class="small muted">Sign-ins, lockouts, password and 2FA changes, and every admin action. Kept for 180 days.${d.require_admin_2fa ? ' Admins must use two-step verification.' : ' <strong>Two-step verification is not yet required for admins</strong> (it is in production by default).'}</p>
+      <div class="metric-grid">${['login_failed', 'login_locked', 'mfa_failed', 'login_success', 'admin_action'].map((k) => `<div class="metric"><span class="label">${esc(label(k))} (24 h)</span><strong>${d.last_24h[k] || 0}</strong></div>`).join('')}</div>
+      <div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>Event</th><th>Account</th><th>IP</th><th>Details</th><th>When</th></tr></thead><tbody>${d.events.map((e) => `<tr><td><span class="badge ${/failed|locked/.test(e.type) ? 'red' : e.type === 'admin_action' ? 'gold' : ''}">${esc(label(e.type))}</span></td><td class="small">${esc(e.email || '—')}</td><td class="small">${esc(e.ip || '')}</td><td class="tiny muted">${esc(Object.keys(e.detail).length ? JSON.stringify(e.detail) : '')}</td><td class="small">${esc(relativeTime(e.created_at))}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No events yet.</td></tr>'}</tbody></table></div>`;
+  },
   async settings(box) {
     const { settings, environment } = await api('GET', '/api/admin/settings');
     box.innerHTML = `<form class="card stack narrow" style="margin:0" id="f-set">
       <label class="switch"><input type="checkbox" name="signups_enabled" ${settings.signups_enabled ? 'checked' : ''}> Allow new sign-ups</label>
       <label class="field"><span>Announcement banner <span class="hint">Shown at the top of every page; leave empty to hide</span></span><input type="text" name="announcement" value="${esc(settings.announcement)}" maxlength="300"></label>
       <label class="field"><span>Default locale</span><input type="text" name="default_locale" value="${esc(settings.default_locale)}"></label>
+      <label class="field"><span>Maximum invitation emails per website per day <span class="hint">Anti-spam limit</span></span><input type="number" min="1" name="max_invitations_per_day" value="${esc(settings.max_invitations_per_day)}"></label>
       <button class="btn btn-primary btn-sm" type="submit" style="justify-self:start">Save settings</button></form>
       <h2 style="font-size:1.3rem;margin-top:24px">Environment</h2><pre class="json">${esc(JSON.stringify(environment, null, 2))}</pre>`;
     $('#f-set').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.target;
-      try { await api('PUT', '/api/admin/settings', { signups_enabled: f.signups_enabled.checked, announcement: f.announcement.value, default_locale: f.default_locale.value }); toast('Settings saved', 'success'); } catch (err) { showError(err); }
+      try { await api('PUT', '/api/admin/settings', { signups_enabled: f.signups_enabled.checked, announcement: f.announcement.value, default_locale: f.default_locale.value, max_invitations_per_day: Number(f.max_invitations_per_day.value) }); toast('Settings saved', 'success'); } catch (err) { showError(err); }
     });
   }
 };

@@ -107,6 +107,8 @@ export function siteRoutes(ctx, resolveWedding) {
   const rsvpLimiter = rateLimit({ windowMs: 10 * 60000, max: 30 });
   const lookupLimiter = rateLimit({ windowMs: 10 * 60000, max: 40 });
   const unlockLimiter = rateLimit({ windowMs: 15 * 60000, max: 15 });
+  // Also cap guesses per website, so many IPs cannot share the work of guessing a password.
+  const unlockSiteLimiter = rateLimit({ windowMs: 60 * 60000, max: 100, key: (req) => `unlock:${req.wedding?.id}` });
 
   r.use((req, res, next) => {
     const w = resolveWedding(req);
@@ -118,7 +120,7 @@ export function siteRoutes(ctx, resolveWedding) {
 
   r.get('/', (req, res) => renderWeddingSite(ctx, req, res, req.wedding, req.siteBase));
 
-  r.post('/unlock', unlockLimiter, express.urlencoded({ extended: false }), (req, res) => {
+  r.post('/unlock', unlockLimiter, unlockSiteLimiter, express.urlencoded({ extended: false }), (req, res) => {
     const w = req.wedding;
     if (w.visibility !== 'password' || w.status !== 'published') return res.redirect(303, `${req.siteBase}/`);
     if (!verifyPassword(String(req.body.password || ''), w.site_password_hash)) return send(res, passwordPage(ctx, w, req.siteBase, 'That password is not right. Please try again.'));

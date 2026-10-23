@@ -9,7 +9,9 @@ import { SEED_PLANS } from './entitlements.js';
 export const DEFAULT_SETTINGS = {
   signups_enabled: true,
   announcement: '',
-  default_locale: 'en-GB'
+  default_locale: 'en-GB',
+  // Anti-spam ceilings for guest emails sent from one wedding.
+  max_invitations_per_day: 500
 };
 
 export function seed(db) {

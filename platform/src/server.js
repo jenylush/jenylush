@@ -46,6 +46,9 @@ function securityHeaders(config) {
     res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
     res.set('X-Frame-Options', 'SAMEORIGIN');
+    res.set('Cross-Origin-Opener-Policy', 'same-origin');
+    res.set('Cross-Origin-Resource-Policy', 'same-site');
+    res.set('X-Permitted-Cross-Domain-Policies', 'none');
     if (config.production) res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     next();
   };
@@ -64,8 +67,19 @@ export function createApp(overrides = {}) {
   const app = express();
   app.disable('x-powered-by');
   if (config.trustProxy) app.set('trust proxy', 1);
+  // In production, refuse plain HTTP (the proxy in front terminates TLS).
+  if (config.forceHttps) {
+    app.use((req, res, next) => {
+      if (req.secure || req.path === '/healthz') return next();
+      if (req.method === 'GET' || req.method === 'HEAD') return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
+      res.status(403).send('HTTPS required');
+    });
+  }
   app.use(securityHeaders(config));
-  app.use(sessionMiddleware(db));
+  app.get('/healthz', (req, res) => { db.get('SELECT 1'); res.json({ ok: true }); });
+  app.get('/robots.txt', (req, res) => res.type('text').send('User-agent: *\nDisallow: /app\nDisallow: /api\nDisallow: /preview\nDisallow: /u/\nDisallow: /media/\n'));
+  app.get('/.well-known/security.txt', (req, res) => res.type('text').send(`Contact: mailto:${config.supportEmail}\nExpires: ${new Date(Date.now() + 365 * 864e5).toISOString()}\nPreferred-Languages: en\nPolicy: ${config.baseUrl}/terms\n`));
+  app.use(sessionMiddleware(db, config));
 
   // ----- Wedding websites served on their own host (subdomain or custom domain) -----
   const hostWedding = (req) => {
@@ -92,6 +106,7 @@ export function createApp(overrides = {}) {
 
   // ----- JSON API -----
   const api = express.Router();
+  api.use(rateLimit({ windowMs: 5 * 60000, max: 600 })); // generous ceiling against scripted abuse
   api.use(express.json({ limit: '1mb' }));
   api.use(csrfGuard);
   api.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
@@ -157,9 +172,13 @@ if (isMain) {
   const { app, ctx } = createApp();
   const { config } = ctx;
   fs.mkdirSync(config.dataDir, { recursive: true });
-  app.listen(config.port, () => {
+  const server = app.listen(config.port, () => {
     console.log(`${config.platformName} running at ${config.baseUrl}`);
     console.log(`Email provider: ${ctx.provider.configured ? ctx.provider.name : 'none (emails are logged as not sent)'}; payments: ${config.paymentsEnabled ? 'enabled' : 'off (freemium)'}`);
     if (config.siteBaseDomain) console.log(`Wedding sites: https://<slug>.${config.siteBaseDomain}`);
   });
+  // Drop clients that send headers or bodies too slowly (slowloris-style attacks).
+  server.headersTimeout = 20000;
+  server.requestTimeout = 120000;
+  server.keepAliveTimeout = 5000;
 }

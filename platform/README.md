@@ -90,6 +90,10 @@ Tables: `users`, `sessions`, `auth_tokens`, `weddings`, `wedding_members`, `memb
 
 ## Security and privacy
 
+See **[SECURITY.md](SECURITY.md)** for every protection, the launch checklist and what to do in an incident. In short:
+
+* **Brute force and account security:** per-account lockout, two-step verification (required for admins in production), a security audit log, and "sign out everywhere".
+
 * **Authorisation:** every `/api/weddings/:id/*` route checks membership on the server. Non-members get a 404, and fine-grained permissions apply to editing, guests and publishing. Tests check that another couple gets 404 on every route.
 * **CSRF:** state-changing API calls need a custom header, and cookies are `SameSite=Lax` and `HttpOnly`. Only a hash of each session token is stored.
 * **Content Security Policy:** no inline scripts anywhere. All text is HTML-escaped when rendered, and URLs are limited to http(s).

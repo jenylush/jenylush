@@ -5,7 +5,9 @@
 import { scryptSync, randomBytes, timingSafeEqual, createHash, createHmac } from 'node:crypto';
 import { now, uuid } from './db.js';
 
-const SESSION_COOKIE = 'sid';
+// Over HTTPS the "__Host-" prefix stops wedding subdomains from setting or
+// overwriting the platform's session cookie.
+const sessionCookie = (config) => (config.cookieSecure ? '__Host-sid' : 'sid');
 const SESSION_DAYS = 30;
 
 export function hashPassword(password) {
@@ -60,20 +62,20 @@ export function createSession(db, res, userId, config) {
   const ts = now();
   const expires = new Date(Date.now() + SESSION_DAYS * 864e5).toISOString();
   db.run('INSERT INTO sessions (id, user_id, created_at, expires_at, last_seen_at) VALUES (?, ?, ?, ?, ?)', sha256(token), userId, ts, expires, ts);
-  setCookie(res, SESSION_COOKIE, token, { maxAge: SESSION_DAYS * 86400, secure: config.cookieSecure });
+  setCookie(res, sessionCookie(config), token, { maxAge: SESSION_DAYS * 86400, secure: config.cookieSecure });
 }
 
 export function destroySession(db, req, res, config) {
-  const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
+  const token = parseCookies(req.headers.cookie)[sessionCookie(config)];
   if (token) db.run('DELETE FROM sessions WHERE id = ?', sha256(token));
-  setCookie(res, SESSION_COOKIE, '', { maxAge: 0, secure: config.cookieSecure });
+  setCookie(res, sessionCookie(config), '', { maxAge: 0, secure: config.cookieSecure });
 }
 
 // Attaches req.user when a valid session cookie is present.
-export function sessionMiddleware(db) {
+export function sessionMiddleware(db, config) {
   return (req, _res, next) => {
     req.cookies = parseCookies(req.headers.cookie);
-    const token = req.cookies[SESSION_COOKIE];
+    const token = req.cookies[sessionCookie(config)];
     req.user = null;
     if (token) {
       const id = sha256(token);
@@ -83,7 +85,7 @@ export function sessionMiddleware(db) {
       );
       if (row && row.expires_at > now()) {
         req.sessionId = row.sid;
-        const { sid, expires_at, last_seen_at, password_hash, ...user } = row;
+        const { sid, expires_at, last_seen_at, password_hash, totp_secret, recovery_codes, ...user } = row;
         req.user = user;
         // Refresh last-seen at most every 10 minutes.
         if (Date.now() - Date.parse(last_seen_at) > 6e5) db.run('UPDATE sessions SET last_seen_at = ? WHERE id = ?', now(), id);
@@ -110,6 +112,13 @@ export function requireAdmin(req, res, next) {
 export function csrfGuard(req, res, next) {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   if (req.get('x-requested-with') !== 'fetch') return res.status(403).json({ error: 'Request blocked (missing CSRF header).' });
+  // Defence in depth: if the browser says where the request came from, it must be us.
+  const origin = req.get('origin');
+  if (origin && origin !== 'null') {
+    let host = null;
+    try { host = new URL(origin).host; } catch { /* malformed */ }
+    if (host !== req.get('host')) return res.status(403).json({ error: 'Request blocked (cross-site).' });
+  }
   next();
 }
 

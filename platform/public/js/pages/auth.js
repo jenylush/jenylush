@@ -6,8 +6,9 @@ const form = $('#form');
 const errorBox = form && $('.form-error', form);
 
 function safeNext(fallback) {
+  // Only same-site paths: blocks "//evil.com" and "/\\evil.com" open redirects.
   const n = param('next');
-  return n && n.startsWith('/') && !n.startsWith('//') ? n : fallback;
+  return n && /^\/(?![\/\\])/.test(n) && !/[\\\s]/.test(n) ? n : fallback;
 }
 
 function fail(err) {
@@ -24,6 +25,7 @@ function busy(on, label) {
 
 form?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (form.dataset.step === 'mfa') return; // handled by askForCode
   errorBox.hidden = true;
   setFieldErrors(form, {});
   const data = Object.fromEntries(new FormData(form));
@@ -32,9 +34,10 @@ form?.addEventListener('submit', async (e) => {
   try {
     if (page === 'login') {
       const r = await api('POST', '/api/auth/login', data);
+      if (r.mfa_required) { busy(false, original); return askForCode(r.mfa_token); }
       location.href = safeNext(r.next);
     } else if (page === 'signup') {
-      const r = await api('POST', '/api/auth/signup', { ...data, accept_terms: !!data.accept_terms, marketing_opt_in: !!data.marketing_opt_in, ref: param('ref') || localStorageGet('ref') });
+      const r = await api('POST', '/api/auth/signup', { ...data, website: data.website || '', accept_terms: !!data.accept_terms, marketing_opt_in: !!data.marketing_opt_in, ref: param('ref') || localStorageGet('ref') });
       if (r.dev_verification_link) sessionStorage.setItem('dev_verification_link', r.dev_verification_link);
       const tpl = param('template');
       location.href = tpl ? `/app/wizard?template=${encodeURIComponent(tpl)}` : r.next;
@@ -54,9 +57,34 @@ form?.addEventListener('submit', async (e) => {
   }
 });
 
+// Second step for accounts with two-step verification.
+function askForCode(mfaToken) {
+  form.dataset.step = 'mfa';
+  $('h1').textContent = 'Enter your verification code';
+  form.innerHTML = `<p class="muted">Open your authenticator app and enter the 6-digit code for this account. Lost your phone? Enter one of your recovery codes instead.</p>
+    <label class="field"><span>Code</span><input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" required maxlength="14" autofocus></label>
+    <p class="form-error" role="alert" hidden></p>
+    <button class="btn btn-primary btn-lg" type="submit">Verify and log in</button>
+    <p class="small"><a href="/login">Start again</a></p>`;
+  const err = $('.form-error', form);
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    err.hidden = true;
+    try {
+      const r = await api('POST', '/api/auth/login/mfa', { mfa_token: mfaToken, code: form.elements.code.value });
+      location.href = safeNext(r.next);
+    } catch (ex) {
+      err.textContent = ex.message; err.hidden = false;
+      if (ex.data?.code === 'mfa_expired') setTimeout(() => { location.href = '/login'; }, 2500);
+    }
+  };
+  form.elements.code.focus();
+}
+
 function localStorageGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
 if (param('ref')) { try { localStorage.setItem('ref', param('ref')); } catch { /* storage unavailable */ } }
 
+if (page === 'login' && param('reset')) { const n = document.createElement('p'); n.className = 'notice'; n.textContent = 'Password changed. Log in with your new password and verification code.'; form.prepend(n); }
 if (page === 'reset' && !param('token')) fail(new Error('This reset link is incomplete. Please use the link from your email.'));
 
 if (page === 'verify') {

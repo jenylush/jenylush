@@ -2,18 +2,23 @@ import express from 'express';
 import { now, uuid } from '../db.js';
 import {
   hashPassword, verifyPassword, validatePassword, validateEmail, createSession, destroySession,
-  createAuthToken, consumeAuthToken, rateLimit, requireUser, randomToken
+  createAuthToken, consumeAuthToken, rateLimit, requireUser, randomToken, sha256
 } from '../auth.js';
 import { buildAccountEmail } from '../email/templates.js';
 import { queueEmail } from '../mailer.js';
 import { track } from '../analytics.js';
 import { getSetting } from '../seed.js';
 import { userPlan } from '../entitlements.js';
+import { logSecurityEvent, isLocked, emailSubject, passwordProblem, issueMfaToken, readMfaToken, checkSecondFactor } from '../security.js';
+
+// Compared against when the email is unknown, so failed logins take the same time
+// whether or not the account exists.
+const DUMMY_HASH = hashPassword('timing-equaliser-not-a-real-password');
 
 export function publicUser(db, u) {
   const plan = userPlan(db, u.id);
   return {
-    id: u.id, email: u.email, name: u.name, role: u.role, email_verified: !!u.email_verified_at,
+    id: u.id, email: u.email, name: u.name, role: u.role, email_verified: !!u.email_verified_at, mfa_enabled: !!u.totp_enabled_at,
     referral_code: u.referral_code, created_at: u.created_at,
     plan: { id: plan.id, name: plan.name, entitlements: plan.entitlements }
   };
@@ -42,6 +47,7 @@ export function authRoutes(ctx) {
   }
 
   r.post('/signup', limiter, (req, res) => {
+    if (req.body.website) return res.status(400).json({ error: 'Sign-up failed. Please try again.' }); // bot honeypot
     if (!getSetting(db, 'signups_enabled', true)) return res.status(403).json({ error: 'New sign-ups are paused right now. Please try again later.' });
     const name = String(req.body.name || '').trim().slice(0, 100);
     const email = String(req.body.email || '').trim().toLowerCase();
@@ -49,7 +55,7 @@ export function authRoutes(ctx) {
     const errors = {};
     if (!name) errors.name = 'Please tell us your name.';
     if (!validateEmail(email)) errors.email = 'Enter a valid email address.';
-    const pwErr = validatePassword(password);
+    const pwErr = validatePassword(password) || passwordProblem(password, { email, name });
     if (pwErr) errors.password = pwErr;
     if (!req.body.accept_terms) errors.accept_terms = 'Please accept the terms to continue.';
     if (Object.keys(errors).length) return res.status(400).json({ error: 'Please fix the highlighted fields.', fields: errors });
@@ -68,19 +74,54 @@ export function authRoutes(ctx) {
     const user = db.get('SELECT * FROM users WHERE id = ?', id);
     createSession(db, res, id, config);
     const devLink = startVerification(user);
+    logSecurityEvent(db, 'signup', { userId: id, req });
     track(db, 'account_created', { userId: id, props: { referred: !!referrer } });
     res.status(201).json({ user: publicUser(db, user), next: '/app/wizard', dev_verification_link: devLink });
   });
 
-  r.post('/login', limiter, (req, res) => {
-    const email = String(req.body.email || '').trim().toLowerCase();
-    const user = db.get('SELECT * FROM users WHERE email = ?', email);
-    // Same message either way so the form does not reveal which emails are registered.
-    if (!user || !verifyPassword(req.body.password || '', user.password_hash)) return res.status(401).json({ error: 'That email and password do not match.' });
-    if (user.disabled_at) return res.status(403).json({ error: 'This account has been disabled. Please contact support.' });
+  function completeLogin(req, res, user) {
     createSession(db, res, user.id, config);
+    logSecurityEvent(db, 'login_success', { userId: user.id, req, subject: emailSubject(user.email) });
     const hasWedding = db.get('SELECT 1 FROM wedding_members WHERE user_id = ?', user.id);
     res.json({ user: publicUser(db, user), next: hasWedding ? '/app' : '/app/wizard' });
+  }
+
+  const lockedMessage = 'Too many unsuccessful attempts. For your security, this account is locked for 15 minutes. You can reset your password if you have forgotten it.';
+
+  r.post('/login', limiter, (req, res) => {
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const subject = emailSubject(email);
+    if (isLocked(db, subject)) {
+      logSecurityEvent(db, 'login_locked', { req, subject });
+      return res.status(429).json({ error: lockedMessage, code: 'locked' });
+    }
+    const user = db.get('SELECT * FROM users WHERE email = ?', email);
+    const ok = verifyPassword(req.body.password || '', user ? user.password_hash : DUMMY_HASH);
+    // Same message either way so the form does not reveal which emails are registered.
+    if (!user || !ok) {
+      logSecurityEvent(db, 'login_failed', { userId: user?.id || null, req, subject });
+      return res.status(401).json({ error: 'That email and password do not match.' });
+    }
+    if (user.disabled_at) return res.status(403).json({ error: 'This account has been disabled. Please contact support.' });
+    if (user.totp_enabled_at) return res.json({ mfa_required: true, mfa_token: issueMfaToken(ctx.secret, user.id) });
+    completeLogin(req, res, user);
+  });
+
+  // Second step for accounts with two-step verification turned on.
+  r.post('/login/mfa', limiter, (req, res) => {
+    const userId = readMfaToken(ctx.secret, req.body.mfa_token);
+    if (!userId) return res.status(401).json({ error: 'Your sign-in took too long. Please enter your password again.', code: 'mfa_expired' });
+    const user = db.get('SELECT * FROM users WHERE id = ? AND disabled_at IS NULL', userId);
+    if (!user || !user.totp_enabled_at) return res.status(401).json({ error: 'Please sign in again.', code: 'mfa_expired' });
+    const subject = emailSubject(user.email);
+    if (isLocked(db, subject)) return res.status(429).json({ error: lockedMessage, code: 'locked' });
+    const method = checkSecondFactor(db, user, req.body.code);
+    if (!method) {
+      logSecurityEvent(db, 'mfa_failed', { userId: user.id, req, subject });
+      return res.status(401).json({ error: 'That code is not right. Check your authenticator app and try again.' });
+    }
+    if (method === 'recovery') logSecurityEvent(db, 'recovery_code_used', { userId: user.id, req });
+    completeLogin(req, res, db.get('SELECT * FROM users WHERE id = ?', user.id));
   });
 
   r.post('/logout', (req, res) => {
@@ -117,7 +158,8 @@ export function authRoutes(ctx) {
   });
 
   r.post('/reset', limiter, (req, res) => {
-    const pwErr = validatePassword(req.body.password);
+    const row0 = db.get("SELECT u.email, u.name FROM auth_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ? AND t.type = 'reset_password'", sha256(String(req.body.token || '')));
+    const pwErr = validatePassword(req.body.password) || passwordProblem(req.body.password, row0 || {});
     if (pwErr) return res.status(400).json({ error: pwErr, fields: { password: pwErr } });
     const row = consumeAuthToken(db, req.body.token, 'reset_password');
     if (!row) return res.status(400).json({ error: 'This reset link is invalid or has expired. Please request a new one.' });
@@ -125,6 +167,10 @@ export function authRoutes(ctx) {
       db.run('UPDATE users SET password_hash = ?, email_verified_at = COALESCE(email_verified_at, ?), updated_at = ? WHERE id = ?', hashPassword(req.body.password), now(), now(), row.user_id);
       db.run('DELETE FROM sessions WHERE user_id = ?', row.user_id); // sign out everywhere
     });
+    logSecurityEvent(db, 'password_reset', { userId: row.user_id, req });
+    // A reset proves control of the email, but 2FA still applies.
+    const user = db.get('SELECT * FROM users WHERE id = ?', row.user_id);
+    if (user.totp_enabled_at) return res.json({ ok: true, next: '/login?reset=1' });
     createSession(db, res, row.user_id, config);
     res.json({ ok: true, next: '/app' });
   });

@@ -1,4 +1,4 @@
-import { api, $, $$, esc, appChrome, currentWedding, toast, showError, setFieldErrors, confirmDialog, getConfig } from '../api.js';
+import { api, $, $$, esc, appChrome, currentWedding, toast, showError, setFieldErrors, confirmDialog, getConfig, modal } from '../api.js';
 
 const summaryInit = await currentWedding();
 let summary = summaryInit;
@@ -138,6 +138,7 @@ function renderAccount(box) {
       <label class="field"><span>Current password</span><input type="password" name="current_password" autocomplete="current-password"></label>
       <label class="field"><span>New password <span class="hint">At least 10 characters</span></span><input type="password" name="new_password" autocomplete="new-password"></label>
       <button class="btn btn-primary btn-sm" type="submit" style="justify-self:start">Change password</button></form>
+    <div class="card stack" id="security-card"><h2 style="font-size:1.3rem;margin:0">Security</h2><div class="loading"><span class="spinner" aria-hidden="true"></span></div></div>
     <div class="card stack"><h2 style="font-size:1.3rem;margin:0">Your data</h2>
       <p class="small" style="margin:0">Download everything we store about you and the websites you own (JSON). Photos are listed with download links.</p>
       <a class="btn btn-secondary btn-sm" href="/api/account/export" download style="justify-self:start">Download my data</a></div>
@@ -147,6 +148,7 @@ function renderAccount(box) {
       <label class="field"><span>Type <strong>delete my account</strong></span><input type="text" name="confirm" autocomplete="off"></label>
       <button class="btn btn-danger btn-sm" type="submit" style="justify-self:start">Delete my account</button></form>
   </div>`;
+  renderSecurity($('#security-card'));
   $('#f-profile').addEventListener('submit', async (e) => {
     e.preventDefault();
     try { await api('PATCH', '/api/account/profile', { name: e.target.name.value, marketing_opt_in: e.target.marketing_opt_in.checked }); toast('Profile saved', 'success'); } catch (err) { setFieldErrors(e.target, err.data?.fields); showError(err); }
@@ -159,6 +161,77 @@ function renderAccount(box) {
     e.preventDefault();
     if (!await confirmDialog('Your account and the websites you own will be permanently deleted.', { title: 'Delete your account?', confirmLabel: 'Delete forever', danger: true })) return;
     try { await api('DELETE', '/api/account', { password: e.target.password.value, confirm: e.target.confirm.value }); location.href = '/'; } catch (err) { setFieldErrors(e.target, err.data?.fields); showError(err); }
+  });
+}
+
+const EVENT_LABELS = {
+  login_success: 'Signed in', login_failed: 'Wrong password entered', login_locked: 'Sign-in blocked (too many attempts)', mfa_failed: 'Wrong verification code',
+  password_changed: 'Password changed', password_reset: 'Password reset by email', mfa_enabled: 'Two-step verification turned on', mfa_disabled: 'Two-step verification turned off',
+  recovery_code_used: 'Recovery code used', sessions_revoked: 'Signed out other devices', signup: 'Account created', admin_action: 'Admin action'
+};
+
+function showRecoveryCodes(codes) {
+  const body = document.createElement('div');
+  body.className = 'stack';
+  body.innerHTML = `<p>Save these recovery codes somewhere safe, such as a password manager. Each one works once, if you lose your phone. <strong>You won't see them again.</strong></p>
+    <pre class="json" style="font-size:1rem;line-height:1.8">${codes.map(esc).join('\n')}</pre>
+    <button class="btn btn-secondary btn-sm" type="button" data-copy style="justify-self:start">Copy codes</button>`;
+  body.querySelector('[data-copy]').addEventListener('click', () => navigator.clipboard?.writeText(codes.join('\n')).then(() => toast('Copied', 'success')));
+  modal({ title: 'Your recovery codes', body, actions: [{ label: "I've saved them", className: 'btn-primary' }] });
+}
+
+async function renderSecurity(box) {
+  let sec;
+  try { sec = await api('GET', '/api/account/security'); } catch (err) { box.innerHTML = `<p class="form-error">${esc(err.message)}</p>`; return; }
+  box.innerHTML = `<h2 style="font-size:1.3rem;margin:0">Security</h2>
+    <div class="row between"><div><strong>Two-step verification</strong> ${sec.mfa_enabled ? '<span class="badge green">On</span>' : '<span class="badge">Off</span>'}<p class="small muted" style="margin:4px 0 0">${sec.mfa_enabled ? `Signing in needs your password and a code from your authenticator app. ${sec.recovery_codes_left} recovery codes left.` : 'Protect your account with a code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) as well as your password.'}</p></div>
+      ${sec.mfa_enabled ? '<div class="row"><button class="btn btn-secondary btn-sm" type="button" data-newcodes>New recovery codes</button><button class="btn btn-ghost btn-sm" type="button" data-disable>Turn off</button></div>' : '<button class="btn btn-primary btn-sm" type="button" data-enable>Turn on</button>'}</div>
+    <div data-mfa-setup></div>
+    <div class="row between" style="border-top:1px solid var(--line);padding-top:14px"><div><strong>Signed-in devices</strong><p class="small muted" style="margin:4px 0 0">You are signed in on ${sec.active_sessions} device${sec.active_sessions === 1 ? '' : 's'} or browser${sec.active_sessions === 1 ? '' : 's'}.</p></div>
+      <button class="btn btn-secondary btn-sm" type="button" data-revoke ${sec.active_sessions > 1 ? '' : 'disabled'}>Sign out everywhere else</button></div>
+    <details style="border-top:1px solid var(--line);padding-top:14px"><summary><strong>Recent security activity</strong></summary>
+      <ul class="small" style="padding-left:18px;margin-top:10px">${sec.events.map((e) => `<li>${esc(EVENT_LABELS[e.type] || e.type)} · ${esc(new Date(e.created_at).toLocaleString())}${e.ip ? ` · ${esc(e.ip)}` : ''}</li>`).join('') || '<li>No activity yet.</li>'}</ul>
+      <p class="tiny muted">Don't recognise something? Change your password and sign out everywhere else.</p></details>`;
+  const setup = box.querySelector('[data-mfa-setup]');
+  box.querySelector('[data-enable]')?.addEventListener('click', async () => {
+    try {
+      const r = await api('POST', '/api/account/2fa/setup');
+      setup.innerHTML = `<form class="card-flat stack-sm" novalidate>
+        <p class="small" style="margin:0"><strong>1.</strong> In your authenticator app, add an account using this key${/Android|iPhone|iPad/i.test(navigator.userAgent) ? ` (or <a href="${esc(r.uri)}">tap here to open your app</a>)` : ''}:</p>
+        <code style="font-size:1.05rem;letter-spacing:.08em;word-break:break-all;background:var(--paper);padding:10px;border-radius:8px">${esc(r.secret.replace(/(.{4})/g, '$1 ').trim())}</code>
+        <p class="small" style="margin:0"><strong>2.</strong> Enter the 6-digit code it shows:</p>
+        <label class="field"><span class="sr-only">Verification code</span><input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></label>
+        <button class="btn btn-primary btn-sm" type="submit" style="justify-self:start">Confirm and turn on</button></form>`;
+      const f = setup.querySelector('form');
+      f.elements.code.focus();
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const out = await api('POST', '/api/account/2fa/enable', { code: f.elements.code.value });
+          showRecoveryCodes(out.recovery_codes);
+          toast('Two-step verification is on. Other devices were signed out.', 'success');
+          renderSecurity(box);
+        } catch (err) { setFieldErrors(f, err.data?.fields); showError(err); }
+      });
+    } catch (err) { showError(err); }
+  });
+  const askCode = (title, withPassword, run) => {
+    const f = document.createElement('form');
+    f.className = 'stack';
+    f.innerHTML = `${withPassword ? '<label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password"></label>' : ''}<label class="field"><span>Code from your app (or a recovery code)</span><input type="text" name="code" autocomplete="one-time-code"></label>`;
+    modal({ title, body: f, actions: [{ label: 'Cancel' }, { label: 'Confirm', className: 'btn-primary', onClick: async () => { try { await run(f); return true; } catch (err) { setFieldErrors(f, err.data?.fields); showError(err); return false; } } }] });
+  };
+  box.querySelector('[data-disable]')?.addEventListener('click', () => askCode('Turn off two-step verification', true, async (f) => {
+    await api('POST', '/api/account/2fa/disable', { password: f.elements.password.value, code: f.elements.code.value });
+    toast('Two-step verification turned off'); renderSecurity(box);
+  }));
+  box.querySelector('[data-newcodes]')?.addEventListener('click', () => askCode('New recovery codes', false, async (f) => {
+    const r = await api('POST', '/api/account/2fa/recovery-codes', { code: f.elements.code.value });
+    showRecoveryCodes(r.recovery_codes); renderSecurity(box);
+  }));
+  box.querySelector('[data-revoke]').addEventListener('click', async () => {
+    if (!await confirmDialog('All other browsers and devices will be signed out. You stay signed in here.', { title: 'Sign out everywhere else?', confirmLabel: 'Sign out others' })) return;
+    try { const r = await api('POST', '/api/account/sessions/revoke-others'); toast(`Signed out ${r.signed_out} other session${r.signed_out === 1 ? '' : 's'}`, 'success'); renderSecurity(box); } catch (err) { showError(err); }
   });
 }
 

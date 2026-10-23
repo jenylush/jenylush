@@ -48,6 +48,9 @@ export function loadConfig(overrides = {}) {
     paymentsEnabled: bool(env.PAYMENTS_ENABLED, false),
     schedulerIntervalMs: Number(env.SCHEDULER_INTERVAL_MS || 30000),
     schedulerEnabled: bool(env.SCHEDULER_ENABLED, true),
+    // Administrators must use two-step verification (always on in production unless disabled).
+    forceHttps: bool(env.FORCE_HTTPS, production),
+    requireAdmin2fa: bool(env.REQUIRE_ADMIN_2FA, production),
     rateLimitScale: Number(env.RATE_LIMIT_SCALE || 1),
     exposeDevLinks: !production && bool(env.EXPOSE_DEV_LINKS, true)
   };

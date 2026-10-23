@@ -6,6 +6,8 @@ import { publicUser } from './auth.js';
 import { track, CLIENT_EVENTS } from '../analytics.js';
 import { deleteWeddingFiles } from '../media.js';
 import { userPlan, getPlan, FEATURE_LABELS } from '../entitlements.js';
+import { logSecurityEvent, securityEvents, passwordProblem, newTotpSecret, otpauthUri, verifyTotp, newRecoveryCodes, checkSecondFactor } from '../security.js';
+import { rateLimit } from '../auth.js';
 
 export function accountRoutes(ctx) {
   const { db, config } = ctx;
@@ -22,12 +24,13 @@ export function accountRoutes(ctx) {
   r.post('/password', (req, res) => {
     const u = db.get('SELECT * FROM users WHERE id = ?', req.user.id);
     if (!verifyPassword(req.body?.current_password || '', u.password_hash)) throw new HttpError(400, 'Your current password is not right.', { fields: { current_password: 'Incorrect.' } });
-    const err = validatePassword(req.body?.new_password);
+    const err = validatePassword(req.body?.new_password) || passwordProblem(req.body?.new_password, u);
     if (err) throw new HttpError(400, err, { fields: { new_password: err } });
     db.tx(() => {
       db.run('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?', hashPassword(req.body.new_password), now(), u.id);
       db.run('DELETE FROM sessions WHERE user_id = ? AND id != ?', u.id, req.sessionId); // sign out other devices
     });
+    logSecurityEvent(db, 'password_changed', { userId: u.id, req });
     res.json({ ok: true });
   });
 
@@ -61,8 +64,71 @@ export function accountRoutes(ctx) {
       db.run('DELETE FROM users WHERE id = ?', u.id);
     });
     owned.forEach((id) => deleteWeddingFiles(config.dataDir, id));
+    logSecurityEvent(db, 'account_deleted', { req, detail: { websites: owned.length } });
     destroySession(db, req, res, config);
     res.json({ ok: true });
+  });
+
+  // ----- Two-step verification (TOTP) -----
+  const mfaLimiter = rateLimit({ windowMs: 15 * 60000, max: 20, key: (req) => `mfa:${req.user?.id}` });
+
+  r.get('/security', (req, res) => {
+    const sessions = db.get('SELECT COUNT(*) AS n FROM sessions WHERE user_id = ? AND expires_at > ?', req.user.id, new Date().toISOString()).n;
+    const u = db.get('SELECT totp_enabled_at, recovery_codes FROM users WHERE id = ?', req.user.id);
+    res.json({
+      mfa_enabled: !!u.totp_enabled_at, mfa_enabled_at: u.totp_enabled_at,
+      recovery_codes_left: u.totp_enabled_at ? parseJson(u.recovery_codes, []).length : 0,
+      active_sessions: sessions, events: securityEvents(db, { userId: req.user.id, limit: 20 }).map(({ ip, ...e }) => ({ ...e, ip: ip ? ip.replace(/(\d+\.\d+)\.\d+\.\d+$/, '$1.x.x') : null }))
+    });
+  });
+
+  r.post('/2fa/setup', (req, res) => {
+    const u = db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+    if (u.totp_enabled_at) throw new HttpError(400, 'Two-step verification is already on.');
+    const secret = newTotpSecret();
+    db.run('UPDATE users SET totp_secret = ?, totp_last_counter = NULL WHERE id = ?', secret, u.id);
+    res.json({ secret, uri: otpauthUri(secret, u.email, config.platformName) });
+  });
+
+  r.post('/2fa/enable', mfaLimiter, (req, res) => {
+    const u = db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+    if (u.totp_enabled_at) throw new HttpError(400, 'Two-step verification is already on.');
+    if (!u.totp_secret) throw new HttpError(400, 'Start the setup again.');
+    const counter = verifyTotp(u.totp_secret, req.body?.code);
+    if (counter === null) throw new HttpError(400, 'That code is not right. Make sure your phone’s clock is correct and try the newest code.', { fields: { code: 'Incorrect code.' } });
+    const { codes, hashes } = newRecoveryCodes();
+    db.tx(() => {
+      db.run('UPDATE users SET totp_enabled_at = ?, totp_last_counter = ?, recovery_codes = ? WHERE id = ?', now(), counter, JSON.stringify(hashes), u.id);
+      db.run('DELETE FROM sessions WHERE user_id = ? AND id != ?', u.id, req.sessionId);
+    });
+    logSecurityEvent(db, 'mfa_enabled', { userId: u.id, req });
+    res.json({ ok: true, recovery_codes: codes });
+  });
+
+  r.post('/2fa/disable', mfaLimiter, (req, res) => {
+    const u = db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+    if (!u.totp_enabled_at) throw new HttpError(400, 'Two-step verification is not on.');
+    if (!verifyPassword(req.body?.password || '', u.password_hash)) throw new HttpError(400, 'Your password is not right.', { fields: { password: 'Incorrect.' } });
+    if (!checkSecondFactor(db, u, req.body?.code)) throw new HttpError(400, 'That code is not right.', { fields: { code: 'Incorrect code.' } });
+    if (u.role === 'admin' && config.requireAdmin2fa) throw new HttpError(400, 'Administrators must keep two-step verification on.');
+    db.run('UPDATE users SET totp_enabled_at = NULL, totp_secret = NULL, totp_last_counter = NULL, recovery_codes = NULL WHERE id = ?', u.id);
+    logSecurityEvent(db, 'mfa_disabled', { userId: u.id, req });
+    res.json({ ok: true });
+  });
+
+  r.post('/2fa/recovery-codes', mfaLimiter, (req, res) => {
+    const u = db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+    if (!u.totp_enabled_at) throw new HttpError(400, 'Two-step verification is not on.');
+    if (!checkSecondFactor(db, u, req.body?.code)) throw new HttpError(400, 'That code is not right.', { fields: { code: 'Incorrect code.' } });
+    const { codes, hashes } = newRecoveryCodes();
+    db.run('UPDATE users SET recovery_codes = ? WHERE id = ?', JSON.stringify(hashes), u.id);
+    res.json({ recovery_codes: codes });
+  });
+
+  r.post('/sessions/revoke-others', (req, res) => {
+    const out = db.run('DELETE FROM sessions WHERE user_id = ? AND id != ?', req.user.id, req.sessionId);
+    logSecurityEvent(db, 'sessions_revoked', { userId: req.user.id, req, detail: { count: out.changes } });
+    res.json({ ok: true, signed_out: out.changes });
   });
 
   r.get('/subscription', (req, res) => {
