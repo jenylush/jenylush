@@ -421,6 +421,55 @@ function migrate(db) {
     );
     CREATE INDEX IF NOT EXISTS idx_security_subject ON security_events(subject, type, created_at);
     CREATE INDEX IF NOT EXISTS idx_security_user ON security_events(user_id, created_at);
+
+    CREATE TABLE IF NOT EXISTS budget_settings (
+      wedding_id TEXT PRIMARY KEY REFERENCES weddings(id) ON DELETE CASCADE,
+      currency TEXT NOT NULL DEFAULT 'USD',
+      total_budget_minor INTEGER NOT NULL DEFAULT 0,
+      reminders_enabled INTEGER NOT NULL DEFAULT 1,  -- email the couple before payments are due
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS budget_categories (
+      id TEXT PRIMARY KEY,
+      wedding_id TEXT NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      planned_minor INTEGER NOT NULL DEFAULT 0,
+      position INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_budget_cat ON budget_categories(wedding_id, position);
+    CREATE TABLE IF NOT EXISTS expenses (
+      id TEXT PRIMARY KEY,
+      wedding_id TEXT NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+      category_id TEXT REFERENCES budget_categories(id) ON DELETE SET NULL,
+      item TEXT NOT NULL,
+      vendor TEXT NOT NULL DEFAULT '',
+      vendor_contact TEXT NOT NULL DEFAULT '',
+      estimated_minor INTEGER,
+      actual_minor INTEGER,            -- NULL until the real price is agreed
+      paid_minor INTEGER NOT NULL DEFAULT 0,
+      due_date TEXT,                   -- 'YYYY-MM-DD' next payment due
+      paid_by TEXT NOT NULL DEFAULT 'Us',
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_expenses_wedding ON expenses(wedding_id, due_date);
+    CREATE TABLE IF NOT EXISTS gifts_received (
+      id TEXT PRIMARY KEY,
+      wedding_id TEXT NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+      guest_id TEXT REFERENCES guests(id) ON DELETE SET NULL,
+      giver_name TEXT NOT NULL,
+      gift_type TEXT NOT NULL DEFAULT 'cash',
+      description TEXT NOT NULL DEFAULT '',
+      amount_minor INTEGER,            -- cash amount or estimated value of an item
+      received_date TEXT,
+      thank_you_sent_at TEXT,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_gifts_wedding ON gifts_received(wedding_id);
   `);
 }
 

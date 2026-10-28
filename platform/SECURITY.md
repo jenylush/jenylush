@@ -24,7 +24,7 @@ This file has two parts: how the platform protects itself in code, and the setup
 | Slow-connection denial of service | Header and request timeouts, request body size limits, and a global API rate limit. |
 | Eavesdropping | HTTPS is enforced (HTTP redirects) and HSTS is sent in production. |
 | Forged email webhooks | Resend webhooks are verified with their Svix signature and a timestamp window. |
-| Vulnerable dependencies | Only 4 runtime dependencies. Dependabot opens update PRs, and CI runs the tests plus `npm audit` on every change and weekly. |
+| Vulnerable dependencies | Only 5 runtime dependencies (a patched `uuid` is forced for exceljs). Dependabot opens update PRs, and CI runs the tests plus `npm audit` on every change and weekly. |
 | Not noticing an attack | The security log records sign-ins, failures, lockouts, password and 2FA changes, and every admin action. Admins see it under **Admin → Security**, and each user sees their own under **Settings → Account**. Entries are kept for 180 days. |
 
 Vulnerability reports go to the address in `/.well-known/security.txt` (set by `SUPPORT_EMAIL`).

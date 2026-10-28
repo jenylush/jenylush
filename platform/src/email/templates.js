@@ -169,5 +169,20 @@ export function buildAccountEmail(type, ctx) {
       html: layout({ title: 'You have been invited to collaborate', bodyHtml: p(`${ctx.inviter} invited you to help with ${ctx.names}'s wedding website on ${platformName}. Sign in or create an account with this email address to accept.`), button: { label: 'Accept invitation', url }, platformName })
     };
   }
+  if (type === 'payment_due') {
+    const when = ctx.days === 0 ? 'today' : ctx.days === 1 ? 'tomorrow' : `in ${ctx.days} days`;
+    return {
+      subject: `Payment due ${when}: ${ctx.item}`,
+      text: `${ctx.item}${ctx.vendor ? ` (${ctx.vendor})` : ''} has ${ctx.balance} left to pay, due ${when} (${ctx.dueDate}).\n\nOpen your budget: ${url}`,
+      html: layout({ title: `Payment due ${when}`, bodyHtml: p(`${ctx.item}${ctx.vendor ? ` (${ctx.vendor})` : ''} has ${ctx.balance} left to pay, due ${when} (${ctx.dueDate}).`) + p('Once it is paid, record the payment in your budget so your totals stay right.'), button: { label: 'Open my budget', url }, platformName, footerHtml: 'You get this because payment reminders are on in your wedding budget. Turn them off in Budget & gifts.' })
+    };
+  }
+  if (type === 'thank_you_reminder') {
+    return {
+      subject: `${ctx.pending} thank-you note${ctx.pending === 1 ? '' : 's'} still to send`,
+      text: `Congratulations again! You have ${ctx.pending} gift${ctx.pending === 1 ? '' : 's'} without a thank-you note marked as sent.\n\nSee the list: ${url}`,
+      html: layout({ title: 'Time for thank-you notes', bodyHtml: p(`Congratulations again! You have ${ctx.pending} gift${ctx.pending === 1 ? '' : 's'} without a thank-you note marked as sent.`) + p('Your gift list shows who gave what, so writing them is quick.'), button: { label: 'See my gift list', url }, platformName })
+    };
+  }
   throw new Error(`Unknown account email ${type}`);
 }

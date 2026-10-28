@@ -48,6 +48,25 @@ The rest of the build prompt is covered as well:
 * **Email workflows:** RSVP confirmation, invitation, RSVP reminders, biweekly updates, final reminders and update notifications. They run on server-side scheduling.
 * **Admin area:** metrics, users, plan grants, website takedowns, content reports, template tiers, plan entitlements, platform settings and email health.
 
+## Budget & gift tracker
+
+Under **Budget & gifts** (`/app/budget`), couples plan and track wedding money before the big day and log gifts after it:
+
+* **Budget:** a total budget in their own currency (12 currencies, guessed from the wedding's timezone). It starts with 12 categories and a suggested split (venue 20%, catering 25%…) that couples can rename, resize, add to or remove.
+* **Expenses:** each booking has an estimate, an actual cost once agreed, the amount paid so far, who paid (couple or family), the vendor and the next due date. Statuses are calculated automatically: *Paid*, *Overdue*, *Due soon* (within 14 days), *Part-paid* and *Not paid yet*. "Record payment" adds a dated note and moves the next due date.
+* **Overview:** budget used, still to pay, money left, spending against plan for each category (over-budget categories are marked), and upcoming payments.
+* **Gifts:** log each gift (cash, transfer, item…) and link it to a guest on the list if they are on it. Tick thank-you notes as they're sent. Shows total value, cash received and the net wedding cost after cash gifts.
+* **Automatic reminders:** couples get an email 3 days before an unpaid balance is due and on the day itself. Seven days after the wedding, they get a nudge if thank-you notes are still pending. Each reminder is sent once, and couples can turn reminders off.
+* **Spreadsheet export:** the **.xlsx download** (`src/budget-export.js`) has Summary, Budget, Expenses and Gifts sheets.
+  * Totals, balances, statuses and the summary are **live formulas**, so the file keeps working in Excel, Google Sheets and Numbers.
+  * 150 empty expense rows and 250 empty gift rows already contain the formulas.
+  * Category and Yes/No columns have dropdowns, and overdue items and overspent categories are highlighted.
+  * The download has been checked by recalculating it in LibreOffice.
+  * Expenses and gifts can also be exported as CSV.
+* **Free blank template:** `/tools/wedding-budget-tracker.xlsx?currency=NGN` gives anyone the same workbook without an account. It's linked from the landing page as a lead magnet. In it, the planned amounts follow the suggested split of whatever total the couple types in.
+
+Amounts are stored as whole numbers in the currency's smallest unit (kobo, cents), so totals never pick up rounding errors. The same calculation code (`shared/budget.js`) runs on the server, in the browser and in the spreadsheet export.
+
 ## Architecture
 
 ```
@@ -73,7 +92,7 @@ platform/
   test/              Integration tests
 ```
 
-**Why code rather than a no-code builder?** The prompt asks to "use no-code wherever practical", and to check that the platform supports dynamic templates, per-couple content, unique public URLs, secure data access and scheduled workflows. No-code tools could not be set up or verified from this environment. A small Node service meets every one of those requirements and can be tested end to end. It has 4 runtime dependencies: express, multer, sharp and nodemailer.
+**Why code rather than a no-code builder?** The prompt asks to "use no-code wherever practical", and to check that the platform supports dynamic templates, per-couple content, unique public URLs, secure data access and scheduled workflows. No-code tools could not be set up or verified from this environment. A small Node service meets every one of those requirements and can be tested end to end. It has 5 runtime dependencies: express, multer, sharp, nodemailer and exceljs.
 
 **Templates stay separate from content.** A template is code-defined structure and styling. Each couple's content lives in their own rows: `weddings`, `website_designs` and `website_sections`. When a couple publishes, the app writes an immutable snapshot to `published_versions`. The public site renders only that snapshot, so draft edits never leak and no shared template can change a couple's live site. Switching templates changes only `website_designs.template_id`.
 
@@ -81,7 +100,7 @@ platform/
 
 ## Data model
 
-Tables: `users`, `sessions`, `auth_tokens`, `weddings`, `wedding_members`, `member_invites`, `website_templates`, `website_designs`, `website_sections`, `published_versions`, `media_assets`, `guests`, `invitations`, `form_definitions`, `rsvp_submissions`, `form_submissions`, `consent_records`, `email_automation_rules`, `scheduled_messages`, `email_delivery_logs`, `subscription_plans`, `user_subscriptions`, `payment_transactions`, `upgrade_interest`, `gift_registries`, `gift_contributions`, `platform_settings`, `product_events`, `content_reports`.
+Tables: `budget_settings`, `budget_categories`, `expenses`, `gifts_received`, `users`, `sessions`, `auth_tokens`, `weddings`, `wedding_members`, `member_invites`, `website_templates`, `website_designs`, `website_sections`, `published_versions`, `media_assets`, `guests`, `invitations`, `form_definitions`, `rsvp_submissions`, `form_submissions`, `consent_records`, `email_automation_rules`, `scheduled_messages`, `email_delivery_logs`, `subscription_plans`, `user_subscriptions`, `payment_transactions`, `upgrade_interest`, `gift_registries`, `gift_contributions`, `platform_settings`, `product_events`, `content_reports`.
 
 * Every wedding-specific table has a `wedding_id` foreign key, and deletes cascade.
 * Wedding times are stored as a wall-clock time plus an IANA timezone (`wedding_date_local`, `timezone`) and as a derived UTC instant (`wedding_at_utc`). The conversion is DST-safe and tested.

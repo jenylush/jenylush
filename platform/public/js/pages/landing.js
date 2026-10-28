@@ -19,3 +19,6 @@ try {
 } catch (err) {
   showError(err);
 }
+
+const cur = $('#tpl-currency');
+cur?.addEventListener('change', () => { $('#tpl-download').href = `/tools/wedding-budget-tracker.xlsx?currency=${encodeURIComponent(cur.value)}`; });

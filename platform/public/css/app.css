@@ -49,8 +49,8 @@ p { margin: 0 0 1em; }
 .small { font-size: .875rem; }
 .tiny { font-size: .78rem; }
 .center { text-align: center; }
-.stack { display: grid; gap: 16px; }
-.stack-sm { display: grid; gap: 8px; }
+.stack { display: grid; gap: 16px; align-content: start; }
+.stack-sm { display: grid; gap: 8px; align-content: start; }
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .row.between { justify-content: space-between; }
 .grow { flex: 1; }
@@ -141,7 +141,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--f
 .announcement { background: var(--ink); color: #fff; text-align: center; font-size: .88rem; padding: 8px 16px; }
 
 /* App layout */
-.page { padding: 32px 0 80px; }
+.page { padding-block: 32px 80px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 .page-head h1 { margin: 0; font-size: clamp(1.8rem, 3.5vw, 2.4rem); }
 .page-head p { margin: 4px 0 0; color: var(--muted); }
@@ -425,3 +425,28 @@ textarea.code { font-family: ui-monospace, monospace; font-size: .82rem; min-hei
 .email-preview { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 10px; background: #f6f3ef; }
 .rule-card { display: grid; gap: 12px; }
 .rule-card .rule-head { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+
+/* Budget & gifts */
+.money { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.budget-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .budget-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.budget-stats .stat strong { font-size: 1.6rem; }
+.stat.neg strong { color: var(--danger); }
+.cat-meters { display: grid; gap: 14px; }
+.meter-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 250px; gap: 12px; align-items: center; font-size: .9rem; }
+.meter-row > span:last-child { text-align: right; }
+@media (max-width: 640px) { .meter-row { grid-template-columns: 1fr; gap: 4px; } .meter-row > span:last-child { text-align: left; } }
+.meter { position: relative; height: 12px; border-radius: 4px; overflow: hidden; }
+.meter .planned { background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.meter > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
+.meter .committed { background: #d9a5a9; }
+.meter .paid { background: var(--brand); box-shadow: 2px 0 0 var(--card); }
+.meter.over .committed { background: #e8a39d; }
+.meter-legend { display: flex; gap: 16px; font-size: .8rem; color: var(--muted); flex-wrap: wrap; }
+.meter-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.status-overdue { background: var(--danger-soft); color: var(--danger); }
+.status-due_soon { background: var(--warn-soft); color: var(--warn); }
+.status-paid { background: var(--sage-soft); color: #23412a; }
+.status-part_paid { background: var(--gold-soft); color: #6b5220; }
+.inline-input { width: 100%; min-width: 110px; padding: 6px 8px; font-size: .9rem; }
+.export-bar { display: flex; gap: 8px; flex-wrap: wrap; }

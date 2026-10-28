@@ -6,6 +6,8 @@ import { now, uuid, parseJson } from './db.js';
 import { buildGuestEmail, WORKFLOWS, DEFAULT_RULE_CONFIG } from './email/templates.js';
 import { queueEmail, processQueue, recoverStuck } from './mailer.js';
 import { zonedToUtc, addDays, utcToZonedDate } from './timezone.js';
+import { buildAccountEmail } from './email/templates.js';
+import { expenseCost, formatMoney } from '../shared/budget.js';
 import { weddingPlan } from './entitlements.js';
 import { getWedding, loadDesign, loadSections, latestPublished, siteUrls } from './services.js';
 import { resolvePalette } from '../shared/color.js';
@@ -222,16 +224,58 @@ export function runDueMessages(deps, at = new Date()) {
   return processed;
 }
 
+// Reminders to the couple from their budget: unpaid balances due in 3 days and on
+// the day, and a nudge about unsent thank-you notes 7 days after the wedding.
+// Dedupe keys make each reminder go out once, however often this runs.
+export function runBudgetReminders(deps, at = new Date()) {
+  const { db, config } = deps;
+  const from = addDays(at.toISOString().slice(0, 10), -2);
+  const to = addDays(at.toISOString().slice(0, 10), 5);
+  const candidates = db.all(
+    `SELECT e.*, w.timezone, s.currency FROM expenses e JOIN weddings w ON w.id = e.wedding_id JOIN budget_settings s ON s.wedding_id = e.wedding_id
+     WHERE s.reminders_enabled = 1 AND e.due_date BETWEEN ? AND ?`, from, to
+  );
+  let queued = 0;
+  const membersOf = (wid) => db.all('SELECT u.id, u.email FROM wedding_members m JOIN users u ON u.id = m.user_id WHERE m.wedding_id = ? AND (m.role = \'owner\' OR m.can_edit = 1) AND u.disabled_at IS NULL', wid);
+  for (const e of candidates) {
+    const balance = expenseCost(e) - (e.paid_minor || 0);
+    if (balance <= 0) continue;
+    const today = utcToZonedDate(at, e.timezone);
+    const days = [0, 3].find((d) => addDays(today, d) === e.due_date);
+    if (days === undefined) continue;
+    for (const u of membersOf(e.wedding_id)) {
+      const mail = buildAccountEmail('payment_due', { platformName: config.platformName, url: `${config.baseUrl}/app/budget?id=${e.wedding_id}`, item: e.item, vendor: e.vendor, balance: formatMoney(balance, e.currency), dueDate: e.due_date, days });
+      const r = queueEmail(db, deps.provider, { weddingId: e.wedding_id, userId: u.id, type: 'payment_due', to: u.email, subject: mail.subject, html: mail.html, text: mail.text, essential: true, dedupeKey: `payment_due:${e.id}:${e.due_date}:${days}:${u.id}` });
+      if (!r.duplicate) queued++;
+    }
+  }
+  const after = db.all(
+    `SELECT w.id, w.wedding_date_local, w.timezone, (SELECT COUNT(*) FROM gifts_received g WHERE g.wedding_id = w.id AND g.thank_you_sent_at IS NULL) AS pending
+     FROM weddings w JOIN budget_settings s ON s.wedding_id = w.id WHERE s.reminders_enabled = 1 AND w.wedding_date_local IS NOT NULL`
+  );
+  for (const w of after) {
+    if (!w.pending || addDays(w.wedding_date_local.slice(0, 10), 7) !== utcToZonedDate(at, w.timezone)) continue;
+    for (const u of membersOf(w.id)) {
+      const mail = buildAccountEmail('thank_you_reminder', { platformName: config.platformName, url: `${config.baseUrl}/app/budget?id=${w.id}#gifts`, pending: w.pending });
+      const r = queueEmail(db, deps.provider, { weddingId: w.id, userId: u.id, type: 'thank_you_reminder', to: u.email, subject: mail.subject, html: mail.html, text: mail.text, essential: true, dedupeKey: `thank_you_reminder:${w.id}:${w.wedding_date_local.slice(0, 10)}:${u.id}` });
+      if (!r.duplicate) queued++;
+    }
+  }
+  return queued;
+}
+
 // Background worker. Runs inside the app process on a timer; all state lives in the
 // database, so restarts lose nothing and nothing depends on a browser being open.
 export function startWorker(deps) {
   let running = false;
+  let lastBudgetRun = 0;
   const tick = async () => {
     if (running) return;
     running = true;
     try {
       recoverStuck(deps.db);
       runDueMessages(deps);
+      if (Date.now() - lastBudgetRun > 3600e3) { lastBudgetRun = Date.now(); runBudgetReminders(deps); }
       await processQueue(deps.db, deps.provider, { baseUrl: deps.config.baseUrl });
     } catch (err) {
       console.error('worker error:', err);

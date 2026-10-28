@@ -55,6 +55,7 @@ export function toast(message, type = 'info', ms = 4200) {
   t.className = `toast ${type}`;
   t.textContent = message;
   box.append(t);
+  while (box.children.length > 3) box.firstElementChild.remove(); // keep the stack short
   setTimeout(() => t.remove(), ms);
 }
 
@@ -202,7 +203,7 @@ export async function appChrome({ weddingId } = {}) {
   header.innerHTML = `<div class="container">${LOGO(config.platform_name)}
     <button class="btn btn-ghost btn-icon menu-toggle" type="button" aria-expanded="false" aria-controls="app-nav" aria-label="Menu">☰</button>
     <nav class="topnav" id="app-nav" aria-label="Main">
-      <a href="/app${q}">Dashboard</a><a href="/app/editor${q}">Website</a><a href="/app/guests${q}">Guests & RSVPs</a><a href="/app/emails${q}">Emails</a><a href="/app/settings${q}">Settings</a>${me.role === 'admin' ? '<a href="/app/admin">Admin</a>' : ''}
+      <a href="/app${q}">Dashboard</a><a href="/app/editor${q}">Website</a><a href="/app/guests${q}">Guests & RSVPs</a><a href="/app/budget${q}">Budget & gifts</a><a href="/app/emails${q}">Emails</a><a href="/app/settings${q}">Settings</a>${me.role === 'admin' ? '<a href="/app/admin">Admin</a>' : ''}
     </nav>
     <div class="right">
       ${me.plan.id === 'free' ? `<a class="btn btn-secondary btn-sm hide-sm" href="/app/upgrade"><span class="premium-tag">Premium</span></a>` : `<span class="badge gold hide-sm">${esc(me.plan.name)}</span>`}

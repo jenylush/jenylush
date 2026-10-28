@@ -7,7 +7,7 @@ export const EVENT_NAMES = [
   'account_created', 'website_creation_started', 'template_selected', 'colour_settings_changed',
   'gallery_image_uploaded', 'section_added', 'section_removed', 'preview_opened', 'website_published',
   'website_shared', 'guest_rsvp_submitted', 'email_automation_enabled', 'paid_upgrade_viewed',
-  'subscription_purchased', 'upgrade_interest_registered'
+  'subscription_purchased', 'upgrade_interest_registered', 'budget_expense_added', 'gift_logged', 'budget_exported'
 ];
 
 // Events the browser may report directly (everything else is recorded server-side).

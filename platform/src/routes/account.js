@@ -46,7 +46,11 @@ export function accountRoutes(ctx) {
         media: db.all('SELECT id, kind, caption, original_name, width, height, created_at FROM media_assets WHERE wedding_id = ?', w.id).map((m) => ({ ...m, url: `${config.baseUrl}/media/${m.id}/2000` })),
         guests: db.all('SELECT first_name, last_name, email, phone, household, invitation_status, updates_opt_in, unsubscribed_at, created_at FROM guests WHERE wedding_id = ?', w.id),
         rsvp_submissions: db.all('SELECT name, email, attending, events, plus_one_name, dietary, accessibility, is_latest, created_at FROM rsvp_submissions WHERE wedding_id = ?', w.id),
-        email_rules: db.all('SELECT type, enabled, config FROM email_automation_rules WHERE wedding_id = ?', w.id)
+        email_rules: db.all('SELECT type, enabled, config FROM email_automation_rules WHERE wedding_id = ?', w.id),
+        budget: db.get('SELECT currency, total_budget_minor FROM budget_settings WHERE wedding_id = ?', w.id),
+        budget_categories: db.all('SELECT name, planned_minor FROM budget_categories WHERE wedding_id = ?', w.id),
+        expenses: db.all('SELECT item, vendor, vendor_contact, estimated_minor, actual_minor, paid_minor, due_date, paid_by, notes FROM expenses WHERE wedding_id = ?', w.id),
+        gifts_received: db.all('SELECT giver_name, gift_type, description, amount_minor, received_date, thank_you_sent_at, notes FROM gifts_received WHERE wedding_id = ?', w.id)
       };
     });
     const subscriptions = db.all('SELECT plan_id, status, source, started_at, ends_at FROM user_subscriptions WHERE user_id = ?', u.id);

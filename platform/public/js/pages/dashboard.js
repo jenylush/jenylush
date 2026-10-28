@@ -1,5 +1,6 @@
 import { api, $, esc, appChrome, currentWedding, toast, showError, copyText, track, formatDate, confirmDialog } from '../api.js';
 import { publishFlow } from '../publish.js';
+import { budgetSummary, formatMoney } from '/shared/budget.js';
 
 const summary = await currentWedding();
 if (summary) {
@@ -68,6 +69,7 @@ function render(s, me, config) {
             ${s.permissions.guests ? `<a href="/app/guests?id=${w.id}"><span class="qa-icon" aria-hidden="true">☺</span>Manage guests</a>` : ''}
             ${s.permissions.edit ? `<a href="/app/editor?id=${w.id}&tab=design"><span class="qa-icon" aria-hidden="true">Aa</span>Customise design</a>` : ''}
             <a href="/app/emails?id=${w.id}"><span class="qa-icon" aria-hidden="true">✉</span>Guest emails</a>
+            <a href="/app/budget?id=${w.id}"><span class="qa-icon" aria-hidden="true">¤</span>Budget & gifts</a>
           </div>
           ${pub && s.permissions.publish ? '<p class="small" style="margin:14px 0 0"><button class="link-btn" type="button" data-unpublish>Unpublish website</button></p>' : ''}
         </section>
@@ -80,6 +82,8 @@ function render(s, me, config) {
           <ul class="checklist">${s.checklist.items.map((i) => `<li class="${i.ok ? 'ok' : ''}"><span class="tick" aria-hidden="true">${i.ok ? '✓' : ''}</span><span>${esc(i.label)}${i.required && !i.ok ? ' <span class="badge red">Required</span>' : ''}<span class="sr-only">${i.ok ? ' — done' : ' — to do'}</span></span></li>`).join('')}</ul>
           ${required.every((i) => i.ok) ? '' : '<p class="small muted" style="margin:12px 0 0">Complete the required items to publish.</p>'}
         </section>
+
+        <section class="card" aria-labelledby="bud-h" id="budget-card"><h2 id="bud-h" style="font-size:1.3rem;margin:0 0 8px">Budget</h2><p class="small muted" style="margin:0">Loading…</p></section>
 
         <section class="card" aria-labelledby="plan-h">
           <div class="row between"><h2 id="plan-h" style="font-size:1.3rem;margin:0">Your plan</h2><span class="badge ${s.plan.id === 'free' ? '' : 'gold'}">${esc(s.plan.name)}</span></div>
@@ -96,6 +100,7 @@ function render(s, me, config) {
       </aside>
     </div>`;
 
+  loadBudgetCard(w.id);
   $('[data-copy]').addEventListener('click', () => { copyText(s.urls.primary); track('website_shared', { channel: 'copy' }, w.id); });
   document.querySelectorAll('[data-share]').forEach((a) => a.addEventListener('click', () => track('website_shared', { channel: a.dataset.share }, w.id)));
   $('[data-native-share]')?.addEventListener('click', async () => {
@@ -116,4 +121,21 @@ function render(s, me, config) {
     if (!await confirmDialog('Guests will no longer be able to see your website or RSVP until you publish it again. Your content is kept.', { title: 'Unpublish your website?', confirmLabel: 'Unpublish', danger: true })) return;
     try { await api('POST', `/api/weddings/${w.id}/unpublish`); toast('Your website is now offline.'); location.reload(); } catch (err) { showError(err); }
   });
+}
+
+async function loadBudgetCard(wid) {
+  const box = $('#budget-card');
+  try {
+    const b = await api('GET', `/api/weddings/${wid}/budget`);
+    const s = budgetSummary(b, b.today);
+    const m = (v) => formatMoney(v, b.settings.currency, { compact: true });
+    const next = s.upcoming[0];
+    box.innerHTML = `<h2 id="bud-h" style="font-size:1.3rem;margin:0 0 8px">Budget</h2>${s.total ? `
+      <p class="small" style="margin:0 0 6px"><strong class="money">${m(s.committed)}</strong> committed of <span class="money">${m(s.total)}</span> · <span class="money">${m(s.paid)}</span> paid</p>
+      <div class="progress ${s.committed > s.total ? 'full' : s.committed > s.total * 0.9 ? 'warn' : ''}" role="progressbar" aria-label="Budget used" aria-valuenow="${Math.round(s.used_pct || 0)}" aria-valuemin="0" aria-valuemax="100"><div style="width:${Math.min(100, s.used_pct || 0)}%"></div></div>
+      ${s.overdue ? `<p class="small" style="color:var(--danger);margin:8px 0 0">⚠ ${s.overdue} overdue payment${s.overdue === 1 ? '' : 's'}</p>` : next ? `<p class="small muted" style="margin:8px 0 0">Next: ${esc(next.item)}, <span class="money">${m(next.balance)}</span> on ${esc(formatDate(next.due_date, { weekday: false }))}</p>` : ''}
+      ${s.gifts.thank_you_pending ? `<p class="small muted" style="margin:4px 0 0">${s.gifts.thank_you_pending} thank-you note${s.gifts.thank_you_pending === 1 ? '' : 's'} to send</p>` : ''}`
+      : '<p class="small muted" style="margin:0 0 10px">Set a total budget to track spending, payment due dates and gifts.</p>'}
+      <a class="btn btn-secondary btn-sm" href="/app/budget?id=${wid}" style="margin-top:10px">Open budget & gifts</a>`;
+  } catch { box.remove(); }
 }

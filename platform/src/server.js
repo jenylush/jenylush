@@ -18,6 +18,7 @@ import { adminRoutes } from './routes/admin.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { siteRoutes, previewRoute, demoRoute, unsubscribeRoutes, simplePage } from './routes/site.js';
 import { publicApiRoutes } from './routes/public.js';
+import { budgetRoutes, templateDownloadRoute } from './routes/budget.js';
 import { PlanLimitError, FEATURE_LABELS } from './entitlements.js';
 import { RESERVED_SLUGS } from './services.js';
 
@@ -31,7 +32,7 @@ const PAGES = {
 const APP_PAGES = {
   '/app': 'dashboard.html', '/app/wizard': 'wizard.html', '/app/editor': 'editor.html', '/app/guests': 'guests.html',
   '/app/emails': 'emails.html', '/app/settings': 'settings.html', '/app/upgrade': 'upgrade.html', '/app/admin': 'admin.html',
-  '/app/accept-invite': 'accept-invite.html', '/app/editor-frame': 'editor-frame.html'
+  '/app/accept-invite': 'accept-invite.html', '/app/budget': 'budget.html', '/app/editor-frame': 'editor-frame.html'
 };
 
 function securityHeaders(config) {
@@ -120,6 +121,7 @@ export function createApp(overrides = {}) {
   api.use('/weddings', mediaRoutes(ctx));
   api.use('/weddings', guestRoutes(ctx));
   api.use('/weddings', emailRoutes(ctx));
+  api.use('/weddings', budgetRoutes(ctx));
   api.use((req, res) => res.status(404).json({ error: 'Not found.' }));
   app.use('/api', api);
 
@@ -127,6 +129,7 @@ export function createApp(overrides = {}) {
   app.use('/w/:slug', siteRoutes(ctx, (req) => db.get('SELECT * FROM weddings WHERE slug = ?', String(req.params.slug).toLowerCase())));
   app.get('/preview/:weddingId', previewRoute(ctx));
   app.get('/templates/:templateId/demo', demoRoute(ctx));
+  app.get('/tools/wedding-budget-tracker.xlsx', ...templateDownloadRoute(ctx));
   app.get('/media/:assetId/:size', mediaServeRoute(ctx));
   app.use('/u', unsubscribeRoutes(ctx));
 
