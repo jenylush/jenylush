@@ -1,0 +1,37 @@
+# Render Blueprint: deploys the wedding platform as a free TEST site.
+# In Render: New → Blueprint → pick this repository → Apply.
+#
+# Free-plan limits (fine for testing, not for real couples):
+#  - the site sleeps after 15 minutes without visitors and takes ~1 minute to wake;
+#  - data (accounts, websites, photos) is wiped whenever the service restarts or redeploys.
+# For launch: switch to a paid plan, add a disk mounted at /data (DATA_DIR=/data),
+# connect an email provider and set EXPOSE_DEV_LINKS=false. See platform/README.md.
+services:
+  - type: web
+    name: vowly-test
+    runtime: node
+    plan: free
+    branch: claude/dreamy-hawking-k0qx1e
+    rootDir: platform
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
+      - key: APP_SECRET
+        generateValue: true
+      - key: ADMIN_EMAILS
+        sync: false            # Render asks for this: the email you will sign up with
+      - key: PLATFORM_NAME
+        value: Vowly
+      - key: ANNOUNCEMENT
+        value: "Test version: data may be reset at any time. Emails are not sent yet."
+      # No email service yet, so confirmation links are shown on screen instead.
+      - key: EXPOSE_DEV_LINKS
+        value: "true"
+      # Testing convenience. Set to "true" before launch so admins must use two-step login.
+      - key: REQUIRE_ADMIN_2FA
+        value: "false"

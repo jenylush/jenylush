@@ -22,7 +22,8 @@ const bool = (v, d = false) => (v === undefined || v === '' ? d : /^(1|true|yes|
 export function loadConfig(overrides = {}) {
   const env = { ...process.env, ...overrides };
   const port = Number(env.PORT || 3000);
-  const baseUrl = (env.BASE_URL || `http://localhost:${port}`).replace(/\/$/, '');
+  // Render (and similar hosts) provide the public address automatically.
+  const baseUrl = (env.BASE_URL || env.RENDER_EXTERNAL_URL || `http://localhost:${port}`).replace(/\/$/, '');
   const production = env.NODE_ENV === 'production';
   return {
     port,
@@ -52,6 +53,9 @@ export function loadConfig(overrides = {}) {
     forceHttps: bool(env.FORCE_HTTPS, production),
     requireAdmin2fa: bool(env.REQUIRE_ADMIN_2FA, production),
     rateLimitScale: Number(env.RATE_LIMIT_SCALE || 1),
-    exposeDevLinks: !production && bool(env.EXPOSE_DEV_LINKS, true)
+    // Test deployments without an email service can show confirmation links on screen.
+    // Never set EXPOSE_DEV_LINKS=true on a real launch: anyone could confirm any email.
+    exposeDevLinks: bool(env.EXPOSE_DEV_LINKS, !production),
+    defaultAnnouncement: env.ANNOUNCEMENT || ''
   };
 }

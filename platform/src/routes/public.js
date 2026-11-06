@@ -25,7 +25,7 @@ export function publicApiRoutes(ctx) {
   r.get('/config', (req, res) => {
     res.json({
       platform_name: config.platformName, support_email: config.supportEmail, payments_enabled: config.paymentsEnabled,
-      site_base_domain: config.siteBaseDomain || null, base_url: config.baseUrl, announcement: getSetting(db, 'announcement', ''),
+      site_base_domain: config.siteBaseDomain || null, base_url: config.baseUrl, announcement: getSetting(db, 'announcement', '') || config.defaultAnnouncement,
       email_configured: ctx.provider.configured, signups_enabled: getSetting(db, 'signups_enabled', true)
     });
   });
