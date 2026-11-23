@@ -51,6 +51,7 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
   return (
     <div
       id="order"
+      className="[&_input]:scroll-mb-32 [&_select]:scroll-mb-32 [&_textarea]:scroll-mb-32 [&_label]:scroll-mb-32"
       onKeyDown={(e) => {
         if (e.key === "Enter" && step < 2 && (e.target as HTMLElement).tagName === "INPUT") {
           e.preventDefault();
@@ -141,7 +142,7 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
               </dl>
             </div>
             <p className="text-sm text-[#4A4540]">Next you&apos;ll see the couple&apos;s account details to pay by bank transfer.</p>
-            <label className="flex items-start gap-2.5 text-sm"><input type="checkbox" name="confirm" value="yes" required className="mt-0.5 h-4 w-4 accent-[var(--accent)]" /> My details are correct.</label>
+            <label className="flex items-start gap-2.5 border border-[#E6DCCB] bg-white p-3 text-sm"><input type="checkbox" name="confirm" value="yes" required className="mt-0.5 h-5 w-5 accent-[var(--accent)]" /> My details are correct.</label>
           </div>
         )}
 
