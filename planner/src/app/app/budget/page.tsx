@@ -62,7 +62,7 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
         <Stat label="Remaining" value={naira(summary.remaining)} tone={summary.remaining < 0 ? "rose" : "ink"} />
       </div>
 
-      <Tabs current={`/app/budget${tab === "categories" ? "?tab=categories" : ""}`} items={[{ href: "/app/budget", label: "Expenses", count: list.length }, { href: "/app/budget?tab=categories", label: "Categories & allocation", count: lookups.categories.length }]} />
+      <Tabs current={`/app/budget${tab === "categories" ? "?tab=categories" : ""}`} items={[{ href: "/app/budget", label: "Expenses", count: list.length }, { href: "/app/budget?tab=categories", label: "Categories, events & allocation", count: lookups.categories.length }]} />
 
       {tab === "expenses" ? (
         <Card pad={false}>
@@ -169,6 +169,26 @@ export default async function BudgetPage({ searchParams }: { searchParams: Promi
                   Category allocations add up to {naira(totalAllocated)} — {totalAllocated > wedding.totalBudget ? <span className="text-rose">{naira(totalAllocated - wedding.totalBudget)} more</span> : <>{naira(wedding.totalBudget - totalAllocated)} less</>} than the budget.
                 </p>
               )}
+            </Card>
+            <Card title="By event" folio="✦" pad={false}>
+              <table className="data-table">
+                <thead><tr><th>Event</th><th className="num">Event budget</th><th className="num">Committed</th><th className="num">Paid</th></tr></thead>
+                <tbody>
+                  {[...lookups.events.map((ev) => ({ id: ev.id, name: ev.name, budget: ev.budget })), { id: null, name: "Whole wedding / unassigned", budget: null }].map((ev) => {
+                    const ex = list.filter((e) => e.eventId === ev.id);
+                    const committed = ex.reduce((a, e) => a + (e.state.status === "cancelled" ? e.state.paid : Math.max(e.state.total, e.state.paid)), 0);
+                    const paid = ex.reduce((a, e) => a + e.state.paid, 0);
+                    return (
+                      <tr key={ev.id ?? "none"}>
+                        <td>{ev.id ? <Link className="hover:underline" href={`/app/budget?event=${ev.id}`}>{ev.name}</Link> : <span className="text-muted">{ev.name}</span>}</td>
+                        <td className="num">{ev.budget ? naira(ev.budget) : "—"}</td>
+                        <td className={`num ${ev.budget && committed > ev.budget ? "text-rose" : ""}`}>{naira(committed)}</td>
+                        <td className="num text-sage">{naira(paid)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </Card>
             <Card title="Allocation vs committed" folio="≈">
               <AllocationBars rows={cats.filter((c) => c.allocated || c.committed)} />
