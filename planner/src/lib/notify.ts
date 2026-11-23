@@ -3,7 +3,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { notificationLogs, notifications, weddings } from "@/db/schema";
 import { emailLayout, sendEmail, type SendResult } from "./integrations/email";
-import { sendWhatsAppTemplate } from "./integrations/whatsapp";
 
 type Wedding = typeof weddings.$inferSelect;
 
@@ -14,15 +13,13 @@ export interface Message {
   body: string;
   href?: string;
   email?: Parameters<typeof emailLayout>[0];
-  /** Template + ordered body params for WhatsApp */
-  whatsapp?: { template: string; params: string[] };
   /** Stable key — the same key is never delivered twice per channel+recipient. */
   dedupeKey?: string;
   entity?: { type: string; id: string };
 }
 
 interface Recipient {
-  channel: "email" | "whatsapp" | "in_app";
+  channel: "email" | "in_app";
   to: string;
 }
 
@@ -32,11 +29,6 @@ async function deliver(logId: string) {
   let result: SendResult;
   if (log.channel === "email") {
     result = await sendEmail(log.recipient, log.subject ?? log.type, log.html ?? log.body, log.body);
-  } else if (log.channel === "whatsapp") {
-    const meta = JSON.parse(log.subject ?? "{}") as { template?: string; params?: string[] };
-    result = meta.template
-      ? await sendWhatsAppTemplate(log.recipient, meta.template, meta.params ?? [])
-      : { ok: false, error: "No WhatsApp template configured for this message" };
   } else {
     result = { ok: true };
   }
@@ -65,10 +57,7 @@ async function dispatch(weddingId: string, msg: Message, recipients: Recipient[]
         type: msg.type,
         trigger: msg.trigger,
         recipient: r.to,
-        subject:
-          r.channel === "whatsapp"
-            ? JSON.stringify(msg.whatsapp ?? {})
-            : msg.title,
+        subject: msg.title,
         body: rendered?.text ?? msg.body,
         html: rendered?.html ?? null,
         dedupeKey: msg.dedupeKey ? `${msg.dedupeKey}|${r.channel}|${r.to}` : null,
@@ -89,8 +78,6 @@ export async function notifyCouple(wedding: Wedding, msg: Message) {
   if (wedding.notifyInApp) recipients.push({ channel: "in_app", to: "couple" });
   if (wedding.notifyEmail)
     for (const e of [wedding.partnerOneEmail, wedding.partnerTwoEmail]) if (e) recipients.push({ channel: "email", to: e });
-  if (wedding.notifyWhatsapp && msg.whatsapp)
-    for (const p of [wedding.partnerOnePhone, wedding.partnerTwoPhone]) if (p) recipients.push({ channel: "whatsapp", to: p });
 
   const n = await dispatch(wedding.id, msg, recipients);
   // The in-app inbox item is only created the first time (dedupe respected above).
@@ -100,11 +87,10 @@ export async function notifyCouple(wedding: Wedding, msg: Message) {
   return n;
 }
 
-/** Notify an Aso Ebi guest by email (and WhatsApp when the couple has it enabled). */
-export async function notifyGuest(wedding: Wedding, to: { email?: string | null; phone?: string | null }, msg: Message) {
+/** Notify an Aso Ebi guest by email, when they gave one. */
+export async function notifyGuest(wedding: Wedding, to: { email?: string | null }, msg: Message) {
   const recipients: Recipient[] = [];
   if (to.email) recipients.push({ channel: "email", to: to.email });
-  if (to.phone && msg.whatsapp && wedding.notifyWhatsapp) recipients.push({ channel: "whatsapp", to: to.phone });
   return dispatch(wedding.id, msg, recipients);
 }
 

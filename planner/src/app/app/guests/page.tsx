@@ -57,7 +57,7 @@ export default async function Guests({ searchParams }: { searchParams: Promise<S
             <summary className="list-none"><span className="inline-flex cursor-pointer items-center gap-2 bg-ink px-4 py-2.5 text-sm font-semibold text-ivory">Export to Excel ▾</span></summary>
             <div className="sheet absolute right-0 z-20 mt-1 w-60 p-2 text-sm">
               <a className="block px-3 py-2 hover:bg-ivory" href="/api/exports/register?filter=all">Entire register</a>
-              <a className="block px-3 py-2 hover:bg-ivory" href="/api/exports/register?filter=paid">Paid guests only</a>
+              <a className="block px-3 py-2 hover:bg-ivory" href="/api/exports/register?filter=paid">Guests who have paid</a>
               <a className="block px-3 py-2 hover:bg-ivory" href="/api/exports/register?filter=awaiting">Awaiting payment</a>
               <a className="block px-3 py-2 hover:bg-ivory" href="/api/exports/register?filter=delivery">Delivery addresses</a>
             </div>
@@ -69,8 +69,8 @@ export default async function Guests({ searchParams }: { searchParams: Promise<S
         <Stat label="Guests" value={rows.length} />
         <Stat label="Link opened" value={count((r) => !!r.g.linkOpenedAt)} sub="via personal links" />
         <Stat label="Ordered" value={count((r) => !!r.o && r.o.status !== "cancelled")} />
-        <Stat label="Paid in full" value={count((r) => r.o?.status === "paid")} tone="sage" />
-        <Stat label="Not paid" value={count((r) => !!r.o && (r.o.status === "pending_payment" || r.o.status === "partially_paid"))} tone="rose" />
+        <Stat label="Paid" value={count((r) => r.o?.status === "paid" || r.o?.status === "transfer_reported")} tone="sage" sub={`${count((r) => r.o?.status === "transfer_reported")} to confirm`} />
+        <Stat label="Not paid yet" value={count((r) => !!r.o && (r.o.status === "pending_payment" || r.o.status === "partially_paid"))} tone="rose" />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
@@ -102,7 +102,7 @@ export default async function Guests({ searchParams }: { searchParams: Promise<S
         <AutoSubmit className="grid gap-2 border-b border-linen p-4 sm:grid-cols-3 lg:grid-cols-[1.5fr_repeat(5,1fr)]">
           <Input type="search" name="q" placeholder="Search name, phone, order ID, city…" defaultValue={sp.q} />
           <Select name="status" defaultValue={sp.status ?? ""}><option value="">Any status</option>{GUEST_STATUS.map((s) => <option key={s}>{s}</option>)}</Select>
-          <Select name="pay" defaultValue={sp.pay ?? ""}><option value="">Any payment</option>{Object.entries(ORDER_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}<option value="none">No order yet</option></Select>
+          <Select name="pay" defaultValue={sp.pay ?? ""}><option value="">Any payment</option>{(["pending_payment", "transfer_reported", "paid", "cancelled"] as const).map((k) => <option key={k} value={k}>{ORDER_LABEL[k]}</option>)}<option value="none">No order yet</option></Select>
           <Select name="pkg" defaultValue={sp.pkg ?? ""}><option value="">Any package</option>{pkgs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select>
           <Select name="delivery" defaultValue={sp.delivery ?? ""}><option value="">Any delivery</option>{Object.entries(DELIVERY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select>
           <Select name="category" defaultValue={sp.category ?? ""}><option value="">Any category</option>{categories.map((c) => <option key={c}>{c}</option>)}</Select>

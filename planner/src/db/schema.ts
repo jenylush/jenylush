@@ -2,7 +2,7 @@
  * Owambe Ledger — relational schema.
  *
  * Money is always stored as integer kobo (₦1 = 100 kobo) in BIGINT columns, which is
- * what Paystack uses and avoids floating-point errors. Every tenant-owned table carries
+ * which avoids floating-point errors. Every tenant-owned table carries
  * `wedding_id`, and every query in src/lib goes through a wedding-scoped helper.
  */
 import { relations, sql } from "drizzle-orm";
@@ -52,6 +52,7 @@ export const recurrence = pgEnum("recurrence", ["none", "weekly", "monthly"]);
 export const taskKind = pgEnum("task_kind", ["task", "activity"]);
 export const orderStatus = pgEnum("order_status", [
   "pending_payment",
+  "transfer_reported",
   "partially_paid",
   "paid",
   "cancelled",
@@ -64,14 +65,6 @@ export const deliveryStatus = pgEnum("delivery_status", [
   "dispatched",
   "delivered",
   "failed",
-]);
-export const paymentStatus = pgEnum("payment_status", [
-  "initialized",
-  "pending",
-  "success",
-  "failed",
-  "abandoned",
-  "refunded",
 ]);
 export const notifyChannel = pgEnum("notify_channel", ["email", "whatsapp", "in_app"]);
 export const notifyStatus = pgEnum("notify_status", ["queued", "sent", "failed", "skipped"]);
@@ -124,7 +117,6 @@ export const weddings = pgTable("weddings", {
   reminderOffsets: integer("reminder_offsets").array().notNull().default(sql`'{7,3,0}'::int[]`),
   overdueRepeatDays: integer("overdue_repeat_days").notNull().default(3),
   notifyEmail: boolean("notify_email").notNull().default(true),
-  notifyWhatsapp: boolean("notify_whatsapp").notNull().default(false),
   notifyInApp: boolean("notify_in_app").notNull().default(true),
   guestReminderDays: integer("guest_reminder_days").notNull().default(3),
   /** Secret token for the read-only Google Sheets IMPORTDATA feed. Null = disabled. */
@@ -353,8 +345,10 @@ export const campaigns = pgTable(
     salesOpenAt: date("sales_open_at"),
     salesCloseAt: date("sales_close_at"),
     paymentDeadline: date("payment_deadline"),
-    allowInstalments: boolean("allow_instalments").notNull().default(false),
-    minDepositPercent: integer("min_deposit_percent").notNull().default(50),
+    /** Where guests send their money (MVP: direct bank transfer, no payment gateway). */
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
     allowDelivery: boolean("allow_delivery").notNull().default(true),
     allowPickup: boolean("allow_pickup").notNull().default(true),
     deliveryFee: money("delivery_fee").notNull().default(0),
@@ -436,15 +430,14 @@ export const orders = pgTable(
     accessToken: text("access_token").notNull().unique(),
     fullName: text("full_name").notNull(),
     phone: text("phone").notNull(),
-    email: text("email").notNull(),
+    email: text("email"),
     status: orderStatus("status").notNull().default("pending_payment"),
     deliveryMethod: deliveryMethod("delivery_method").notNull(),
     subtotal: money("subtotal").notNull(),
     deliveryFee: money("delivery_fee").notNull().default(0),
     total: money("total").notNull(),
-    /** Sum of VERIFIED successful payments only. */
+    /** Sum of transfers the couple has confirmed as received. */
     amountPaid: money("amount_paid").notNull().default(0),
-    paymentPlan: text("payment_plan").notNull().default("full"),
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -496,7 +489,12 @@ export const deliveries = pgTable("deliveries", {
   updatedAt: updatedAt(),
 });
 
-/** Gateway (or manually recorded) payments for Aso Ebi orders. */
+/**
+ * Bank-transfer payments for Aso Ebi orders. A guest taps "I have sent the money" (status
+ * "reported"); the couple then confirms it arrived ("confirmed") or marks it "not_received".
+ */
+export const transferStatus = pgEnum("transfer_status", ["reported", "confirmed", "not_received"]);
+
 export const payments = pgTable(
   "payments",
   {
@@ -505,41 +503,17 @@ export const payments = pgTable(
     orderId: uuid("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    provider: text("provider").notNull(), // paystack | flutterwave | manual
-    reference: text("reference").notNull().unique(),
     amount: money("amount").notNull(),
-    currency: text("currency").notNull().default("NGN"),
-    status: paymentStatus("status").notNull().default("initialized"),
-    channel: text("channel"),
-    gatewayResponse: text("gateway_response"),
-    authorizationUrl: text("authorization_url"),
-    paidAt: timestamp("paid_at", { withTimezone: true }),
-    verifiedAt: timestamp("verified_at", { withTimezone: true }),
-    /** Set once the success has been applied to the order. Guards against double-processing. */
-    appliedAt: timestamp("applied_at", { withTimezone: true }),
-    refundedAt: timestamp("refunded_at", { withTimezone: true }),
-    raw: jsonb("raw"),
-    recordedBy: uuid("recorded_by").references(() => users.id, { onDelete: "set null" }),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    status: transferStatus("status").notNull().default("reported"),
+    /** Name on the sending account, as typed by the guest (helps the couple match their bank alert). */
+    senderName: text("sender_name"),
+    reference: text("reference"),
+    source: text("source").notNull().default("guest"), // guest | couple
+    reportedAt: timestamp("reported_at", { withTimezone: true }).notNull().defaultNow(),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    confirmedBy: uuid("confirmed_by").references(() => users.id, { onDelete: "set null" }),
   },
   (t) => [index("payments_order_idx").on(t.orderId), index("payments_wedding_idx").on(t.weddingId)],
-);
-
-export const webhookEvents = pgTable(
-  "webhook_events",
-  {
-    id: id(),
-    provider: text("provider").notNull(),
-    event: text("event").notNull(),
-    /** provider + event + reference — unique so replays are ignored */
-    dedupeKey: text("dedupe_key").notNull(),
-    signatureValid: boolean("signature_valid").notNull(),
-    payload: jsonb("payload").notNull(),
-    result: text("result"),
-    receivedAt: createdAt(),
-  },
-  (t) => [uniqueIndex("webhook_events_dedupe_uq").on(t.dedupeKey)],
 );
 
 /* ─── Notifications & audit ─────────────────────────────────────────── */

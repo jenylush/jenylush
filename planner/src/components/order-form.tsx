@@ -15,7 +15,7 @@ const labelCls = "mb-1.5 block text-[0.7rem] font-semibold uppercase tracking-[0
  * Mobile-first, three-step form: choose → details → review. Everything posts once at the
  * end; the server re-validates prices, stock and the address rules.
  */
-export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelivery, allowPickup, instalments, deposit }: { slug: string; guestToken?: string; packages: Pkg[]; deliveryFee: number; allowDelivery: boolean; allowPickup: boolean; instalments: boolean; deposit: number }) {
+export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelivery, allowPickup }: { slug: string; guestToken?: string; packages: Pkg[]; deliveryFee: number; allowDelivery: boolean; allowPickup: boolean }) {
   const [step, setStep] = useState(0);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [method, setMethod] = useState<"delivery" | "pickup">(allowDelivery ? "delivery" : "pickup");
@@ -32,7 +32,8 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
     setErr(null);
     if (step === 0 && count === 0) return setErr("Choose at least one package.");
     if (step === 1) {
-      if (!f.fullName.trim() || !f.phone.trim() || !/\S+@\S+\.\S+/.test(f.email)) return setErr("Please enter your full name, phone number and a valid email.");
+      if (!f.fullName.trim() || !f.phone.trim()) return setErr("Please enter your full name and phone number.");
+      if (f.email.trim() && !/\S+@\S+\.\S+/.test(f.email)) return setErr("That email doesn't look right — or leave it blank.");
       if (!/^(\+?234|0)?[789][01]\d{8}$/.test(f.phone.replace(/[\s-]/g, ""))) return setErr("Enter a valid Nigerian phone number, e.g. 0803 123 4567.");
       if (method === "delivery" && (!f.street.trim() || !f.area.trim() || !f.city.trim() || !f.state)) return setErr("Home delivery needs your street address, area, city and state.");
     }
@@ -96,7 +97,7 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
             <div><label className={labelCls} htmlFor="fn">Full name *</label><input id="fn" autoComplete="name" className={inputCls} value={f.fullName} onChange={set("fullName")} /></div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><label className={labelCls} htmlFor="ph">Phone (WhatsApp) *</label><input id="ph" type="tel" autoComplete="tel" inputMode="tel" placeholder="0803 123 4567" className={inputCls} value={f.phone} onChange={set("phone")} /></div>
-              <div><label className={labelCls} htmlFor="em">Email *</label><input id="em" type="email" autoComplete="email" className={inputCls} value={f.email} onChange={set("email")} /><p className="mt-1 text-xs text-[#7A7268]">Your receipt is sent here.</p></div>
+              <div><label className={labelCls} htmlFor="em">Email (optional)</label><input id="em" type="email" autoComplete="email" className={inputCls} value={f.email} onChange={set("email")} /><p className="mt-1 text-xs text-[#7A7268]">For your receipt.</p></div>
             </div>
             {allowDelivery && allowPickup && (
               <fieldset>
@@ -135,11 +136,11 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
                 {fee > 0 && <div className="flex justify-between px-4 py-2.5"><dt>Delivery</dt><dd className="font-mono">{fmt(fee)}</dd></div>}
                 <div className="flex justify-between px-4 py-3 text-base font-semibold"><dt>Total</dt><dd className="font-mono">{fmt(total)}</dd></div>
                 <div className="px-4 py-2.5"><dt className="text-xs text-[#7A7268]">Name</dt><dd>{f.fullName}</dd></div>
-                <div className="px-4 py-2.5"><dt className="text-xs text-[#7A7268]">Contact</dt><dd>{f.phone} · {f.email}</dd></div>
+                <div className="px-4 py-2.5"><dt className="text-xs text-[#7A7268]">Contact</dt><dd>{f.phone}{f.email && ` · ${f.email}`}</dd></div>
                 <div className="px-4 py-2.5"><dt className="text-xs text-[#7A7268]">{method === "delivery" ? "Deliver to" : "Collection"}</dt><dd>{method === "delivery" ? `${f.street}, ${f.area}, ${f.city}, ${f.state}${f.landmark ? ` (near ${f.landmark})` : ""}` : "I'll pick it up"}</dd></div>
               </dl>
             </div>
-            {instalments && <p className="text-sm text-[#4A4540]">You can pay in instalments — a deposit of at least {deposit}% ({fmt(Math.ceil((total * deposit) / 100))}) now, and the balance before the deadline.</p>}
+            <p className="text-sm text-[#4A4540]">Next you&apos;ll see the couple&apos;s account details to pay by bank transfer.</p>
             <label className="flex items-start gap-2.5 text-sm"><input type="checkbox" name="confirm" value="yes" required className="mt-0.5 h-4 w-4 accent-[var(--accent)]" /> My details are correct.</label>
           </div>
         )}
@@ -156,7 +157,7 @@ export function OrderForm({ slug, guestToken, packages, deliveryFee, allowDelive
             {step < 2 ? (
               <button type="button" onClick={next} className="bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white">Continue</button>
             ) : (
-              <SubmitButton className="!bg-[var(--accent)] !border-[var(--accent)] px-6 py-3" pendingText="Placing order…">Place order</SubmitButton>
+              <SubmitButton className="!bg-[var(--accent)] !border-[var(--accent)] px-6 py-3" pendingText="Saving…">Continue to payment</SubmitButton>
             )}
           </div>
         </div>

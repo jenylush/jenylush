@@ -45,11 +45,10 @@ export default async function Notifications({ searchParams }: { searchParams: Pr
           </>
         }
       />
-      {(!integrations.email() || !integrations.whatsapp()) && (
+      {!integrations.email() && (
         <div className="mb-6">
-          <Notice title="Some channels aren't connected">
-            {!integrations.email() && "Email (Resend) is not configured, so emails are recorded as “skipped” and can be retried once you add the keys. "}
-            {!integrations.whatsapp() && "WhatsApp Business is not configured. "}
+          <Notice title="Email isn't connected">
+            Email (Resend) is not configured, so emails are recorded as “skipped” and can be retried once you add the keys. In-app notifications work regardless. 
             <Link className="underline" href="/app/settings#integrations">See Settings → Integrations</Link>.
           </Notice>
         </div>
@@ -86,7 +85,7 @@ export default async function Notifications({ searchParams }: { searchParams: Pr
           <AutoSubmit className="flex flex-wrap gap-2 border-b border-linen p-4">
             <input type="hidden" name="tab" value="history" />
             <Select name="status" defaultValue={sp.status ?? ""} className="w-auto"><option value="">All statuses</option><option value="sent">Sent</option><option value="failed">Failed</option><option value="skipped">Skipped</option></Select>
-            <Select name="channel" defaultValue={sp.channel ?? ""} className="w-auto"><option value="">All channels</option><option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="in_app">In-app</option></Select>
+            <Select name="channel" defaultValue={sp.channel ?? ""} className="w-auto"><option value="">All channels</option><option value="email">Email</option><option value="in_app">In-app</option></Select>
           </AutoSubmit>
           <form action={retryFailed}>
             {failed.length > 0 && (

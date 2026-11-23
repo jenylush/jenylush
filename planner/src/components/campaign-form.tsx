@@ -23,13 +23,16 @@ export function CampaignForm({ evs, c }: { evs: Array<typeof events.$inferSelect
         <Field label="Ordering instructions for guests" className="sm:col-span-2"><Textarea name="instructions" defaultValue={c?.instructions ?? ""} /></Field>
       </div>
       <div className="grid gap-5 border-t border-linen pt-6 sm:grid-cols-3">
+        <div className="sm:col-span-3">
+          <div className="font-display text-lg">Where guests send money</div>
+          <p className="text-xs text-muted">Shown to each guest after they place their order. They then tap “I have sent the money”.</p>
+        </div>
+        <Field label="Bank" required><Input name="bankName" defaultValue={c?.bankName ?? ""} placeholder="e.g. GTBank, Opay, Access" required /></Field>
+        <Field label="Account number" required><Input name="accountNumber" inputMode="numeric" maxLength={10} defaultValue={c?.accountNumber ?? ""} placeholder="0123456789" className="figure" required /></Field>
+        <Field label="Account name" required><Input name="accountName" defaultValue={c?.accountName ?? ""} required /></Field>
         <Field label="Sales open"><Input type="date" name="salesOpenAt" defaultValue={c?.salesOpenAt ?? ""} /></Field>
         <Field label="Sales close"><Input type="date" name="salesCloseAt" defaultValue={c?.salesCloseAt ?? ""} /></Field>
         <Field label="Payment deadline"><Input type="date" name="paymentDeadline" defaultValue={c?.paymentDeadline ?? ""} /></Field>
-        <div className="space-y-3 sm:col-span-2">
-          {check("allowInstalments", "Allow guests to pay in instalments", c?.allowInstalments ?? false, "Guests pay a deposit now and the balance before the deadline.")}
-        </div>
-        <Field label="Minimum deposit %"><Input type="number" name="minDepositPercent" min={10} max={100} defaultValue={c?.minDepositPercent ?? 50} /></Field>
       </div>
       <div className="grid gap-5 border-t border-linen pt-6 sm:grid-cols-2">
         <div className="space-y-3">

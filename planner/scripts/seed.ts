@@ -4,8 +4,8 @@
  *
  * Login: demo@owambe.ng / demo-wedding
  *
- * Seeded Aso Ebi payments use provider "demo" and a DEMO- reference so they can never be
- * mistaken for real gateway transactions.
+ * Aso Ebi payments are bank transfers: guests tap "I have sent the money", then the couple
+ * confirms. The demo includes confirmed, reported-awaiting-confirmation and unpaid orders.
  */
 import "./load-env";
 import fs from "node:fs/promises";
@@ -156,8 +156,9 @@ const [camp] = await db
     salesOpenAt: d(-21),
     salesCloseAt: d(35),
     paymentDeadline: d(2),
-    allowInstalments: true,
-    minDepositPercent: 50,
+    bankName: "GTBank",
+    accountNumber: "0123456789",
+    accountName: "Adaeze Okafor",
     allowDelivery: true,
     allowPickup: true,
     deliveryFee: N(5_000),
@@ -220,12 +221,12 @@ for (const [i, [name, phone, email, category]] of people.entries()) {
   const method = i % 4 === 3 ? ("pickup" as const) : ("delivery" as const);
   const fee = method === "delivery" ? N(5_000) : 0;
   const total = p.price * qty + fee;
-  // states: 0-7 paid, 8-9 part-paid, 10-11 pending (attempted), 12 order started, 13 cancelled
-  const paid = i <= 7 ? total : i <= 9 ? Math.ceil(total / 2) : 0;
-  const status = i === 13 ? "cancelled" : paid >= total ? "paid" : paid > 0 ? "partially_paid" : "pending_payment";
+  // states: 0-7 confirmed paid, 8-10 guest says sent (to confirm), 11-12 not paid yet, 13 cancelled
+  const paid = i <= 7 ? total : 0;
+  const status = i === 13 ? "cancelled" : i <= 7 ? "paid" : i <= 10 ? "transfer_reported" : "pending_payment";
   const [o] = await db
     .insert(s.orders)
-    .values({ weddingId: w.id, campaignId: camp.id, guestId: g.id, code: code(), accessToken: tok(24), fullName: name, phone: e164, email, status: status as "paid", deliveryMethod: method, subtotal: p.price * qty, deliveryFee: fee, total, amountPaid: paid, paymentPlan: "instalments", cancelledAt: i === 13 ? new Date() : null, createdAt: new Date(Date.now() - (16 - i) * 86400000) })
+    .values({ weddingId: w.id, campaignId: camp.id, guestId: g.id, code: code(), accessToken: tok(24), fullName: name, phone: e164, email, status: status as "paid", deliveryMethod: method, subtotal: p.price * qty, deliveryFee: fee, total, amountPaid: paid, cancelledAt: i === 13 ? new Date() : null, createdAt: new Date(Date.now() - (16 - i) * 86400000) })
     .returning();
   await db.insert(s.orderItems).values({ orderId: o.id, packageId: p.id, packageName: p.name, unitPrice: p.price, quantity: qty, lineTotal: p.price * qty });
   if (method === "delivery" && i !== 11) {
@@ -234,15 +235,14 @@ for (const [i, [name, phone, email, category]] of people.entries()) {
   }
   const dstatus = i <= 2 ? "delivered" : i <= 4 ? "dispatched" : i <= 5 ? "processing" : "awaiting";
   await db.insert(s.deliveries).values({ orderId: o.id, weddingId: w.id, status: dstatus as "awaiting", riderName: i <= 4 ? "Musa (Kwik Delivery)" : null, riderPhone: i <= 4 ? "+2348100000001" : null, trackingRef: i <= 4 ? `KWK-${1000 + i}` : null, dispatchedAt: i <= 4 ? new Date(Date.now() - 3 * 86400000) : null, deliveredAt: i <= 2 ? new Date(Date.now() - 86400000) : null });
-  if (paid) {
+  if (i <= 10) {
     const when = new Date(Date.now() - (14 - i) * 86400000);
-    await db.insert(s.payments).values({ weddingId: w.id, orderId: o.id, provider: "demo", reference: `DEMO-${o.code}`, amount: paid, status: "success", channel: i % 2 ? "bank_transfer" : "card", gatewayResponse: "Seeded demo data — not a real transaction", paidAt: when, verifiedAt: when, appliedAt: when });
+    await db.insert(s.payments).values({ weddingId: w.id, orderId: o.id, amount: total, status: i <= 7 ? "confirmed" : "reported", senderName: i === 9 ? "Okonkwo Ifeanyi C." : name, reportedAt: when, confirmedAt: i <= 7 ? new Date(when.getTime() + 3600_000) : null, confirmedBy: i <= 7 ? user.id : null });
   }
-  if (i === 10 || i === 11) await db.insert(s.payments).values({ weddingId: w.id, orderId: o.id, provider: "demo", reference: `DEMO-${o.code}-P`, amount: total, status: "pending", gatewayResponse: "Seeded demo data — awaiting confirmation" });
 }
 
 await db.insert(s.notifications).values([
-  { weddingId: w.id, kind: "welcome", title: "Your demo ledger is ready", body: "Explore freely — payments in this demo are labelled DEMO and are not real.", href: "/app" },
+  { weddingId: w.id, kind: "welcome", title: "Your demo ledger is ready", body: "Explore freely — this is sample data. Three guests are waiting for you to confirm their transfers under Orders & Payments.", href: "/app" },
 ]);
 
 console.log(`✓ Demo data seeded for ${w.partnerOneName} & ${w.partnerTwoName}\n  Login: demo@owambe.ng / demo-wedding\n  Aso Ebi page: /asoebi/${camp.slug}`);

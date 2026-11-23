@@ -8,7 +8,6 @@ import { Button, Card, Field, Input, LinkButton, MoneyInput, Notice, PageHeader,
 import { db } from "@/db";
 import { campaigns, orderItems, orders } from "@/db/schema";
 import { requireWorkspace } from "@/lib/auth";
-import { integrations } from "@/lib/config";
 import { loadLookups } from "@/lib/data";
 import { fmtDate } from "@/lib/dates";
 import { naira } from "@/lib/money";
@@ -50,8 +49,8 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
         }
       />
 
-      {!integrations.paystack() && (
-        <div className="mb-6"><Notice tone="rose" title="Online payments aren't connected yet">Guests can place orders, but the Pay button will explain that payment isn&apos;t available until you add PAYSTACK_SECRET_KEY. You can still record bank transfers manually on each order. See Settings → Integrations.</Notice></div>
+      {!c.accountNumber && (
+        <div className="mb-6"><Notice tone="rose" title="Add your bank account details">Guests are shown your account number after ordering, then tap “I have sent the money”. Add it under “Edit campaign details” below.</Notice></div>
       )}
 
       <Card className="mb-6" folio="↗" title="Your shareable ordering link">
@@ -73,7 +72,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
         <Stat label="Orders" value={tot.n} />
         <Stat label="Ordered value" value={naira(tot.expected)} />
         <Stat label="Collected" value={naira(tot.collected)} tone="sage" />
-        <Stat label="Deadline" value={fmtDate(c.paymentDeadline)} sub={c.allowInstalments ? `Instalments · ${c.minDepositPercent}% deposit` : "Full payment"} />
+        <Stat label="Deadline" value={fmtDate(c.paymentDeadline)} sub={c.accountNumber ? `${c.bankName} · ${c.accountNumber}` : "No account added"} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">

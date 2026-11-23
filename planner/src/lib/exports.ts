@@ -29,16 +29,16 @@ export async function registerRows(weddingId: string, filter: RegisterFilter = "
   });
   return list
     .filter((o) =>
-      filter === "paid" ? o.status === "paid" : filter === "awaiting" ? o.status === "pending_payment" || o.status === "partially_paid" : filter === "delivery" ? o.deliveryMethod === "delivery" && o.status !== "cancelled" : true,
+      filter === "paid" ? o.status === "paid" || o.status === "transfer_reported" : filter === "awaiting" ? o.status === "pending_payment" || o.status === "partially_paid" : filter === "delivery" ? o.deliveryMethod === "delivery" && o.status !== "cancelled" : true,
     )
     .map((o) => {
-      const lastPay = o.payments.filter((p) => p.status === "success").sort((a, b) => +(b.paidAt ?? 0) - +(a.paidAt ?? 0))[0];
+      const lastPay = o.payments.filter((p) => p.status !== "not_received").sort((a, b) => +b.reportedAt - +a.reportedAt)[0];
       const a = o.address;
       return {
         id: o.id,
         guestName: o.fullName,
         phone: displayPhone(o.phone),
-        email: o.email,
+        email: o.email ?? "",
         campaign: o.campaign.name,
         package: o.items.map((i) => i.packageName).join(", "),
         quantity: o.items.reduce((s, i) => s + i.quantity, 0),
@@ -60,8 +60,9 @@ export async function registerRows(weddingId: string, filter: RegisterFilter = "
         riderPhone: o.delivery?.riderPhone ? displayPhone(o.delivery.riderPhone) : "",
         trackingRef: o.delivery?.trackingRef ?? "",
         orderId: o.code,
-        paymentRef: lastPay?.reference ?? "",
-        paidAt: lastPay?.paidAt ? fmtDateTime(lastPay.paidAt) : "",
+        senderName: lastPay?.senderName ?? "",
+        paidAt: lastPay ? fmtDateTime(lastPay.reportedAt) : "",
+        confirmedAt: lastPay?.confirmedAt ? fmtDateTime(lastPay.confirmedAt) : "",
         orderedAt: fmtDateTime(o.createdAt),
       };
     });
@@ -134,7 +135,7 @@ export async function registerXlsx(w: Wedding, filter: RegisterFilter) {
   const rows = await registerRows(w.id, filter);
   const wb = new ExcelJS.Workbook();
   wb.creator = "Owambe Ledger";
-  const label = { all: "Full register", paid: "Paid guests", awaiting: "Guests awaiting payment", delivery: "Delivery addresses" }[filter];
+  const label = { all: "Full register", paid: "Guests who have paid", awaiting: "Guests awaiting payment", delivery: "Delivery addresses" }[filter];
   if (filter === "delivery") {
     styledSheet(wb, "Deliveries", `${coupleName(w)} — Aso Ebi delivery list`, stamp(), [
       { header: "Order ID", key: "orderId", width: 12 },
@@ -162,17 +163,16 @@ export async function registerXlsx(w: Wedding, filter: RegisterFilter) {
       { header: "Package", key: "package", width: 22 },
       { header: "Quantity", key: "quantity", width: 9 },
       { header: "Amount", key: "amount", width: 13, money: true },
-      { header: "Amount Paid", key: "amountPaid", width: 13, money: true },
-      { header: "Balance", key: "balance", width: 12, money: true },
       { header: "Payment Status", key: "paymentStatus", width: 15 },
       { header: "Delivery", key: "deliveryMethod", width: 13 },
       { header: "Delivery Address", key: "deliveryAddress", width: 40 },
       { header: "Closest landmark", key: "landmark", width: 20 },
       { header: "Delivery Status", key: "deliveryStatus", width: 16 },
       { header: "Order ID", key: "orderId", width: 12 },
-      { header: "Payment Ref", key: "paymentRef", width: 20 },
-      { header: "Paid At", key: "paidAt", width: 18 },
-    ], rows, ["quantity", "amount", "amountPaid", "balance"]);
+      { header: "Sent From (name)", key: "senderName", width: 20 },
+      { header: "Marked Paid At", key: "paidAt", width: 18 },
+      { header: "Confirmed At", key: "confirmedAt", width: 18 },
+    ], rows, ["quantity", "amount"]);
   }
   return Buffer.from(await wb.xlsx.writeBuffer());
 }
@@ -498,15 +498,14 @@ export async function receiptPdf(o: NonNullable<Awaited<ReturnType<typeof import
   p.line(18);
   p.text(order.campaign.name, { size: 10, color: [0.48, 0.45, 0.41] });
   p.line(30);
-  const ok = order.payments.filter((x) => x.status === "success");
+  const ok = order.payments.filter((x) => x.status === "confirmed");
   const rows: Array<[string, string]> = [
     ["Guest", order.fullName],
     ["Order ID", order.code],
     ["Package", order.items.map((i) => `${i.quantity} × ${i.packageName}`).join(", ")],
     ["Quantity", String(order.items.reduce((s, i) => s + i.quantity, 0))],
     ["Order total", naira(order.total)],
-    ["Amount paid", naira(order.amountPaid)],
-    ["Balance", naira(order.total - order.amountPaid)],
+    ["Amount received", naira(order.amountPaid)],
     ["Payment status", ORDER_LABEL[order.status]],
   ];
   for (const [k, v] of rows) {
@@ -516,9 +515,9 @@ export async function receiptPdf(o: NonNullable<Awaited<ReturnType<typeof import
     p.rule();
     p.line(16);
   }
-  p.section("Verified payments");
-  p.table([{ label: "Date", width: 130 }, { label: "Reference", width: 170 }, { label: "Channel", width: 90 }, { label: "Amount", width: 109, right: true }], ok.map((x) => [fmtDateTime(x.paidAt), x.reference, x.channel ?? "—", naira(x.amount)]));
+  p.section("Bank transfers");
+  p.table([{ label: "Sent", width: 130 }, { label: "From", width: 170 }, { label: "Confirmed", width: 90 }, { label: "Amount", width: 109, right: true }], ok.map((x) => [fmtDateTime(x.reportedAt), x.senderName ?? "—", x.confirmedAt ? fmtDate(x.confirmedAt) : "—", naira(x.amount)]));
   p.line(20);
-  p.text("Payments on this receipt were verified directly with the payment provider.", { size: 8, color: [0.48, 0.45, 0.41] });
+  p.text("Receipt for a bank transfer confirmed by the couple.", { size: 8, color: [0.48, 0.45, 0.41] });
   return Buffer.from(await p.doc.save());
 }

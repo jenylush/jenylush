@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   campaigns,
@@ -132,8 +132,8 @@ export async function overviewData(weddingId: string, budget: number) {
       .select({ p: payments, o: orders })
       .from(payments)
       .innerJoin(orders, eq(orders.id, payments.orderId))
-      .where(and(eq(payments.weddingId, weddingId), eq(payments.status, "success")))
-      .orderBy(desc(payments.paidAt))
+      .where(and(eq(payments.weddingId, weddingId), inArray(payments.status, ["reported", "confirmed"])))
+      .orderBy(desc(payments.reportedAt))
       .limit(5),
     db.$count(campaigns, eq(campaigns.weddingId, weddingId)),
     db.$count(guests, eq(guests.weddingId, weddingId)),

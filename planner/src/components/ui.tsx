@@ -71,11 +71,11 @@ export function Stamp({ tone = "muted", children, className }: { tone?: Tone; ch
 
 export const expenseTone = (s: string): Tone =>
   ({ fully_paid: "sage", partially_paid: "gold", overdue: "rose", cancelled: "muted", not_paid: "ink" })[s] as Tone ?? "muted";
-export const orderTone = (s: string): Tone => ({ paid: "sage", partially_paid: "gold", pending_payment: "amber", cancelled: "muted" })[s] as Tone ?? "muted";
-export const paymentTone = (s: string): Tone => ({ success: "sage", pending: "amber", initialized: "muted", failed: "rose", abandoned: "muted", refunded: "ink" })[s] as Tone ?? "muted";
+export const orderTone = (s: string): Tone => ({ paid: "sage", transfer_reported: "gold", partially_paid: "gold", pending_payment: "rose", cancelled: "muted" })[s] as Tone ?? "muted";
+export const paymentTone = (s: string): Tone => ({ confirmed: "sage", reported: "gold", not_received: "rose" })[s] as Tone ?? "muted";
 export const deliveryTone = (s: string): Tone => ({ delivered: "sage", dispatched: "gold", processing: "amber", ready_for_collection: "gold", failed: "rose", awaiting: "muted" })[s] as Tone ?? "muted";
 export const guestTone = (s: string): Tone =>
-  (({ Delivered: "sage", "Order completed": "sage", "Payment confirmed": "sage", "Delivery pending": "gold", "Partially paid": "gold", "Payment pending": "amber", "Order started": "amber", Cancelled: "muted", "Link sent": "ink", Invited: "muted" }) as Record<string, Tone>)[s] ?? "muted";
+  (({ Delivered: "sage", "Order completed": "sage", "Payment confirmed": "sage", "Delivery pending": "gold", "Partially paid": "gold", "Says paid": "gold", "Ordered, not paid": "rose", Cancelled: "muted", "Link sent": "ink", Invited: "muted" }) as Record<string, Tone>)[s] ?? "muted";
 
 /* ─── Progress ribbon (woven, like an Aso Ebi strip) ───────────────── */
 

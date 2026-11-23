@@ -46,7 +46,6 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
 
 const prefSchema = z.object({
   notifyEmail: zs.bool(),
-  notifyWhatsapp: zs.bool(),
   notifyInApp: zs.bool(),
   offsets: z.union([z.string(), z.array(z.string())]).optional(),
   overdueRepeatDays: z.coerce.number().int().min(1).max(30),
@@ -59,7 +58,7 @@ export async function savePreferences(_: ActionState, fd: FormData): Promise<Act
     const p = parse(prefSchema, fd);
     if ("error" in p) return p.error;
     const reminderOffsets = [...new Set(([] as string[]).concat(p.data.offsets ?? []).map(Number).filter((n) => n >= 0 && n <= 60))].sort((a, b) => b - a);
-    await db.update(weddings).set({ notifyEmail: p.data.notifyEmail, notifyWhatsapp: p.data.notifyWhatsapp, notifyInApp: p.data.notifyInApp, overdueRepeatDays: p.data.overdueRepeatDays, guestReminderDays: p.data.guestReminderDays, reminderOffsets }).where(eq(weddings.id, weddingId));
+    await db.update(weddings).set({ notifyEmail: p.data.notifyEmail, notifyInApp: p.data.notifyInApp, overdueRepeatDays: p.data.overdueRepeatDays, guestReminderDays: p.data.guestReminderDays, reminderOffsets }).where(eq(weddings.id, weddingId));
     revalidatePath("/app/settings");
     return { ok: true, message: "Notification preferences saved." };
   });

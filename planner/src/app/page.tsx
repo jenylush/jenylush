@@ -15,7 +15,7 @@ const chapters = [
   ["I", "The budget, kept like a ledger", "Set one overall budget, split it across the introduction, traditional, white wedding and reception, and watch committed, paid and outstanding update the moment you record a payment."],
   ["II", "Vendors and their instalments", "Your photographer's ₦200k / ₦150k / ₦150k plan lives with its contract. Each instalment has its own due date, status and reminder."],
   ["III", "Reminders that actually arrive", "Seven days, three days, the day of, and every few days after a payment slips. By email today, WhatsApp when you connect it — with a full history of what was sent."],
-  ["IV", "Aso Ebi, without the spreadsheet", "One beautiful link for WhatsApp. Guests choose a package, add their address and pay with Paystack. Your register fills itself and exports straight to Excel."],
+  ["IV", "Aso Ebi, without the spreadsheet", "One link to share anywhere. Guests choose a package, say where to send it, transfer to your account and tap “I have sent the money”. Your register fills itself and exports straight to Excel."],
 ];
 
 export default async function Landing() {
@@ -95,7 +95,7 @@ export default async function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center">
           <div>
             <div className="eyebrow !text-gold">Private by design</div>
-            <p className="font-display mt-2 max-w-xl text-2xl leading-snug">Your figures, guests and transactions live in your own workspace. Payments are only marked paid after Paystack confirms them server-side.</p>
+            <p className="font-display mt-2 max-w-xl text-2xl leading-snug">Your figures, guests and payments live in your own private workspace — no one else can see them.</p>
           </div>
           <Link href="/signup" className={buttonClass("gold")}>Begin</Link>
         </div>

@@ -1,5 +1,5 @@
 {
-  "id": "fcccbb5f-ce8a-4340-82cf-89bfe74c8f1d",
+  "id": "24561249-c6a1-4f84-a574-2b568c75ad67",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -284,19 +284,23 @@
           "primaryKey": false,
           "notNull": false
         },
-        "allow_instalments": {
-          "name": "allow_instalments",
-          "type": "boolean",
+        "bank_name": {
+          "name": "bank_name",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": false
         },
-        "min_deposit_percent": {
-          "name": "min_deposit_percent",
-          "type": "integer",
+        "account_number": {
+          "name": "account_number",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": 50
+          "notNull": false
+        },
+        "account_name": {
+          "name": "account_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "allow_delivery": {
           "name": "allow_delivery",
@@ -2215,7 +2219,7 @@
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -2257,13 +2261,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
-        },
-        "payment_plan": {
-          "name": "payment_plan",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'full'"
         },
         "cancelled_at": {
           "name": "cancelled_at",
@@ -2507,106 +2504,57 @@
           "primaryKey": false,
           "notNull": true
         },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reference": {
-          "name": "reference",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "amount": {
           "name": "amount",
           "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
-        "currency": {
-          "name": "currency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'NGN'"
-        },
         "status": {
           "name": "status",
-          "type": "payment_status",
+          "type": "transfer_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'initialized'"
+          "default": "'reported'"
         },
-        "channel": {
-          "name": "channel",
+        "sender_name": {
+          "name": "sender_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "gateway_response": {
-          "name": "gateway_response",
+        "reference": {
+          "name": "reference",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "authorization_url": {
-          "name": "authorization_url",
+        "source": {
+          "name": "source",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "'guest'"
         },
-        "paid_at": {
-          "name": "paid_at",
+        "reported_at": {
+          "name": "reported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
-        "verified_at": {
-          "name": "verified_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "applied_at": {
-          "name": "applied_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "refunded_at": {
-          "name": "refunded_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "raw": {
-          "name": "raw",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "recorded_by": {
-          "name": "recorded_by",
+        "confirmed_by": {
+          "name": "confirmed_by",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
@@ -2668,12 +2616,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "payments_recorded_by_users_id_fk": {
-          "name": "payments_recorded_by_users_id_fk",
+        "payments_confirmed_by_users_id_fk": {
+          "name": "payments_confirmed_by_users_id_fk",
           "tableFrom": "payments",
           "tableTo": "users",
           "columnsFrom": [
-            "recorded_by"
+            "confirmed_by"
           ],
           "columnsTo": [
             "id"
@@ -2683,15 +2631,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "payments_reference_unique": {
-          "name": "payments_reference_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "reference"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -3118,85 +3058,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.webhook_events": {
-      "name": "webhook_events",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event": {
-          "name": "event",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "dedupe_key": {
-          "name": "dedupe_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "signature_valid": {
-          "name": "signature_valid",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "payload": {
-          "name": "payload",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "result": {
-          "name": "result",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "webhook_events_dedupe_uq": {
-          "name": "webhook_events_dedupe_uq",
-          "columns": [
-            {
-              "expression": "dedupe_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.weddings": {
       "name": "weddings",
       "schema": "",
@@ -3320,13 +3181,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
-        },
-        "notify_whatsapp": {
-          "name": "notify_whatsapp",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         },
         "notify_in_app": {
           "name": "notify_in_app",
@@ -3455,21 +3309,10 @@
       "schema": "public",
       "values": [
         "pending_payment",
+        "transfer_reported",
         "partially_paid",
         "paid",
         "cancelled"
-      ]
-    },
-    "public.payment_status": {
-      "name": "payment_status",
-      "schema": "public",
-      "values": [
-        "initialized",
-        "pending",
-        "success",
-        "failed",
-        "abandoned",
-        "refunded"
       ]
     },
     "public.recurrence": {
@@ -3505,6 +3348,15 @@
         "low",
         "medium",
         "high"
+      ]
+    },
+    "public.transfer_status": {
+      "name": "transfer_status",
+      "schema": "public",
+      "values": [
+        "reported",
+        "confirmed",
+        "not_received"
       ]
     }
   },

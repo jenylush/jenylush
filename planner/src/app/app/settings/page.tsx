@@ -73,7 +73,6 @@ export default async function Settings() {
               <div className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">Channels</div>
               <div className="flex flex-wrap gap-4 text-sm">
                 <label className="flex items-center gap-2"><input type="checkbox" name="notifyEmail" defaultChecked={w.notifyEmail} className="accent-[#8F7444]" /> Email</label>
-                <label className="flex items-center gap-2"><input type="checkbox" name="notifyWhatsapp" defaultChecked={w.notifyWhatsapp} className="accent-[#8F7444]" /> WhatsApp</label>
                 <label className="flex items-center gap-2"><input type="checkbox" name="notifyInApp" defaultChecked={w.notifyInApp} className="accent-[#8F7444]" /> In-app</label>
               </div>
             </div>
@@ -113,7 +112,6 @@ export default async function Settings() {
                 <div><div className="font-semibold">{i.name}</div><div className="text-xs text-muted">{i.purpose}</div></div>
                 <div className="text-xs text-muted">
                   Environment variables: {i.env.map((e) => <code key={e} className="figure mr-1 bg-sand/60 px-1">{e}</code>)}
-                  {"webhook" in i && i.webhook && <div className="mt-1">Webhook URL: <code className="figure bg-sand/60 px-1">{i.webhook}</code></div>}
                 </div>
                 <Stamp tone={i.connected ? "sage" : "rose"}>{i.connected ? "Connected" : "Not connected"}</Stamp>
               </li>

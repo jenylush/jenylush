@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, orders, tasks, weddings } from "@/db/schema";
-import { guestOrderUrl, reconcilePending } from "./asoebi";
+import { guestOrderUrl } from "./asoebi";
 import { loadExpenses, scheduleFrom } from "./data";
 import { daysBetween, fmtDate, todayISO } from "./dates";
 import { naira } from "./money";
@@ -17,7 +17,7 @@ export async function runReminders(now = new Date(), onlyWeddingId?: string) {
     .select()
     .from(weddings)
     .where(and(sql`${weddings.onboardedAt} is not null`, onlyWeddingId ? eq(weddings.id, onlyWeddingId) : undefined));
-  const report = { weddings: all.length, sent: 0, reconciled: 0 };
+  const report = { weddings: all.length, sent: 0 };
 
   for (const w of all) {
     /* 1 ─ vendor / expense payments */
@@ -59,7 +59,6 @@ export async function runReminders(now = new Date(), onlyWeddingId?: string) {
         dedupeKey: `sched:${item.key}:${item.date}:${stageKey}`,
         entity: { type: "expense", id: item.expenseId },
         email: { eyebrow: d < 0 ? "Payment overdue" : "Payment reminder", title: headline, rows, cta: { label: "View this expense", href } },
-        whatsapp: { template: process.env.WHATSAPP_TEMPLATE_REMINDER ?? "payment_reminder", params: [item.expenseName, naira(item.amount), fmtDate(item.date)] },
       });
     }
 
@@ -114,10 +113,10 @@ export async function runReminders(now = new Date(), onlyWeddingId?: string) {
       if (!c.paymentDeadline) continue;
       const d = daysBetween(today, c.paymentDeadline);
       if (d < 0 || d > w.guestReminderDays) continue;
-      const owing = await db.select().from(orders).where(and(eq(orders.campaignId, c.id), inArray(orders.status, ["pending_payment", "partially_paid"])));
+      const owing = await db.select().from(orders).where(and(eq(orders.campaignId, c.id), inArray(orders.status, ["pending_payment"])));
       for (const o of owing) {
         const due = o.total - o.amountPaid;
-        report.sent += await notifyGuest(w, { email: o.email, phone: o.phone }, {
+        report.sent += await notifyGuest(w, { email: o.email }, {
           type: "asoebi_deadline_reminder",
           trigger: `${w.guestReminderDays} days before Aso Ebi payment deadline`,
           title: `Aso Ebi balance due ${fmtDate(c.paymentDeadline)}`,
@@ -131,13 +130,10 @@ export async function runReminders(now = new Date(), onlyWeddingId?: string) {
             rows: [["Order", o.code], ["Outstanding", naira(due)], ["Deadline", fmtDate(c.paymentDeadline)]],
             cta: { label: "Complete payment", href: guestOrderUrl(o) },
           },
-          whatsapp: { template: process.env.WHATSAPP_TEMPLATE_REMINDER ?? "payment_reminder", params: [`Aso Ebi ${o.code}`, naira(due), fmtDate(c.paymentDeadline)] },
         });
       }
     }
   }
 
-  /* 5 ─ re-verify any payments stuck in "pending" */
-  report.reconciled = (await reconcilePending(onlyWeddingId)).applied;
   return report;
 }

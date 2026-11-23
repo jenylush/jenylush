@@ -1,9 +1,9 @@
 import { and, desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { adminUpdateAddress, cancelOrder, recheckPayment, recordManualPayment, updateDelivery } from "@/app/actions/asoebi";
+import { adminUpdateAddress, cancelOrder, confirmPayment, markNotReceived, undoConfirmation, updateDelivery } from "@/app/actions/asoebi";
 import { ActionForm, ConfirmButton, CopyButton, SubmitButton } from "@/components/client";
 import { AddressFields } from "@/components/address-fields";
-import { Button, Card, Field, Input, MoneyInput, PageHeader, Ribbon, Select, Stamp, Stat, Textarea, deliveryTone, orderTone, paymentTone } from "@/components/ui";
+import { Button, Card, Field, Input, PageHeader, Ribbon, Select, Stamp, Stat, Textarea, deliveryTone, orderTone, paymentTone } from "@/components/ui";
 import { db } from "@/db";
 import { auditLogs, orders } from "@/db/schema";
 import { DELIVERY_LABEL, ORDER_LABEL, guestOrderUrl } from "@/lib/asoebi";
@@ -15,7 +15,7 @@ import { displayPhone, waNumber } from "@/lib/phone";
 export default async function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { weddingId } = await requireWorkspace();
-  const o = await db.query.orders.findFirst({ where: and(eq(orders.id, id), eq(orders.weddingId, weddingId)), with: { items: true, address: true, delivery: true, payments: { orderBy: (p, { desc }) => [desc(p.createdAt)] }, campaign: true, guest: true } });
+  const o = await db.query.orders.findFirst({ where: and(eq(orders.id, id), eq(orders.weddingId, weddingId)), with: { items: true, address: true, delivery: true, payments: { orderBy: (p, { desc }) => [desc(p.reportedAt)] }, campaign: true, guest: true } });
   if (!o) notFound();
   const history = await db.select().from(auditLogs).where(and(eq(auditLogs.weddingId, weddingId), eq(auditLogs.entityId, o.id))).orderBy(desc(auditLogs.createdAt)).limit(20);
   const outstanding = o.total - o.amountPaid;
@@ -26,7 +26,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       <PageHeader
         folio={`IX · ${o.campaign.name}`}
         title={<>Order <span className="figure">{o.code}</span></>}
-        lede={<>{o.fullName} · {displayPhone(o.phone)} · {o.email} · <Stamp tone={orderTone(o.status)}>{ORDER_LABEL[o.status]}</Stamp></>}
+        lede={<>{o.fullName} · {displayPhone(o.phone)}{o.email && ` · ${o.email}`} · <Stamp tone={orderTone(o.status)}>{ORDER_LABEL[o.status]}</Stamp></>}
         actions={
           <>
             <a className="inline-flex items-center border border-linen px-4 py-2.5 text-sm font-semibold hover:border-gold" target="_blank" rel="noreferrer" href={`https://wa.me/${waNumber(o.phone)}`}>WhatsApp guest</a>
@@ -38,9 +38,9 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       <div className="sheet mb-6 p-5">
         <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
           <Stat label="Order total" value={naira(o.total)} sub={o.deliveryFee ? `incl. ${naira(o.deliveryFee)} delivery` : undefined} />
-          <Stat label="Paid (verified)" value={naira(o.amountPaid)} tone="sage" />
+          <Stat label="Confirmed received" value={naira(o.amountPaid)} tone="sage" />
           <Stat label="Balance" value={naira(outstanding)} tone={outstanding ? "gold" : "sage"} />
-          <Stat label="Plan" value={o.paymentPlan === "instalments" ? "Instalments" : "Full"} sub={`Placed ${fmtDateTime(o.createdAt)}`} />
+          <Stat label="Placed" value={fmtDateTime(o.createdAt).split(",")[0]} sub={o.deliveryMethod === "delivery" ? "Delivery" : "Pickup"} />
         </div>
         <div className="mt-4"><Ribbon value={o.total ? o.amountPaid / o.total : 0} tone="sage" height={8} /></div>
       </div>
@@ -54,37 +54,33 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
             </table>
           </Card>
 
-          <Card title="Payments" folio="b." pad={false}>
+          <Card title="Payment (bank transfer)" folio="b." pad={false}>
             {o.payments.length ? (
               <table className="data-table">
-                <thead><tr><th>Reference</th><th className="num">Amount</th><th>Status</th><th>When</th><th /></tr></thead>
+                <thead><tr><th>Reported</th><th>Sender</th><th className="num">Amount</th><th>Status</th></tr></thead>
                 <tbody>
                   {o.payments.map((p) => (
                     <tr key={p.id}>
-                      <td className="figure text-xs">{p.reference}<div className="font-sans text-faint">{p.provider}{p.channel && ` · ${p.channel}`}</div>{p.gatewayResponse && <div className="font-sans text-faint">{p.gatewayResponse}</div>}</td>
+                      <td className="text-xs">{fmtDateTime(p.reportedAt)}<div className="text-faint">{p.source === "couple" ? "recorded by you" : "guest tapped “I have sent”"}</div></td>
+                      <td className="text-xs">{p.senderName ?? "—"}{p.reference && <div className="text-faint">{p.reference}</div>}</td>
                       <td className="num">{naira(p.amount)}</td>
-                      <td><Stamp tone={paymentTone(p.status)}>{p.status}</Stamp></td>
-                      <td className="text-xs text-muted">{fmtDateTime(p.paidAt ?? p.createdAt)}</td>
-                      <td>{(p.status === "pending" || p.status === "initialized") && p.provider === "paystack" && <form action={recheckPayment}><input type="hidden" name="reference" value={p.reference} /><Button size="sm" variant="ghost">Re-verify</Button></form>}</td>
+                      <td><Stamp tone={paymentTone(p.status)}>{p.status.replace("_", " ")}</Stamp>{p.confirmedAt && <div className="mt-1 text-[0.65rem] text-faint">{fmtDateTime(p.confirmedAt)}</div>}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            ) : <p className="px-5 py-4 text-sm text-muted">No payment attempts yet.</p>}
-            {outstanding > 0 && !o.cancelledAt && (
-              <details className="border-t border-linen">
-                <summary className="cursor-pointer px-5 py-3 text-sm">Guest paid you directly by bank transfer? Record it</summary>
-                <div className="p-5 pt-0">
-                  <ActionForm action={recordManualPayment} className="grid items-end gap-3 sm:grid-cols-3" resetOnSuccess>
-                    <input type="hidden" name="orderId" value={o.id} />
-                    <Field label="Amount received"><MoneyInput name="amount" defaultValue={outstanding} required /></Field>
-                    <Field label="Bank reference" required><Input name="reference" placeholder="e.g. session ID" required /></Field>
-                    <SubmitButton size="sm">Record transfer</SubmitButton>
-                    <Field label="Note" className="sm:col-span-3"><Input name="note" placeholder="Optional" /></Field>
-                  </ActionForm>
-                  <p className="mt-2 text-xs text-muted">Logged as a manual entry under your name — only do this once the money is in your account.</p>
-                </div>
-              </details>
+            ) : <p className="px-5 py-4 text-sm text-muted">The guest hasn&apos;t marked this as paid yet.</p>}
+            {!o.cancelledAt && (
+              <div className="flex flex-wrap gap-2 border-t border-linen p-4">
+                {o.status === "transfer_reported" && (
+                  <>
+                    <form action={confirmPayment}><input type="hidden" name="id" value={o.id} /><Button variant="primary">✓ Confirm received ({naira(outstanding)})</Button></form>
+                    <form action={markNotReceived}><input type="hidden" name="id" value={o.id} /><ConfirmButton size="md" message="Mark as not received? The guest goes back to “Not paid yet”.">Not received</ConfirmButton></form>
+                  </>
+                )}
+                {o.status === "pending_payment" && <form action={confirmPayment}><input type="hidden" name="id" value={o.id} /><ConfirmButton size="md" variant="ghost" message={`Confirm you've received ${naira(outstanding)} from ${o.fullName}?`}>Mark as paid (I received it)</ConfirmButton></form>}
+                {o.status === "paid" && <form action={undoConfirmation}><input type="hidden" name="id" value={o.id} /><ConfirmButton size="md" variant="ghost" message="Undo the payment confirmation?">Undo confirmation</ConfirmButton></form>}
+              </div>
             )}
           </Card>
 

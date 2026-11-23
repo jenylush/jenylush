@@ -5,15 +5,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
-import { campaignImages, campaigns, deliveries, deliveryAddresses, events, files, guests, orders, packages, payments } from "@/db/schema";
+import { campaignImages, campaigns, deliveries, deliveryAddresses, events, files, guests, orders, packages } from "@/db/schema";
 import { guard, parse, zs, type ActionState } from "@/lib/action";
 import { addressSchema } from "@/lib/schemas";
-import { applyVerifiedTransaction, DELIVERY_LABEL, guestOrderUrl, reconcilePending } from "@/lib/asoebi";
+import { confirmTransfer, DELIVERY_LABEL, guestOrderUrl, rejectTransfer, unconfirmTransfer } from "@/lib/asoebi";
 import { audit } from "@/lib/audit";
 import { requireWorkspace } from "@/lib/auth";
 import { orderStatusFor } from "@/lib/finance";
 import { secretToken, shortCode, slugify } from "@/lib/ids";
-import { paymentProvider } from "@/lib/integrations/paystack";
 import { naira } from "@/lib/money";
 import { notifyGuest } from "@/lib/notify";
 import { normaliseNgPhone } from "@/lib/phone";
@@ -36,8 +35,9 @@ const campaignSchema = z.object({
   salesOpenAt: zs.optDate(),
   salesCloseAt: zs.optDate(),
   paymentDeadline: zs.optDate(),
-  allowInstalments: zs.bool(),
-  minDepositPercent: z.coerce.number().int().min(10).max(100).default(50),
+  bankName: zs.optText(80),
+  accountNumber: z.preprocess((v) => (v === "" || v == null ? undefined : String(v).replace(/\s/g, "")), z.string().regex(/^\d{10}$/, "Account number must be 10 digits (NUBAN)").optional()),
+  accountName: zs.optText(120),
   allowDelivery: zs.bool(),
   allowPickup: zs.bool(),
   deliveryFee: zs.money(),
@@ -285,56 +285,27 @@ export async function cancelOrder(fd: FormData) {
   refresh([`/app/orders/${o.id}`]);
 }
 
-const manualSchema = z.object({ orderId: z.string().uuid(), amount: zs.money(), reference: zs.text(80), note: zs.optText(300) });
+/* ─── Bank-transfer confirmation ───────────────────────────────────── */
 
-/**
- * For guests who paid by direct bank transfer to the couple. This is clearly recorded as a
- * manual entry by a named user (not a gateway verification) and appears that way in the audit log.
- */
-export async function recordManualPayment(_: ActionState, fd: FormData): Promise<ActionState> {
-  return guard(async () => {
-    const { weddingId, wedding, user } = await requireWorkspace({ write: true });
-    const p = parse(manualSchema, fd);
-    if ("error" in p) return p.error;
-    const o = await ownOrder(p.data.orderId, weddingId);
-    const outstanding = o.total - o.amountPaid;
-    if (p.data.amount <= 0 || p.data.amount > outstanding) return { error: `Enter an amount up to ${naira(outstanding)}.` };
-    const reference = `MAN-${o.code}-${shortCode(4)}`;
-    await db.transaction(async (tx) => {
-      const now = new Date();
-      await tx.insert(payments).values({ weddingId, orderId: o.id, provider: "manual", reference, amount: p.data.amount, status: "success", channel: "bank transfer (manual)", gatewayResponse: `Recorded by ${user.name}: ${p.data.reference}${p.data.note ? ` — ${p.data.note}` : ""}`, paidAt: now, verifiedAt: now, appliedAt: now, recordedBy: user.id });
-      const [locked] = await tx.select().from(orders).where(eq(orders.id, o.id)).for("update");
-      const amountPaid = locked.amountPaid + p.data.amount;
-      await tx.update(orders).set({ amountPaid, status: orderStatusFor(locked.total, amountPaid, !!locked.cancelledAt) }).where(eq(orders.id, o.id));
-      await audit({ weddingId, userId: user.id, action: "payment.manual", entityType: "order", entityId: o.id, summary: `${user.name} recorded a manual transfer of ${naira(p.data.amount)} for ${o.code} (bank ref ${p.data.reference})`, before: { amountPaid: locked.amountPaid }, after: { amountPaid } }, tx);
-    });
-    await notifyGuest(wedding, { email: o.email }, {
-      type: "asoebi_receipt",
-      trigger: "Manual payment recorded by couple",
-      title: `Payment received — ${o.code}`,
-      body: `${naira(p.data.amount)} recorded`,
-      dedupeKey: `payment:${reference}:receipt`,
-      email: { eyebrow: `${wedding.partnerOneName} & ${wedding.partnerTwoName} · Aso Ebi`, title: "Your transfer has been confirmed", rows: [["Order ID", o.code], ["Amount", naira(p.data.amount)], ["Reference", reference]], cta: { label: "View receipt", href: guestOrderUrl(o) } },
-    });
-    refresh([`/app/orders/${o.id}`]);
-    return { ok: true, message: "Manual payment recorded." };
-  });
+export async function confirmPayment(fd: FormData) {
+  const { weddingId, user } = await requireWorkspace({ write: true });
+  const id = String(fd.get("id"));
+  await confirmTransfer(id, weddingId, user);
+  refresh([`/app/orders/${id}`]);
 }
 
-export async function recheckPayment(fd: FormData) {
-  const { weddingId } = await requireWorkspace({ write: true });
-  const ref = String(fd.get("reference"));
-  const [p] = await db.select().from(payments).where(and(eq(payments.reference, ref), eq(payments.weddingId, weddingId)));
-  if (!p) return;
-  const provider = paymentProvider();
-  if (provider.configured() && p.provider === provider.name) await applyVerifiedTransaction(await provider.verify(ref), "reconcile");
-  refresh([`/app/orders/${p.orderId}`]);
+export async function markNotReceived(fd: FormData) {
+  const { weddingId, user } = await requireWorkspace({ write: true });
+  const id = String(fd.get("id"));
+  await rejectTransfer(id, weddingId, user);
+  refresh([`/app/orders/${id}`]);
 }
 
-export async function reconcileAll() {
-  const { weddingId } = await requireWorkspace({ write: true });
-  await reconcilePending(weddingId);
-  refresh();
+export async function undoConfirmation(fd: FormData) {
+  const { weddingId, user } = await requireWorkspace({ write: true });
+  const id = String(fd.get("id"));
+  await unconfirmTransfer(id, weddingId, user);
+  refresh([`/app/orders/${id}`]);
 }
 
 /* ─── Deliveries ───────────────────────────────────────────────────── */
@@ -368,7 +339,7 @@ export async function updateDelivery(_: ActionState, fd: FormData): Promise<Acti
       };
       await db.insert(deliveries).values({ orderId: o.id, weddingId, ...set }).onConflictDoUpdate({ target: deliveries.orderId, set });
       if (["dispatched", "delivered", "ready_for_collection"].includes(p.data.status))
-        await notifyGuest(wedding, { email: o.email, phone: o.phone }, {
+        await notifyGuest(wedding, { email: o.email }, {
           type: "delivery_update",
           trigger: `Delivery marked ${DELIVERY_LABEL[p.data.status]}`,
           title: `Your Aso Ebi: ${DELIVERY_LABEL[p.data.status]}`,
@@ -380,7 +351,6 @@ export async function updateDelivery(_: ActionState, fd: FormData): Promise<Acti
             rows: [["Order", o.code], ...(p.data.riderName ? ([["Rider", `${p.data.riderName}${p.data.riderPhone ? ` · ${p.data.riderPhone}` : ""}`]] as Array<[string, string]>) : []), ...(p.data.trackingRef ? ([["Tracking", p.data.trackingRef]] as Array<[string, string]>) : [])],
             cta: { label: "View your order", href: guestOrderUrl(o) },
           },
-          whatsapp: { template: process.env.WHATSAPP_TEMPLATE_CONFIRMATION ?? "order_confirmation", params: [o.fullName, o.code, DELIVERY_LABEL[p.data.status], `${wedding.partnerOneName} & ${wedding.partnerTwoName}`] },
         });
     }
     await audit({ weddingId, userId: user.id, action: "delivery.updated", entityType: "order", entityId: ids.length === 1 ? ids[0] : null, summary: `${own.length} order${own.length === 1 ? "" : "s"} marked ${DELIVERY_LABEL[p.data.status]}` });

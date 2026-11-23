@@ -6,10 +6,8 @@ import { z } from "zod";
 import { db } from "@/db";
 import { deliveryAddresses, orders, weddings } from "@/db/schema";
 import { guard, parse, zs, type ActionState } from "@/lib/action";
-import { createOrder, guestOrderUrl, OrderError, orderForGuest, startPayment } from "@/lib/asoebi";
+import { createOrder, guestOrderUrl, OrderError, orderForGuest, reportTransfer } from "@/lib/asoebi";
 import { audit } from "@/lib/audit";
-import { PaymentNotConfiguredError } from "@/lib/integrations/paystack";
-import { toKobo } from "@/lib/money";
 import { notifyCouple } from "@/lib/notify";
 import { addressSchema } from "@/lib/schemas";
 import { rateLimit } from "@/lib/rate-limit";
@@ -19,7 +17,7 @@ const orderSchema = z.object({
   guestToken: zs.optText(64),
   fullName: zs.text(120),
   phone: zs.phone(),
-  email: zs.email(),
+  email: zs.optEmail(),
   deliveryMethod: z.enum(["delivery", "pickup"]),
   confirm: z.literal("yes", { errorMap: () => ({ message: "Please confirm your details are correct" }) }),
 });
@@ -55,17 +53,18 @@ export async function placeOrder(_: ActionState, fd: FormData): Promise<ActionSt
   });
 }
 
-export async function payNow(_: ActionState, fd: FormData): Promise<ActionState> {
+export async function reportSent(_: ActionState, fd: FormData): Promise<ActionState> {
   return guard(async () => {
     const code = String(fd.get("code") ?? "");
     const token = String(fd.get("t") ?? "");
-    const amountRaw = fd.get("amount");
-    if (!rateLimit(`pay:${code}`, 12, 10 * 60_000)) return { error: "Too many attempts. Please wait a few minutes." };
+    if (!rateLimit(`sent:${code}`, 10, 10 * 60_000)) return { error: "Too many attempts. Please wait a few minutes." };
+    const p = parse(z.object({ senderName: zs.optText(120), reference: zs.optText(80) }), fd);
+    if ("error" in p) return p.error;
     try {
-      const url = await startPayment(code, token, amountRaw ? toKobo(String(amountRaw)) : undefined);
-      return { ok: true, redirect: url };
+      await reportTransfer(code, token, p.data);
+      return { ok: true, message: "Thank you! You've been recorded as paid. The couple will confirm once they see the money." };
     } catch (e) {
-      if (e instanceof OrderError || e instanceof PaymentNotConfiguredError) return { error: e.message };
+      if (e instanceof OrderError) return { error: e.message };
       throw e;
     }
   });

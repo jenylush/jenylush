@@ -5,12 +5,12 @@ CREATE TYPE "public"."file_visibility" AS ENUM('public', 'private');--> statemen
 CREATE TYPE "public"."member_role" AS ENUM('owner', 'partner', 'planner', 'viewer');--> statement-breakpoint
 CREATE TYPE "public"."notify_channel" AS ENUM('email', 'whatsapp', 'in_app');--> statement-breakpoint
 CREATE TYPE "public"."notify_status" AS ENUM('queued', 'sent', 'failed', 'skipped');--> statement-breakpoint
-CREATE TYPE "public"."order_status" AS ENUM('pending_payment', 'partially_paid', 'paid', 'cancelled');--> statement-breakpoint
-CREATE TYPE "public"."payment_status" AS ENUM('initialized', 'pending', 'success', 'failed', 'abandoned', 'refunded');--> statement-breakpoint
+CREATE TYPE "public"."order_status" AS ENUM('pending_payment', 'transfer_reported', 'partially_paid', 'paid', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."recurrence" AS ENUM('none', 'weekly', 'monthly');--> statement-breakpoint
 CREATE TYPE "public"."task_assignee" AS ENUM('partner_one', 'partner_two', 'both');--> statement-breakpoint
 CREATE TYPE "public"."task_kind" AS ENUM('task', 'activity');--> statement-breakpoint
 CREATE TYPE "public"."task_priority" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
+CREATE TYPE "public"."transfer_status" AS ENUM('reported', 'confirmed', 'not_received');--> statement-breakpoint
 CREATE TABLE "audit_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"wedding_id" uuid NOT NULL,
@@ -46,8 +46,9 @@ CREATE TABLE "asoebi_campaigns" (
 	"sales_open_at" date,
 	"sales_close_at" date,
 	"payment_deadline" date,
-	"allow_instalments" boolean DEFAULT false NOT NULL,
-	"min_deposit_percent" integer DEFAULT 50 NOT NULL,
+	"bank_name" text,
+	"account_number" text,
+	"account_name" text,
 	"allow_delivery" boolean DEFAULT true NOT NULL,
 	"allow_pickup" boolean DEFAULT true NOT NULL,
 	"delivery_fee" bigint DEFAULT 0 NOT NULL,
@@ -258,14 +259,13 @@ CREATE TABLE "asoebi_orders" (
 	"access_token" text NOT NULL,
 	"full_name" text NOT NULL,
 	"phone" text NOT NULL,
-	"email" text NOT NULL,
+	"email" text,
 	"status" "order_status" DEFAULT 'pending_payment' NOT NULL,
 	"delivery_method" "delivery_method" NOT NULL,
 	"subtotal" bigint NOT NULL,
 	"delivery_fee" bigint DEFAULT 0 NOT NULL,
 	"total" bigint NOT NULL,
 	"amount_paid" bigint DEFAULT 0 NOT NULL,
-	"payment_plan" text DEFAULT 'full' NOT NULL,
 	"cancelled_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -290,23 +290,14 @@ CREATE TABLE "payments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"wedding_id" uuid NOT NULL,
 	"order_id" uuid NOT NULL,
-	"provider" text NOT NULL,
-	"reference" text NOT NULL,
 	"amount" bigint NOT NULL,
-	"currency" text DEFAULT 'NGN' NOT NULL,
-	"status" "payment_status" DEFAULT 'initialized' NOT NULL,
-	"channel" text,
-	"gateway_response" text,
-	"authorization_url" text,
-	"paid_at" timestamp with time zone,
-	"verified_at" timestamp with time zone,
-	"applied_at" timestamp with time zone,
-	"refunded_at" timestamp with time zone,
-	"raw" jsonb,
-	"recorded_by" uuid,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "payments_reference_unique" UNIQUE("reference")
+	"status" "transfer_status" DEFAULT 'reported' NOT NULL,
+	"sender_name" text,
+	"reference" text,
+	"source" text DEFAULT 'guest' NOT NULL,
+	"reported_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"confirmed_at" timestamp with time zone,
+	"confirmed_by" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "sessions" (
@@ -358,17 +349,6 @@ CREATE TABLE "vendors" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "webhook_events" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"provider" text NOT NULL,
-	"event" text NOT NULL,
-	"dedupe_key" text NOT NULL,
-	"signature_valid" boolean NOT NULL,
-	"payload" jsonb NOT NULL,
-	"result" text,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "weddings" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"partner_one_name" text NOT NULL,
@@ -389,7 +369,6 @@ CREATE TABLE "weddings" (
 	"reminder_offsets" integer[] DEFAULT '{7,3,0}'::int[] NOT NULL,
 	"overdue_repeat_days" integer DEFAULT 3 NOT NULL,
 	"notify_email" boolean DEFAULT true NOT NULL,
-	"notify_whatsapp" boolean DEFAULT false NOT NULL,
 	"notify_in_app" boolean DEFAULT true NOT NULL,
 	"guest_reminder_days" integer DEFAULT 3 NOT NULL,
 	"sheets_feed_token" text,
@@ -439,7 +418,7 @@ ALTER TABLE "asoebi_packages" ADD CONSTRAINT "asoebi_packages_wedding_id_wedding
 ALTER TABLE "asoebi_packages" ADD CONSTRAINT "asoebi_packages_campaign_id_asoebi_campaigns_id_fk" FOREIGN KEY ("campaign_id") REFERENCES "public"."asoebi_campaigns"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payments" ADD CONSTRAINT "payments_wedding_id_weddings_id_fk" FOREIGN KEY ("wedding_id") REFERENCES "public"."weddings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payments" ADD CONSTRAINT "payments_order_id_asoebi_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."asoebi_orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "payments" ADD CONSTRAINT "payments_recorded_by_users_id_fk" FOREIGN KEY ("recorded_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "payments" ADD CONSTRAINT "payments_confirmed_by_users_id_fk" FOREIGN KEY ("confirmed_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_wedding_id_weddings_id_fk" FOREIGN KEY ("wedding_id") REFERENCES "public"."weddings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -468,5 +447,4 @@ CREATE INDEX "payments_order_idx" ON "payments" USING btree ("order_id");--> sta
 CREATE INDEX "payments_wedding_idx" ON "payments" USING btree ("wedding_id");--> statement-breakpoint
 CREATE INDEX "sessions_user_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "tasks_wedding_idx" ON "tasks" USING btree ("wedding_id");--> statement-breakpoint
-CREATE INDEX "vendors_wedding_idx" ON "vendors" USING btree ("wedding_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "webhook_events_dedupe_uq" ON "webhook_events" USING btree ("dedupe_key");
+CREATE INDEX "vendors_wedding_idx" ON "vendors" USING btree ("wedding_id");

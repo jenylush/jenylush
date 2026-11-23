@@ -1,15 +1,14 @@
 /**
  * End-to-end test of the eight journeys in the product brief.
  *
- * Runs a real Next.js server against the real database, with a local mock standing in
- * for Paystack (initialize / verify / hosted checkout) and Resend. Nothing in the app is
- * stubbed: payment verification, webhook signatures and reminders all run the real code.
+ * Runs a real Next.js server against the real database, with a local mock standing in for
+ * Resend (email). Nothing in the app is stubbed: orders, the bank-transfer "I have sent the
+ * money" flow, confirmations, exports and reminders all run the real code.
  *
  *   npm run test:e2e
  */
 import "../../scripts/load-env";
 import { spawn, type ChildProcess } from "node:child_process";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import http from "node:http";
 import { createRequire } from "node:module";
@@ -28,14 +27,11 @@ const { chromium } = (() => {
 
 const APP = "http://localhost:3100";
 const MOCK = "http://localhost:4010";
-const SECRET = "sk_test_mock_e2e";
 const CRON = "e2e-cron-secret";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const q = async <T = Record<string, unknown>>(sql: string, args: unknown[] = []) => (await pool.query(sql, args)).rows as T[];
 
-/* ─── Mock Paystack + Resend ───────────────────────────────────────── */
-const txs = new Map<string, { amount: number; email: string; callback: string; status: string }>();
-let nextStatus = "success";
+/* ─── Mock Resend (email) ──────────────────────────────────────────── */
 const emails: Array<{ to: string[]; subject: string }> = [];
 
 const mock = http.createServer(async (req, res) => {
@@ -45,26 +41,7 @@ const mock = http.createServer(async (req, res) => {
     res.writeHead(code, { "Content-Type": "application/json" });
     res.end(JSON.stringify(data));
   };
-  const url = new URL(req.url!, MOCK);
-  if (url.pathname.startsWith("/transaction") && req.headers.authorization !== `Bearer ${SECRET}`) return json(401, { status: false, message: "bad key" });
-  if (req.method === "POST" && url.pathname === "/transaction/initialize") {
-    const b = JSON.parse(body);
-    txs.set(b.reference, { amount: b.amount, email: b.email, callback: b.callback_url, status: nextStatus });
-    return json(200, { status: true, message: "ok", data: { authorization_url: `${MOCK}/checkout/${b.reference}`, access_code: "x", reference: b.reference } });
-  }
-  if (url.pathname.startsWith("/transaction/verify/")) {
-    const ref = decodeURIComponent(url.pathname.split("/").pop()!);
-    const t = txs.get(ref);
-    if (!t) return json(404, { status: false, message: "Transaction reference not found" });
-    return json(200, { status: true, message: "ok", data: { reference: ref, status: t.status, amount: t.amount, currency: "NGN", channel: "card", gateway_response: t.status === "success" ? "Approved" : "Pending", paid_at: t.status === "success" ? new Date().toISOString() : null } });
-  }
-  if (url.pathname.startsWith("/checkout/")) {
-    const ref = url.pathname.split("/").pop()!;
-    const t = txs.get(ref)!;
-    res.writeHead(302, { Location: `${t.callback}&reference=${ref}&trxref=${ref}` });
-    return res.end();
-  }
-  if (req.method === "POST" && url.pathname === "/emails") {
+  if (req.method === "POST" && req.url === "/emails") {
     if (req.headers.authorization !== "Bearer re_mock") return json(401, { message: "bad key" });
     const b = JSON.parse(body);
     emails.push({ to: b.to, subject: b.subject });
@@ -90,10 +67,6 @@ function assert(cond: unknown, msg: string): asserts cond {
   if (!cond) throw new Error(msg);
 }
 const iso = (days: number) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
-const webhook = (payload: unknown, secret = SECRET) => {
-  const raw = JSON.stringify(payload);
-  return fetch(`${APP}/api/webhooks/paystack`, { method: "POST", headers: { "Content-Type": "application/json", "x-paystack-signature": crypto.createHmac("sha512", secret).update(raw).digest("hex") }, body: raw });
-};
 
 async function main() {
   try {
@@ -104,7 +77,7 @@ async function main() {
   }
   await new Promise<void>((r) => mock.listen(4010, r));
   app = spawn("npx", ["next", "dev", "-p", "3100"], {
-    env: { ...process.env, NEXT_DIST_DIR: ".next-e2e", APP_URL: APP, PAYSTACK_SECRET_KEY: SECRET, PAYSTACK_BASE_URL: MOCK, RESEND_API_KEY: "re_mock", RESEND_BASE_URL: MOCK, EMAIL_FROM: "Owambe Ledger <test@example.com>", CRON_SECRET: CRON },
+    env: { ...process.env, NEXT_DIST_DIR: ".next-e2e", APP_URL: APP, RESEND_API_KEY: "re_mock", RESEND_BASE_URL: MOCK, EMAIL_FROM: "Owambe Ledger <test@example.com>", CRON_SECRET: CRON },
     stdio: ["ignore", "pipe", "pipe"],
     detached: true,
   });
@@ -180,7 +153,9 @@ async function main() {
     await couple.fill("input[name=fabricName]", "Emerald lace");
     await couple.fill("input[name=salesOpenAt]", iso(-1));
     await couple.fill("input[name=paymentDeadline]", iso(30));
-    await couple.check("input[name=allowInstalments]");
+    await couple.fill("input[name=bankName]", "Opay");
+    await couple.fill("input[name=accountNumber]", "8031234567");
+    await couple.fill("input[name=accountName]", "Kemi Test");
     await couple.fill("input[name=deliveryFee]", "5000");
     await couple.click("button:has-text('Create campaign')");
     await couple.waitForURL(/\/app\/asoebi\/[0-9a-f-]{36}$/);
@@ -218,30 +193,41 @@ async function main() {
     await p.fill("#lm", "Opposite Mega Chicken");
     await p.click("button:has-text('Continue')");
     await p.check("input[name=confirm]");
-    await p.click("button:has-text('Place order')");
+    await p.click("button:has-text('Continue to payment')");
     await p.waitForURL(/\/asoebi\/order\/AE-/);
     return p.url();
   }
 
-  await scenario("3 · Guest opens the link, picks a package, enters an address, pays and gets a receipt", async () => {
+  await scenario("3 · Guest opens the link, picks a package, gives a delivery location, sees the account number and taps “I have sent the money”", async () => {
     orderUrl = await placeOrder(guest, "Bisola Guest", "0812 345 6789", `bisola-${stamp}@example.com`);
-    const before = await q<{ status: string }>("select status from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
-    assert(before[0].status === "pending_payment", "a new order starts unpaid");
-    nextStatus = "success";
-    await guest.click("button:has-text('Pay securely with Paystack')");
-    await guest.waitForURL(/r=paid/);
-    assert((await guest.textContent("body"))?.includes("Payment confirmed"), "guest should see confirmation after verification");
-    const [o] = await q<{ status: string; amount_paid: string; total: string }>("select status, amount_paid, total from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
-    assert(o.status === "paid" && o.amount_paid === o.total && Number(o.total) === 9_000_000, `order should be paid ₦90,000 (got ${o.status} ${o.amount_paid})`);
-    const receipt = await guest.request.get(`${APP}/api/receipts/${orderUrl.match(/AE-\w+/)![0]}?t=${new URL(orderUrl).searchParams.get("t")}`);
-    assert(receipt.ok() && (await receipt.body()).subarray(0, 4).toString() === "%PDF", "receipt PDF should download");
-    assert(emails.some((e) => e.to.includes(`bisola-${stamp}@example.com`) && e.subject.includes("Payment received")), "receipt email should be sent to the guest");
+    const body = await guest.textContent("body");
+    assert(body?.includes("8031234567") && body.includes("Kemi Test") && body.includes("₦90,000"), "guest should see account number, account name and amount");
+    const [before] = await q<{ status: string }>("select status from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
+    assert(before.status === "pending_payment", "a new order starts as not paid");
+    await guest.fill("input[name=senderName]", "Bisola A. Guest");
+    await guest.click("button:has-text('I have sent the money')");
+    await guest.waitForSelector("text=You've been recorded as paid");
+    const [o] = await q<{ status: string; amount_paid: string }>("select status, amount_paid from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
+    assert(o.status === "transfer_reported" && o.amount_paid === "0", `guest's claim is recorded but not yet confirmed (got ${o.status})`);
+    const [p] = await q<{ sender_name: string; status: string }>("select p.sender_name, p.status from payments p join asoebi_orders o on o.id=p.order_id where o.full_name='Bisola Guest'");
+    assert(p.sender_name === "Bisola A. Guest" && p.status === "reported", "sender name recorded");
+    const inbox = await q("select 1 from notifications where wedding_id=$1 and kind='asoebi_transfer_reported'", [weddingId]);
+    assert(inbox.length === 1, "couple gets an in-app alert to check their bank");
   });
 
-  await scenario("4 · Couple sees the guest's name, package, payment status and address on the dashboard", async () => {
+  await scenario("4 · Couple sees the guest's name, package, payment status and location, then confirms the money arrived", async () => {
     await couple.goto(`${APP}/app/guests?q=Bisola`);
     const row = await couple.textContent("table");
-    assert(row?.includes("Bisola Guest") && row.includes("Female package") && row.includes("Paid") && row.includes("12 Admiralty Way"), "register row should be complete");
+    assert(row?.includes("Bisola Guest") && row.includes("Female package") && row.includes("Says paid") && row.includes("12 Admiralty Way"), "register row should be complete");
+    await couple.goto(`${APP}/app/orders`);
+    assert((await couple.textContent("body"))?.includes("Bisola A. Guest"), "sender name shown to help match the bank alert");
+    await couple.click("li:has-text('Bisola Guest') button:has-text('Confirm received')");
+    await couple.waitForFunction(() => !document.body.innerText.includes("Check your bank for these"));
+    const [o] = await q<{ status: string; amount_paid: string; total: string }>("select status, amount_paid, total from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
+    assert(o.status === "paid" && o.amount_paid === o.total, "order should be confirmed paid");
+    const receipt = await guest.request.get(`${APP}/api/receipts/${orderUrl.match(/AE-\w+/)![0]}?t=${new URL(orderUrl).searchParams.get("t")}`);
+    assert(receipt.ok() && (await receipt.body()).subarray(0, 4).toString() === "%PDF", "receipt PDF should download once confirmed");
+    assert(emails.some((e) => e.to.includes(`bisola-${stamp}@example.com`) && e.subject.includes("Payment confirmed")), "confirmation email sent to the guest");
   });
 
   await scenario("5 · Couple exports the updated register to Excel", async () => {
@@ -256,43 +242,37 @@ async function main() {
     let found = false;
     ws.eachRow((r) => {
       const v = (r.values as unknown[]).map(String);
-      if (v.includes("Bisola Guest") && v.includes("Paid")) found = true;
+      if (v.includes("Bisola Guest") && v.includes("Paid (confirmed)") && v.includes("Bisola A. Guest")) found = true;
     });
-    assert(found, "export should contain the paid guest");
+    assert(found, "export should contain the paid guest with sender name");
   });
 
-  await scenario("6 · A pending payment is NOT marked paid until verified (incl. signed webhook, replay & forgery)", async () => {
+  await scenario("6 · An order is never shown as paid until the guest says so, and the couple can mark a claim “not received”", async () => {
     const p2 = await guestCtx.newPage();
-    const url = await placeOrder(p2, "Pending Payer", "0703 111 2222", `pending-${stamp}@example.com`);
-    nextStatus = "pending";
-    await p2.click("button:has-text('Pay securely with Paystack')");
-    await p2.waitForURL(/r=pending/);
-    assert((await p2.textContent("body"))?.includes("We're confirming your payment"), "guest sees pending, not success");
-    const [o] = await q<{ id: string; status: string; amount_paid: string }>("select id,status,amount_paid from asoebi_orders where full_name='Pending Payer' and wedding_id=$1", [weddingId]);
-    assert(o.status === "pending_payment" && o.amount_paid === "0", "returning to the site must not mark the order paid");
-    const [p] = await q<{ reference: string; amount: string }>("select reference, amount from payments where order_id=$1", [o.id]);
-
-    const forged = await webhook({ event: "charge.success", data: { reference: p.reference, id: 1 } }, "wrong-secret");
-    assert(forged.status === 401, "forged webhook must be rejected");
-    // Webhook arrives but Paystack still says pending → still unpaid
-    await webhook({ event: "charge.success", data: { reference: p.reference, id: 2 } });
-    assert((await q<{ status: string }>("select status from asoebi_orders where id=$1", [o.id]))[0].status === "pending_payment", "payload alone must not mark paid — re-verification still says pending");
-    // Bank settles
-    txs.get(p.reference)!.status = "success";
-    const ok = await webhook({ event: "charge.success", data: { reference: p.reference, id: 3 } });
-    assert(ok.ok, "valid webhook should be accepted");
-    const replay = await (await webhook({ event: "charge.success", data: { reference: p.reference, id: 3 } })).json();
-    assert(replay.duplicate === true, "replayed webhook should be ignored");
-    await fetch(url.replace("?t=", "/return?t=") + `&reference=${p.reference}`, { redirect: "manual" });
-    const [after] = await q<{ status: string; amount_paid: string; total: string }>("select status, amount_paid, total from asoebi_orders where id=$1", [o.id]);
-    assert(after.status === "paid" && after.amount_paid === after.total, `paid exactly once (got ${after.amount_paid}/${after.total})`);
-    const applied = await q("select 1 from payments where order_id=$1 and applied_at is not null", [o.id]);
-    assert(applied.length === 1, "payment applied exactly once");
+    await placeOrder(p2, "Pending Payer", "0703 111 2222", "");
+    const [o] = await q<{ id: string; status: string }>("select id, status from asoebi_orders where full_name='Pending Payer' and wedding_id=$1", [weddingId]);
+    assert(o.status === "pending_payment", "no claim yet → not paid");
+    const awaiting = await couple.request.get(`${APP}/api/exports/register?filter=awaiting`);
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load((await awaiting.body()) as unknown as ArrayBuffer);
+    let listed = false;
+    wb.getWorksheet("Register")!.eachRow((r) => { if ((r.values as unknown[]).map(String).includes("Pending Payer")) listed = true; });
+    assert(listed, "unpaid guest appears in the awaiting-payment export");
+    await p2.click("button:has-text('I have sent the money')");
+    await p2.waitForSelector("text=You've been recorded as paid");
+    await couple.goto(`${APP}/app/orders/${o.id}`);
+    couple.once("dialog", (d: { accept: () => void }) => d.accept());
+    await couple.click("button:has-text('Not received')");
+    await couple.waitForSelector("text=Mark as paid (I received it)");
+    const [after] = await q<{ status: string; amount_paid: string }>("select status, amount_paid from asoebi_orders where id=$1", [o.id]);
+    assert(after.status === "pending_payment" && after.amount_paid === "0", "claim rejected → back to not paid");
+    const audit = await q("select 1 from audit_logs where entity_id=$1 and action='transfer.not_received'", [o.id]);
+    assert(audit.length === 1, "rejection is audit-logged");
   });
 
   await scenario("7 · Guest updates their delivery address; dashboard and export reflect it", async () => {
     await guest.goto(orderUrl);
-    await guest.click("text=Change delivery address");
+    await guest.click("text=Change address");
     await guest.fill("input[name=street]", "7 Bourdillon Road");
     await guest.fill("input[name=area]", "Ikoyi");
     await guest.click("button:has-text('Save address')");
@@ -349,7 +329,8 @@ main()
     if (app?.pid) try { process.kill(-app.pid, "SIGTERM"); } catch {}
     mock.close();
     await pool.end();
-    fs.rmSync(".next-e2e", { recursive: true, force: true });
+    await new Promise((r) => setTimeout(r, 1500));
+    try { fs.rmSync(".next-e2e", { recursive: true, force: true, maxRetries: 5, retryDelay: 500 }); } catch {}
     const failed = results.filter((r) => !r[1]);
     console.log(`\n${results.length - failed.length}/${results.length} scenarios passed`);
     process.exit(failed.length ? 1 : 0);

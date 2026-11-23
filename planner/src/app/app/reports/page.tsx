@@ -83,7 +83,7 @@ export default async function Reports() {
         <Card title="Aso Ebi register" folio="d.">
           <div className="flex flex-wrap gap-2 text-sm">
             <a className="bg-ink px-3 py-2 font-semibold text-ivory" href="/api/exports/register?filter=all">Entire register</a>
-            <a className="border border-linen px-3 py-2 font-semibold hover:border-gold" href="/api/exports/register?filter=paid">Paid only</a>
+            <a className="border border-linen px-3 py-2 font-semibold hover:border-gold" href="/api/exports/register?filter=paid">Guests who have paid</a>
             <a className="border border-linen px-3 py-2 font-semibold hover:border-gold" href="/api/exports/register?filter=awaiting">Awaiting payment</a>
             <a className="border border-linen px-3 py-2 font-semibold hover:border-gold" href="/api/exports/register?filter=delivery">Delivery addresses</a>
           </div>

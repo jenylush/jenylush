@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, inArray, or, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   campaigns,
@@ -13,20 +13,17 @@ import {
   weddings,
 } from "@/db/schema";
 import { audit } from "./audit";
-import { appUrl } from "./config";
 import { fmtDateTime, todayISO } from "./dates";
 import { orderStatusFor, orderTotals } from "./finance";
-import { orderCode, paymentReference, secretToken } from "./ids";
-import { paymentProvider, type VerifiedTransaction } from "./integrations/paystack";
+import { orderCode, secretToken } from "./ids";
 import { naira } from "./money";
 import { notifyCouple, notifyGuest } from "./notify";
 
 export const GUEST_STATUS = [
   "Invited",
   "Link sent",
-  "Order started",
-  "Payment pending",
-  "Partially paid",
+  "Ordered, not paid",
+  "Says paid",
   "Payment confirmed",
   "Order completed",
   "Delivery pending",
@@ -45,9 +42,10 @@ export const DELIVERY_LABEL = {
 } as const;
 
 export const ORDER_LABEL = {
-  pending_payment: "Payment pending",
+  pending_payment: "Not paid yet",
+  transfer_reported: "Says paid — confirm",
   partially_paid: "Partially paid",
-  paid: "Paid",
+  paid: "Paid (confirmed)",
   cancelled: "Cancelled",
 } as const;
 
@@ -57,14 +55,12 @@ export function guestStatus(
     status: keyof typeof ORDER_LABEL;
     deliveryMethod: "delivery" | "pickup";
     delivery?: { status: keyof typeof DELIVERY_LABEL } | null;
-    payments?: Array<{ status: string }>;
   } | null,
 ): GuestStatus {
   if (!o) return g.linkSentAt ? "Link sent" : "Invited";
   if (o.status === "cancelled") return "Cancelled";
-  if (o.status === "pending_payment")
-    return o.payments?.some((p) => p.status === "pending" || p.status === "initialized") ? "Payment pending" : "Order started";
-  if (o.status === "partially_paid") return "Partially paid";
+  if (o.status === "pending_payment" || o.status === "partially_paid") return "Ordered, not paid";
+  if (o.status === "transfer_reported") return "Says paid";
   const d = o.delivery?.status ?? "awaiting";
   if (d === "delivered") return o.deliveryMethod === "pickup" ? "Order completed" : "Delivered";
   if (d === "awaiting") return "Payment confirmed";
@@ -106,7 +102,7 @@ export async function publicCampaign(slug: string) {
 export interface OrderInput {
   fullName: string;
   phone: string;
-  email: string;
+  email?: string | null;
   items: Array<{ packageId: string; quantity: number }>;
   deliveryMethod: "delivery" | "pickup";
   address?: { street: string; area: string; city: string; state: string; landmark?: string; instructions?: string };
@@ -150,16 +146,16 @@ export async function createOrder(slug: string, input: OrderInput) {
         await tx
           .select()
           .from(guests)
-          .where(and(eq(guests.weddingId, wedding.id), or(eq(guests.phone, input.phone), sql`lower(${guests.email}) = lower(${input.email})`)))
+          .where(and(eq(guests.weddingId, wedding.id), input.email ? or(eq(guests.phone, input.phone), sql`lower(${guests.email}) = lower(${input.email})`) : eq(guests.phone, input.phone)))
           .limit(1)
       )[0];
     if (!guest)
       [guest] = await tx
         .insert(guests)
-        .values({ weddingId: wedding.id, name: input.fullName, phone: input.phone, email: input.email, category: "Self-registered", inviteToken: secretToken(9) })
+        .values({ weddingId: wedding.id, name: input.fullName, phone: input.phone, email: input.email ?? null, category: "Self-registered", inviteToken: secretToken(9) })
         .returning();
     else if (!guest.email || !guest.phone)
-      await tx.update(guests).set({ email: guest.email ?? input.email, phone: guest.phone ?? input.phone }).where(eq(guests.id, guest.id));
+      await tx.update(guests).set({ email: guest.email ?? input.email ?? null, phone: guest.phone ?? input.phone }).where(eq(guests.id, guest.id));
 
     const [o] = await tx
       .insert(orders)
@@ -171,12 +167,11 @@ export async function createOrder(slug: string, input: OrderInput) {
         accessToken: secretToken(24),
         fullName: input.fullName,
         phone: input.phone,
-        email: input.email.toLowerCase(),
+        email: input.email?.toLowerCase() ?? null,
         deliveryMethod: input.deliveryMethod,
         subtotal: totals.subtotal,
         deliveryFee: totals.deliveryFee,
         total: totals.total,
-        paymentPlan: campaign.allowInstalments ? "instalments" : "full",
       })
       .returning();
     await tx.insert(orderItems).values(
@@ -205,7 +200,7 @@ export async function createOrder(slug: string, input: OrderInput) {
 export async function orderForGuest(code: string, token: string) {
   const o = await db.query.orders.findFirst({
     where: and(eq(orders.code, code), eq(orders.accessToken, token)),
-    with: { items: true, address: true, delivery: true, payments: { orderBy: (p, { desc }) => [desc(p.createdAt)] }, campaign: true },
+    with: { items: true, address: true, delivery: true, payments: { orderBy: (p, { desc }) => [desc(p.reportedAt)] }, campaign: true },
   });
   if (!o) return null;
   const [wedding] = await db.select().from(weddings).where(eq(weddings.id, o.weddingId));
@@ -215,166 +210,96 @@ export async function orderForGuest(code: string, token: string) {
 export const guestOrderUrl = (o: { code: string; accessToken: string }) =>
   `/asoebi/order/${o.code}?t=${encodeURIComponent(o.accessToken)}`;
 
-/** The amount a guest may pay now, respecting the couple's instalment rules. */
-export function paymentBounds(o: { total: number; amountPaid: number; paymentPlan: string }, minDepositPercent: number) {
-  const outstanding = Math.max(0, o.total - o.amountPaid);
-  if (o.paymentPlan !== "instalments") return { min: outstanding, max: outstanding, outstanding };
-  const deposit = o.amountPaid === 0 ? Math.ceil((o.total * minDepositPercent) / 100) : Math.min(outstanding, 500_000);
-  return { min: Math.min(outstanding, deposit), max: outstanding, outstanding };
-}
-
-/** Create a pending payment record and a Paystack checkout. Throws PaymentNotConfiguredError without keys. */
-export async function startPayment(code: string, token: string, requested?: number) {
-  const found = await orderForGuest(code, token);
-  if (!found) throw new OrderError("Order not found.");
-  const { order, wedding } = found;
-  if (order.status === "cancelled") throw new OrderError("This order was cancelled.");
-  const bounds = paymentBounds(order, order.campaign.minDepositPercent);
-  if (bounds.outstanding === 0) throw new OrderError("This order is already fully paid.");
-  const amount = requested ? Math.round(requested) : bounds.max;
-  if (amount < bounds.min || amount > bounds.max) throw new OrderError(`Enter an amount between ${naira(bounds.min)} and ${naira(bounds.max)}.`);
-
-  const provider = paymentProvider();
-  if (!provider.configured()) {
-    const { PaymentNotConfiguredError } = await import("./integrations/paystack");
-    throw new PaymentNotConfiguredError();
-  }
-  const reference = paymentReference(order.code);
-  const [p] = await db
-    .insert(payments)
-    .values({ weddingId: wedding.id, orderId: order.id, provider: provider.name, reference, amount, currency: "NGN", status: "initialized" })
-    .returning();
-  try {
-    const init = await provider.initialize({
-      email: order.email,
-      amount,
-      reference,
-      callbackUrl: `${appUrl()}/asoebi/order/${order.code}/return?t=${encodeURIComponent(order.accessToken)}`,
-      metadata: { order_code: order.code, order_id: order.id, wedding_id: wedding.id, payment_id: p.id },
-    });
-    await db.update(payments).set({ authorizationUrl: init.authorizationUrl, status: "pending" }).where(eq(payments.id, p.id));
-    return init.authorizationUrl;
-  } catch (e) {
-    await db.update(payments).set({ status: "failed", gatewayResponse: e instanceof Error ? e.message : "initialize failed" }).where(eq(payments.id, p.id));
-    throw e;
-  }
-}
-
-export type ApplyResult = "applied" | "already_applied" | "not_successful" | "mismatch" | "unknown_reference";
+/* ─── Bank-transfer payments (MVP — no payment gateway) ────────────── */
 
 /**
- * Apply a transaction that has been VERIFIED with the gateway's server API.
- * Called from both the redirect handler and the signed webhook; whichever arrives
- * first wins and the other becomes a no-op (row lock + applied_at guard).
+ * The guest taps "I have sent the money". This records them in the register straight
+ * away as "Says paid"; the couple then checks their bank app and confirms (or marks it
+ * not received). Reporting twice for the same order is a no-op.
  */
-export async function applyVerifiedTransaction(tx: VerifiedTransaction, source: "webhook" | "redirect" | "reconcile"): Promise<ApplyResult> {
-  const outcome = await db.transaction(async (t) => {
-    const [p] = await t.select().from(payments).where(eq(payments.reference, tx.reference)).for("update");
-    if (!p) return { result: "unknown_reference" as const };
-    if (p.appliedAt) return { result: "already_applied" as const, p };
-
-    if (tx.status !== "success") {
-      const status = tx.status === "reversed" ? "failed" : tx.status;
-      await t.update(payments).set({ status, gatewayResponse: tx.gatewayResponse, raw: tx.raw as object, verifiedAt: new Date() }).where(eq(payments.id, p.id));
-      return { result: "not_successful" as const, p };
-    }
-    if (tx.amount !== p.amount || tx.currency !== p.currency) {
-      await t.update(payments).set({ status: "failed", gatewayResponse: `Amount/currency mismatch: got ${tx.amount} ${tx.currency}, expected ${p.amount} ${p.currency}`, raw: tx.raw as object, verifiedAt: new Date() }).where(eq(payments.id, p.id));
-      await audit({ weddingId: p.weddingId, actor: "system", action: "payment.mismatch", entityType: "payment", entityId: p.id, summary: `Rejected ${tx.reference}: amount or currency did not match`, after: { tx: tx.amount, expected: p.amount } }, t);
-      return { result: "mismatch" as const, p };
-    }
-
-    const now = new Date();
-    await t.update(payments).set({ status: "success", channel: tx.channel, gatewayResponse: tx.gatewayResponse, paidAt: tx.paidAt ? new Date(tx.paidAt) : now, verifiedAt: now, appliedAt: now, raw: tx.raw as object }).where(eq(payments.id, p.id));
-    const [o] = await t.select().from(orders).where(eq(orders.id, p.orderId)).for("update");
-    const amountPaid = o.amountPaid + p.amount;
-    const status = orderStatusFor(o.total, amountPaid, !!o.cancelledAt);
-    const [updated] = await t.update(orders).set({ amountPaid, status }).where(eq(orders.id, o.id)).returning();
-    await audit({ weddingId: p.weddingId, actor: source === "webhook" ? "webhook" : "system", action: "payment.verified", entityType: "order", entityId: o.id, summary: `${naira(p.amount)} verified for ${o.code} via ${source} (${tx.reference})`, before: { amountPaid: o.amountPaid, status: o.status }, after: { amountPaid, status } }, t);
-    return { result: "applied" as const, p: { ...p, paidAt: tx.paidAt ? new Date(tx.paidAt) : now }, order: updated };
-  });
-
-  if (outcome.result === "applied" && outcome.order) await afterPaymentApplied(outcome.order.id, outcome.p.id);
-  return outcome.result;
-}
-
-async function afterPaymentApplied(orderId: string, paymentId: string) {
-  const o = await db.query.orders.findFirst({ where: eq(orders.id, orderId), with: { items: true, address: true } });
-  const p = (await db.select().from(payments).where(eq(payments.id, paymentId)))[0];
-  if (!o || !p) return;
-  const [wedding] = await db.select().from(weddings).where(eq(weddings.id, o.weddingId));
-  const couple = `${wedding.partnerOneName} & ${wedding.partnerTwoName}`;
-  const pkg = o.items.map((i) => `${i.quantity} × ${i.packageName}`).join(", ");
+export async function reportTransfer(code: string, token: string, info: { senderName?: string; reference?: string }) {
+  const found = await orderForGuest(code, token);
+  if (!found) throw new OrderError("Order not found.");
+  const { order: o, wedding } = found;
+  if (o.status === "cancelled") throw new OrderError("This order was cancelled. Please contact the couple.");
+  if (o.status === "paid") return o;
   const outstanding = o.total - o.amountPaid;
-  await notifyGuest(wedding, { email: o.email, phone: o.phone }, {
-    type: "asoebi_receipt",
-    trigger: "Payment verified",
-    title: `Payment received — ${o.code}`,
-    body: `${naira(p.amount)} received for ${pkg}`,
-    dedupeKey: `payment:${p.id}:receipt`,
-    entity: { type: "order", id: o.id },
-    email: {
-      eyebrow: `${couple} · Aso Ebi`,
-      title: outstanding > 0 ? "We've received your part-payment" : "Your Aso Ebi is paid for",
-      intro: `Thank you, ${o.fullName.split(" ")[0]}. This is your receipt.`,
-      rows: [
-        ["Order ID", o.code],
-        ["Package", pkg],
-        ["Amount paid", naira(p.amount)],
-        ["Payment reference", p.reference],
-        ["Date", fmtDateTime(p.paidAt)],
-        ["Status", outstanding > 0 ? `Part-paid · ${naira(outstanding)} outstanding` : "Paid in full"],
-      ],
-      cta: { label: "View or download receipt", href: guestOrderUrl(o) },
-    },
-    whatsapp: { template: process.env.WHATSAPP_TEMPLATE_CONFIRMATION ?? "order_confirmation", params: [o.fullName, o.code, naira(p.amount), couple] },
+  const already = o.payments.find((p) => p.status === "reported");
+  await db.transaction(async (tx) => {
+    if (already) await tx.update(payments).set({ senderName: info.senderName ?? already.senderName, reference: info.reference ?? already.reference, reportedAt: new Date() }).where(eq(payments.id, already.id));
+    else await tx.insert(payments).values({ weddingId: wedding.id, orderId: o.id, amount: outstanding, senderName: info.senderName ?? null, reference: info.reference ?? null, source: "guest" });
+    await tx.update(orders).set({ status: "transfer_reported" }).where(eq(orders.id, o.id));
+    await audit({ weddingId: wedding.id, actor: "guest", action: "transfer.reported", entityType: "order", entityId: o.id, summary: `${o.fullName} says they sent ${naira(outstanding)} for ${o.code}${info.senderName ? ` (from ${info.senderName})` : ""}` }, tx);
   });
-  await notifyCouple(wedding, {
-    type: "asoebi_payment_confirmed",
-    trigger: "Payment verified with Paystack",
-    title: `${o.fullName} paid ${naira(p.amount)}`,
-    body: `${o.code} · ${pkg}${outstanding > 0 ? ` · ${naira(outstanding)} outstanding` : " · paid in full"}`,
-    href: `/app/orders/${o.id}`,
-    dedupeKey: `payment:${p.id}:couple`,
-    entity: { type: "order", id: o.id },
-    email: { eyebrow: "Aso Ebi payment", title: `${o.fullName} paid ${naira(p.amount)}`, rows: [["Order", o.code], ["Package", pkg], ["Reference", p.reference], ["Outstanding", naira(outstanding)]], cta: { label: "Open the order", href: `/app/orders/${o.id}` } },
-  });
-  if (o.deliveryMethod === "delivery" && !o.address)
-    await notifyCouple(wedding, { type: "missing_address", trigger: "Paid order has no delivery address", title: `Missing delivery address — ${o.code}`, body: `${o.fullName} has paid but hasn't given an address.`, href: `/app/orders/${o.id}`, dedupeKey: `order:${o.id}:missing-address` });
+  if (!already)
+    await notifyCouple(wedding, {
+      type: "asoebi_transfer_reported",
+      trigger: "Guest tapped “I have sent the money”",
+      title: `${o.fullName} says they've paid ${naira(outstanding)}`,
+      body: `${o.code}${info.senderName ? ` · sender: ${info.senderName}` : ""} — check your bank and confirm.`,
+      href: `/app/orders/${o.id}`,
+      dedupeKey: `order:${o.id}:reported`,
+      entity: { type: "order", id: o.id },
+    });
+  return o;
 }
 
-/** Re-check pending payments with the gateway (used by the cron job and the "Re-check" button). */
-export async function reconcilePending(weddingId?: string) {
-  const provider = paymentProvider();
-  if (!provider.configured()) return { checked: 0, applied: 0 };
-  const rows = await db
-    .select({ reference: payments.reference })
-    .from(payments)
-    .where(and(inArray(payments.status, ["pending", "initialized"]), eq(payments.provider, provider.name), weddingId ? eq(payments.weddingId, weddingId) : undefined))
-    .limit(100);
-  let applied = 0;
-  for (const r of rows) {
-    try {
-      const tx = await provider.verify(r.reference);
-      if ((await applyVerifiedTransaction(tx, "reconcile")) === "applied") applied++;
-    } catch {
-      /* transient — try again next run */
-    }
+/** Couple confirms the money arrived (or records a transfer themselves). */
+export async function confirmTransfer(orderId: string, weddingId: string, user: { id: string; name: string }) {
+  const result = await db.transaction(async (tx) => {
+    const [o] = await tx.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.weddingId, weddingId))).for("update");
+    if (!o) throw new Error("Order not found.");
+    if (o.status === "paid") return null;
+    const outstanding = o.total - o.amountPaid;
+    const [reported] = await tx.select().from(payments).where(and(eq(payments.orderId, o.id), eq(payments.status, "reported")));
+    const now = new Date();
+    if (reported) await tx.update(payments).set({ status: "confirmed", amount: outstanding, confirmedAt: now, confirmedBy: user.id }).where(eq(payments.id, reported.id));
+    else await tx.insert(payments).values({ weddingId, orderId: o.id, amount: outstanding, status: "confirmed", source: "couple", reportedAt: now, confirmedAt: now, confirmedBy: user.id });
+    const [updated] = await tx.update(orders).set({ amountPaid: o.total, status: orderStatusFor(o.total, o.total, !!o.cancelledAt) }).where(eq(orders.id, o.id)).returning();
+    await audit({ weddingId, userId: user.id, action: "transfer.confirmed", entityType: "order", entityId: o.id, summary: `${user.name} confirmed ${naira(outstanding)} received for ${o.code} (${o.fullName})`, before: { status: o.status, amountPaid: o.amountPaid }, after: { status: updated.status, amountPaid: updated.amountPaid } }, tx);
+    return { order: updated, amount: outstanding };
+  });
+  if (!result) return;
+  const { order: o, amount } = result;
+  if (o.email) {
+    const [w] = await db.select().from(weddings).where(eq(weddings.id, weddingId));
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, o.id));
+    await notifyGuest(w, { email: o.email }, {
+      type: "asoebi_receipt",
+      trigger: "Couple confirmed transfer",
+      title: `Payment confirmed — ${o.code}`,
+      body: `${naira(amount)} received`,
+      dedupeKey: `order:${o.id}:confirmed`,
+      entity: { type: "order", id: o.id },
+      email: {
+        eyebrow: `${w.partnerOneName} & ${w.partnerTwoName} · Aso Ebi`,
+        title: "Your Aso Ebi payment is confirmed",
+        intro: `Thank you, ${o.fullName.split(" ")[0]}. We've received your transfer.`,
+        rows: [["Order ID", o.code], ["Package", items.map((i) => `${i.quantity} × ${i.packageName}`).join(", ")], ["Amount", naira(amount)], ["Confirmed", fmtDateTime(new Date())]],
+        cta: { label: "View your order", href: guestOrderUrl(o) },
+      },
+    });
   }
-  return { checked: rows.length, applied };
 }
 
-export async function markRefunded(reference: string, source: string) {
-  return db.transaction(async (t) => {
-    const [p] = await t.select().from(payments).where(eq(payments.reference, reference)).for("update");
-    if (!p || p.status === "refunded") return false;
-    await t.update(payments).set({ status: "refunded", refundedAt: new Date() }).where(eq(payments.id, p.id));
-    if (p.appliedAt) {
-      const [o] = await t.select().from(orders).where(eq(orders.id, p.orderId)).for("update");
-      const amountPaid = Math.max(0, o.amountPaid - p.amount);
-      await t.update(orders).set({ amountPaid, status: orderStatusFor(o.total, amountPaid, !!o.cancelledAt) }).where(eq(orders.id, o.id));
-      await audit({ weddingId: p.weddingId, actor: "webhook", action: "payment.refunded", entityType: "order", entityId: o.id, summary: `${naira(p.amount)} refunded on ${o.code} (${source})`, before: { amountPaid: o.amountPaid }, after: { amountPaid } }, t);
-    }
-    return true;
+/** Couple checked and the money hasn't arrived — back to "Not paid yet". */
+export async function rejectTransfer(orderId: string, weddingId: string, user: { id: string; name: string }) {
+  await db.transaction(async (tx) => {
+    const [o] = await tx.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.weddingId, weddingId))).for("update");
+    if (!o || o.status !== "transfer_reported") return;
+    await tx.update(payments).set({ status: "not_received", confirmedAt: new Date(), confirmedBy: user.id }).where(and(eq(payments.orderId, o.id), eq(payments.status, "reported")));
+    await tx.update(orders).set({ status: orderStatusFor(o.total, o.amountPaid, !!o.cancelledAt) }).where(eq(orders.id, o.id));
+    await audit({ weddingId, userId: user.id, action: "transfer.not_received", entityType: "order", entityId: o.id, summary: `${user.name} marked the transfer for ${o.code} as not received` }, tx);
+  });
+}
+
+/** Undo a confirmation made by mistake. */
+export async function unconfirmTransfer(orderId: string, weddingId: string, user: { id: string; name: string }) {
+  await db.transaction(async (tx) => {
+    const [o] = await tx.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.weddingId, weddingId))).for("update");
+    if (!o || o.status !== "paid") return;
+    await tx.update(payments).set({ status: "reported", confirmedAt: null, confirmedBy: null }).where(and(eq(payments.orderId, o.id), eq(payments.status, "confirmed")));
+    await tx.update(orders).set({ amountPaid: 0, status: "transfer_reported" }).where(eq(orders.id, o.id));
+    await audit({ weddingId, userId: user.id, action: "transfer.unconfirmed", entityType: "order", entityId: o.id, summary: `${user.name} undid the payment confirmation for ${o.code}` }, tx);
   });
 }

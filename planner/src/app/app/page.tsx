@@ -150,7 +150,7 @@ export default async function Overview() {
                 {d.recentPayments.length > 0 && (
                   <ul className="mt-4 space-y-2 border-t border-linen pt-3 text-xs">
                     {d.recentPayments.map(({ p, o }) => (
-                      <li key={p.id} className="flex justify-between gap-2"><span className="truncate">{o.fullName} <span className="text-faint">· {fmtDateTime(p.paidAt)}</span></span><Money value={p.amount} /></li>
+                      <li key={p.id} className="flex justify-between gap-2"><span className="truncate">{o.fullName} <span className="text-faint">· {fmtDateTime(p.reportedAt)}</span></span><Money value={p.amount} /></li>
                     ))}
                   </ul>
                 )}

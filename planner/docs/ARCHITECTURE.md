@@ -1,21 +1,21 @@
 # Owambe Ledger — architecture
 
 A multi-tenant SaaS for Nigerian couples: wedding budget & vendor management (Module 1) and
-a guest-facing Aso Ebi ordering & payment portal (Module 2), tied together by an
+a guest-facing Aso Ebi ordering portal paid by direct bank transfer (Module 2), tied together by an
 automation & notification centre (Module 3).
 
 ## 1. Stack
 
 | Concern | Choice | Why |
 |---|---|---|
-| App | **Next.js 15 (App Router) + React 19 + TypeScript** | Server components for data-heavy pages, server actions for forms, route handlers for webhooks/exports — one deployable. |
+| App | **Next.js 15 (App Router) + React 19 + TypeScript** | Server components for data-heavy pages, server actions for forms, route handlers for exports and cron — one deployable. |
 | Styling | **Tailwind CSS v4** with design tokens in `globals.css` | Fonts self-hosted via `@fontsource` (Fraunces, Manrope, IBM Plex Mono). |
 | Database | **PostgreSQL** via **Drizzle ORM** (`pg` driver) | Typed schema in `src/db/schema.ts`, SQL migrations in `drizzle/`. Works with Supabase, Neon, RDS or local Postgres. |
 | Auth | Built-in email + password: bcrypt (cost 12) hashes, random 256-bit session tokens stored **hashed** (SHA-256), `httpOnly` `SameSite=Lax` cookies | No vendor lock-in; easy to swap for Supabase Auth later (only `src/lib/auth.ts` changes). |
 | Files | Storage adapter: local disk (dev) or **Supabase Storage** (`STORAGE_DRIVER=supabase`) | Fabric photos are public; receipts/contracts are private and only served to members of that wedding. |
-| Payments | **Paystack** behind a `PaymentProvider` interface | Flutterwave = one new adapter file implementing `initialize / verify / verifyWebhookSignature`. |
+| Payments | **Direct bank transfer** (MVP) | The couple's bank details live on the campaign. No gateway; a provider can be added later behind the same order model. |
 | Email | **Resend** REST API | Table-based, client-safe HTML template. |
-| WhatsApp | **WhatsApp Business Cloud API** (approved templates) + `wa.me` share links (no credentials needed) | Flow replies are accepted only as structured, signed webhooks. |
+| Sharing | `wa.me`, email, SMS and social share links | No WhatsApp API — the couple shares one link wherever they like. |
 | Exports | `exceljs` (.xlsx), `pdf-lib` + embedded DejaVu (₦ glyph) (.pdf), `docx` (.docx for Word/Google Docs), CSV + live `IMPORTDATA` feed for Google Sheets | |
 | Scheduling | `GET /api/cron/reminders` (Bearer `CRON_SECRET`), daily via `vercel.json` | Idempotent — safe to run as often as you like. |
 
@@ -32,39 +32,32 @@ automation & notification centre (Module 3).
 * Input validation with **zod** on every action (Nigerian phone normalisation to E.164,
   36 states + FCT, kobo money parsing). Uploads restricted to JPG/PNG/WEBP/PDF ≤ 8 MB.
 * Secrets are only read server-side (`src/lib/config.ts`); nothing is prefixed `NEXT_PUBLIC_`.
-* Public endpoints (order placement, payment start) are rate-limited.
+* Public endpoints (order placement, “I have sent the money”) are rate-limited.
 * **Audit log** (`audit_logs`) records every financial change: budget edits, expense
   create/update/delete, payments recorded/deleted, gateway verifications, mismatches,
-  refunds, manual transfers, address changes and delivery updates — with actor
-  (`user`/`guest`/`webhook`/`system`) and before/after values.
+  transfers reported / confirmed / rejected, address changes and delivery updates — with actor
+  (`user`/`guest`/`system`) and before/after values.
 
-## 3. Payment integrity (Aso Ebi)
+## 3. Aso Ebi payments (MVP: bank transfer)
 
 ```
-Guest ──Pay──▶ startPayment()  ─ creates payments row (status=initialized, unique reference)
-                    │            ─ Paystack /transaction/initialize (amount in kobo, NGN)
-                    ▼
-             Paystack checkout ──redirect──▶ /asoebi/order/:code/return
-                    │                              │  verify(reference) server→Paystack
-                    │                              ▼
-                    └──signed webhook──▶ /api/webhooks/paystack
-                                          │ 1. HMAC-SHA512 signature over raw body
-                                          │ 2. webhook_events unique dedupe key (replays ignored)
-                                          │ 3. verify(reference) with Paystack API again
-                                          ▼
-                         applyVerifiedTransaction()  (single DB transaction)
-                           SELECT … FOR UPDATE on the payment row
-                           applied_at already set?  → no-op (idempotent)
-                           status ≠ success?        → record pending/failed, order unchanged
-                           amount/currency mismatch → reject + audit
-                           else → payment success, order.amount_paid += amount,
-                                  status recomputed, audit, then receipts & notifications
+Guest fills in the form ──▶ order created: "Not paid yet"
+        │                    (appears in the register immediately)
+        ▼
+Order page shows bank, account number, account name and amount (with copy buttons)
+        │
+Guest transfers in their bank app, then taps “I have sent the money”
+        ▼
+payments row: status=reported, sender name ─▶ order: "Says paid" (in the register + export)
+        │                                      couple gets an in-app alert
+        ▼
+Couple checks their bank app on Orders & Payments
+   ├─ ✓ Confirm received ─▶ payment confirmed, order "Paid (confirmed)", receipt + email
+   └─ Not received       ─▶ payment not_received, order back to "Not paid yet"
 ```
 
-The success page **never** marks anything paid; it only triggers a server-side verification.
-A cron job re-verifies anything still `pending`. Refunds (`refund.processed`) reverse the
-amount. Couples can also record a direct bank transfer, which is stored as `provider=manual`
-with the user's name in the audit trail.
+A couple can also mark an order paid directly (e.g. cash), or undo a confirmation. Every
+step is written to the audit log with who did it. Tapping the button twice is a no-op.
 
 ## 4. Database schema
 
@@ -90,11 +83,10 @@ users ─┬─< sessions
                                                 │                                ├─< asoebi_order_items
                                                 │                                ├── delivery_addresses (1:1)
                                                 │                                ├── deliveries (1:1)
-                                                │                                └─< payments
+                                                │                                └─< payments (bank transfers: reported → confirmed / not_received)
                                                 ├─< notifications        (in-app inbox)
                                                 ├─< notification_logs    (every email/WhatsApp/in-app delivery, unique dedupe_key)
                                                 └─< audit_logs
-webhook_events (provider, unique dedupe_key, signature result, payload)
 ```
 
 Brief → schema mapping: *Couples* = `weddings` + `memberships`; *Budgets* = `weddings.total_budget`
@@ -112,7 +104,6 @@ Runs daily. For each wedding:
 2. **Checklist tasks/activities** — each task's `remind_days_before`, plus overdue.
 3. **Countdown** — 60/30/14/7/1 days to the wedding with open-task count.
 4. **Aso Ebi guests** with balances, `guest_reminder_days` before the payment deadline.
-5. **Reconcile** pending gateway payments.
 
 Every message has a stable `dedupe_key` (e.g. `sched:<instalment>:<date>:d3|email|<to>`) with a
 unique index — the same reminder can never be sent twice. Deliveries that fail or are skipped
@@ -127,8 +118,9 @@ reports (PDF/XLSX/DOCX/Google Sheets).
 
 **Aso Ebi:** Create campaign → packages & prices → fabric photos → publish → share link
 (WhatsApp/email/SMS/social, or personal tracked links per guest) → watch the register fill
-→ manage deliveries (group by state/city/area, assign riders, bulk dispatch) → export.
+→ confirm transfers → manage deliveries (group by state/city/area, assign riders, bulk dispatch) → export.
 
-**Guest (mobile):** Open link → choose packages (stock-aware) → details & delivery/pickup →
-review & confirm → unique order ID → pay with Paystack (full or deposit) → verified receipt
-(email + PDF) → private order page to pay the balance, update address, track delivery.
+**Guest (mobile):** Open link → choose packages (stock-aware) → name, phone, delivery
+location or pickup → review → unique order ID → bank details → transfer → “I have sent the
+money” → recorded in the register → couple confirms → receipt (PDF, and email if given) →
+private order page to update address and track delivery.
