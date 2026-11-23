@@ -1,0 +1,48 @@
+{
+  "name": "owambe-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Wedding planning, budgeting and Aso Ebi management for Nigerian couples",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:reset": "tsx scripts/reset.ts && npm run db:migrate && npm run db:seed",
+    "test": "vitest run",
+    "test:e2e": "tsx tests/e2e/scenarios.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.5",
+    "@fontsource-variable/manrope": "^5.2.5",
+    "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "bcryptjs": "^3.0.2",
+    "docx": "^9.5.1",
+    "drizzle-orm": "^0.45.0",
+    "exceljs": "^4.4.0",
+    "next": "15.5.29",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.16.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.15.4",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "drizzle-kit": "^0.31.4",
+    "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
