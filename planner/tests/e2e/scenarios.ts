@@ -209,7 +209,7 @@ async function main() {
     await guest.waitForSelector("text=You've been recorded as paid");
     const [o] = await q<{ status: string; amount_paid: string }>("select status, amount_paid from asoebi_orders where full_name='Bisola Guest' and wedding_id=$1", [weddingId]);
     assert(o.status === "transfer_reported" && o.amount_paid === "0", `guest's claim is recorded but not yet confirmed (got ${o.status})`);
-    const [p] = await q<{ sender_name: string; status: string }>("select p.sender_name, p.status from payments p join asoebi_orders o on o.id=p.order_id where o.full_name='Bisola Guest'");
+    const [p] = await q<{ sender_name: string; status: string }>("select p.sender_name, p.status from payments p join asoebi_orders o on o.id=p.order_id where o.full_name='Bisola Guest' and o.wedding_id=$1", [weddingId]);
     assert(p.sender_name === "Bisola A. Guest" && p.status === "reported", "sender name recorded");
     const inbox = await q("select 1 from notifications where wedding_id=$1 and kind='asoebi_transfer_reported'", [weddingId]);
     assert(inbox.length === 1, "couple gets an in-app alert to check their bank");
